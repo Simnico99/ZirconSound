@@ -12,6 +12,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using ZirconSound.Services;
+using ZirconSound.Modules;
+using ZirconSound.Common;
 
 namespace ZirconSound
 {
@@ -37,20 +39,19 @@ namespace ZirconSound
                     x.AddConsole();
                     x.SetMinimumLevel(LogLevel.Debug);
                 })
-                .ConfigureDiscordHost<DiscordSocketClient>((context, config) =>
+                .ConfigureDiscordHost((context, config) =>
                 {
-                    config.SocketConfig = new DiscordSocketConfig()
+                     config.SocketConfig = new DiscordSocketConfig()
                     {
                         LogLevel = LogSeverity.Debug,
                         AlwaysDownloadUsers = false,
-                        MessageCacheSize = 200,
+                        MessageCacheSize = 200, 
                     };
 
                     config.Token = context.Configuration["Token"];
                 })
                 .UseCommandService((context, config) =>
                 {
-
                     config.CaseSensitiveCommands = false;
                     config.LogLevel = LogSeverity.Debug;
                     config.DefaultRunMode = RunMode.Async;
@@ -63,7 +64,10 @@ namespace ZirconSound
                         x.ReconnectDelay = TimeSpan.FromSeconds(1);
                         x.SelfDeaf = true;
                     });
+                    services.AddHostedService<BotStatusService>();
                     services.AddSingleton<AudioService>();
+                    services.AddSingleton<ZirconEmbedBuilder>();
+
                 })
                 .UseConsoleLifetime();
 
@@ -74,16 +78,10 @@ namespace ZirconSound
             {
                 using (host)
                 {
-                    try
-                    {
                         await host.RunAsync().ContinueWith(t => Task.Run(() => lavalink.Kill()), TaskContinuationOptions.None);
-                    }
-                    catch (Exception)
-                    {
-                    }
+  
                 }
             }
-
         }
     }
 }

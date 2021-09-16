@@ -15,6 +15,7 @@ namespace ZirconSound.Services
 {
     class StartupService
     {
+
         public static async Task<Process> StartLavalinkAsync()
         {
             var path = Directory.GetCurrentDirectory();

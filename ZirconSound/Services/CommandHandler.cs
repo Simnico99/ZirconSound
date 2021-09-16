@@ -7,6 +7,7 @@ using Discord.Addons.Hosting;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
+using ZirconSound.Common;
 
 namespace ZirconSound.Services
 {
@@ -19,38 +20,31 @@ namespace ZirconSound.Services
     using Discord.Commands;
     using Discord.WebSocket;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// The class responsible for handling the commands and various events.
     /// </summary>
-    public class CommandHandler : InitializedService
+    public class CommandHandler : DiscordClientService
     {
-        private readonly IServiceProvider provider;
-        private readonly DiscordSocketClient client;
-        private readonly CommandService service;
-        private readonly IConfiguration configuration;
+        private readonly IServiceProvider _provider;
+        private readonly CommandService _commandService;
+        private readonly IConfiguration _config;
+        private readonly DiscordSocketClient _client;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CommandHandler"/> class.
-        /// </summary>
-        /// <param name="provider">The <see cref="IServiceProvider"/> that should be injected.</param>
-        /// <param name="client">The <see cref="DiscordSocketClient"/> that should be injected.</param>
-        /// <param name="service">The <see cref="CommandService"/> that should be injected.</param>
-        /// <param name="configuration">The <see cref="IConfiguration"/> that should be injected.</param>
-        public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService service, IConfiguration configuration)
+        public CommandHandler(DiscordSocketClient client, ILogger<CommandHandler> logger, IServiceProvider provider, CommandService commandService, IConfiguration config) : base(client, logger)
         {
-            this.provider = provider;
-            this.client = client;
-            this.service = service;
-            this.configuration = configuration;
+            _provider = provider;
+            _commandService = commandService;
+            _config = config;
+            _client = client;
         }
-
-        /// <inheritdoc/>
-        public override async Task InitializeAsync(CancellationToken cancellationToken)
+        // This'll be executed during startup.
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            this.client.MessageReceived += this.OnMessageReceived;
-            this.service.CommandExecuted += this.OnCommandExecuted;
-            await this.service.AddModulesAsync(Assembly.GetEntryAssembly(), this.provider);
+            Client.MessageReceived += OnMessageReceived;
+            _commandService.CommandExecuted += OnCommandExecuted;
+            await _commandService.AddModulesAsync(Assembly.GetEntryAssembly(), _provider);
         }
 
         private async Task OnCommandExecuted(Optional<CommandInfo> commandInfo, ICommandContext commandContext, IResult result)
@@ -60,7 +54,9 @@ namespace ZirconSound.Services
                 return;
             }
 
-            await commandContext.Channel.SendMessageAsync(result.ErrorReason);
+            var zirconEmbed = new ZirconEmbedBuilder(ZirconEmbedType.Error);
+            zirconEmbed.AddField("Error:", result.ErrorReason);
+            await commandContext.Channel.SendMessageAsync(embed: zirconEmbed.Build());
         }
 
         private async Task OnMessageReceived(SocketMessage socketMessage)
@@ -76,13 +72,13 @@ namespace ZirconSound.Services
             }
 
             var argPos = 0;
-            if (!message.HasStringPrefix(this.configuration["Prefix"], ref argPos) && !message.HasMentionPrefix(this.client.CurrentUser, ref argPos))
+            if (!message.HasStringPrefix(_config["Prefix"], ref argPos) && !message.HasMentionPrefix(_client.CurrentUser, ref argPos))
             {
                 return;
             }
 
-            var context = new SocketCommandContext(this.client, message);
-            await this.service.ExecuteAsync(context, argPos, this.provider);
+            var context = new SocketCommandContext(_client, message);
+            await _commandService.ExecuteAsync(context, argPos, _provider);
         }
     }
 }
