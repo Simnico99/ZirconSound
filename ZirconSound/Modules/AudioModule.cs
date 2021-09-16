@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Victoria;
 using Victoria.Enums;
 using Victoria.EventArgs;
+using ZirconSound.Common;
 using ZirconSound.Services;
 
 namespace ZirconSound.Modules
@@ -21,7 +22,7 @@ namespace ZirconSound.Modules
 
         public AudioModule(LavaNode lavaNode, AudioService audioService)
         {
-            _lavaNode = audioService.LavaNode;
+            _lavaNode = lavaNode;
             _audioService = audioService;
 
 
@@ -30,13 +31,28 @@ namespace ZirconSound.Modules
         [Command("play")]
         public async Task PlayAsync([Remainder] string query)
         {
-            if (!_lavaNode.IsConnected) 
+            var zirconEmbed = new ZirconEmbedBuilder();
+            zirconEmbed.AddField("Searching", "Searching for current music...");
+            var msg = await ReplyAsync(embed: zirconEmbed.Build());
+
+            var voiceState = Context.User as IVoiceState;
+            if (voiceState?.VoiceChannel == null)
+            {
+                zirconEmbed.AddField("Warning:", "You must be connected to a voice channel!");
+                await ReplyAsync(embed: zirconEmbed.Build());
+                return;
+            }
+
+            if (!_lavaNode.IsConnected)
             {
                 await _lavaNode.ConnectAsync();
             }
+
             if (string.IsNullOrWhiteSpace(query))
             {
-                await ReplyAsync("Please provide search terms.");
+                await msg.ModifyAsync(msg => msg.Embed = new ZirconEmbedBuilder(ZirconEmbedType.Warning)
+                .AddField("Not found", "Please provide search terms")
+                .Build());
                 return;
             }
 
@@ -44,12 +60,23 @@ namespace ZirconSound.Modules
             {
                 await JoinAsync(true);
             }
+            else 
+            {
+                if (voiceState.VoiceChannel != _lavaNode.GetPlayer(Context.Guild).VoiceChannel)
+                {
+                    zirconEmbed.AddField("Warning:", "You need to be in the same voice channel as me!");
+                    await ReplyAsync(embed: zirconEmbed.Build());
+                    return;
+                }
+            }
 
             var searchResponse = await _lavaNode.SearchYouTubeAsync(query);
             if (searchResponse.Status == Victoria.Responses.Search.SearchStatus.LoadFailed ||
                 searchResponse.Status == Victoria.Responses.Search.SearchStatus.NoMatches)
             {
-                await ReplyAsync($"I wasn't able to find anything for `{query}`.");
+                await msg.ModifyAsync(msg => msg.Embed = new ZirconEmbedBuilder(ZirconEmbedType.Warning)
+                .AddField("Not found", $"I wasn't able to find anything for `{query}`.")
+                .Build());
                 return;
             }
 
@@ -63,23 +90,18 @@ namespace ZirconSound.Modules
                     {
                         player.Queue.Enqueue(track);
                     }
-
-                    await ReplyAsync($"Enqueued {searchResponse.Tracks.Count} tracks.");
+                    await msg.ModifyAsync(msg => msg.Embed = new ZirconEmbedBuilder()
+                    .AddField($"Enqueued playlist:", $"Enqueued {searchResponse.Tracks.Count} tracks.")
+                    .Build());
                 }
                 else
                 {
                     var track = searchResponse.Tracks.ToList()[0];
                     player.Queue.Enqueue(track);
 
-                    var embed = new EmbedBuilder
-                    {
-                        Title = "Added to queue:",
-                        Description = $"[{track.Title}]({track.Url})",
-                        Color = Color.DarkBlue,
-                        Timestamp = DateTime.Now,
-                    };
-
-                    await ReplyAsync(embed: embed.Build());
+                    await msg.ModifyAsync(msg => msg.Embed = new ZirconEmbedBuilder()
+                    .AddField("Added to queue:", $"[{track.Title}]({track.Url})")
+                    .Build());
                 }
             }
             else
@@ -92,36 +114,29 @@ namespace ZirconSound.Modules
                     {
                         if (i == 0)
                         {
+                            await _audioService.CancelDisconnect(player);
                             await player.PlayAsync(track);
-                            var embed = new EmbedBuilder
-                            {
-                                Title = "Now Playing:",
-                                Description = $"[{track.Title}]({track.Url})",
-                                Color = Color.DarkBlue,
-                                Timestamp = DateTime.Now,
-                            };
-                            await ReplyAsync(embed: embed.Build());
-                            await ReplyAsync($"{track.Url}");
+
+                            await msg.ModifyAsync(msg => msg.Embed = new ZirconEmbedBuilder()
+                            .AddField("Now Playing:", $"[{track.Title}]({track.Url})")
+                            .Build());
                         }
                         else
                         {
                             player.Queue.Enqueue(searchResponse.Tracks.ToList()[i]);
                         }
                     }
-
-                    await ReplyAsync($"Enqueued {searchResponse.Tracks.Count} tracks.");
+                    await msg.ModifyAsync(msg => msg.Embed = new ZirconEmbedBuilder()
+                    .AddField($"Enqueued playlist:", $"Enqueued {searchResponse.Tracks.Count} tracks.")
+                    .Build());
                 }
                 else
                 {
+                    await _audioService.CancelDisconnect(player);
                     await player.PlayAsync(track);
-                    var embed = new EmbedBuilder
-                    {
-                        Title = "Now Playing:",
-                        Description = $"[{track.Title}]({track.Url})",
-                        Color = Color.DarkBlue,
-                        Timestamp = DateTime.Now,
-                    };
-                    await ReplyAsync(embed: embed.Build());
+                    await msg.ModifyAsync(msg => msg.Embed = new ZirconEmbedBuilder()
+                    .AddField("Now Playing:", $"[{track.Title}]({track.Url})")
+                    .Build());
                 }
             }
         }
@@ -129,27 +144,30 @@ namespace ZirconSound.Modules
         [Command("join")]
         public async Task JoinAsync(bool dontDisconnect = false)
         {
+            var zirconEmbed = new ZirconEmbedBuilder(ZirconEmbedType.Warning);
+
             if (!_lavaNode.IsConnected)
             {
                 await _lavaNode.ConnectAsync();
             }
             if (_lavaNode.HasPlayer(Context.Guild))
             {
-                await ReplyAsync("I'm already connected to a voice channel!");
+                zirconEmbed.AddField("Warning:", "I am already connected to a channel!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
             var voiceState = Context.User as IVoiceState;
             if (voiceState?.VoiceChannel == null)
             {
-                await ReplyAsync("You must be connected to a voice channel!");
+                zirconEmbed.AddField("Warning:", "You must be connected to a voice channel!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
             try
             {
                 await _lavaNode.JoinAsync(voiceState.VoiceChannel, Context.Channel as ITextChannel);
-                await ReplyAsync($"Joined {voiceState.VoiceChannel.Name}!");
                 if (!dontDisconnect)
                 {
                     await _audioService.InitiateDisconnectAsync(_lavaNode.GetPlayer(Context.Guild), TimeSpan.FromSeconds(120));
@@ -157,23 +175,29 @@ namespace ZirconSound.Modules
             }
             catch (Exception exception)
             {
-                await ReplyAsync(exception.Message);
+                zirconEmbed.ChangeType(ZirconEmbedType.Error);
+                zirconEmbed.AddField("Error:", exception.Message);
+                await ReplyAsync(embed: zirconEmbed.Build());
             }
         }
 
         [Command("skip")]
         public async Task SkipAsync()
         {
+            var zirconEmbed = new ZirconEmbedBuilder(ZirconEmbedType.Warning);
+
             var voiceState = Context.User as IVoiceState;
             if (voiceState?.VoiceChannel == null)
             {
-                await ReplyAsync("You must be connected to a voice channel!");
+                zirconEmbed.AddField("Warning:", "You must be connected to a voice channel!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
             if (!_lavaNode.HasPlayer(Context.Guild))
             {
-                await ReplyAsync("I'm not connected to a voice channel!");
+                zirconEmbed.AddField("Warning:", "I'm not connected to a voice channel!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
@@ -181,34 +205,42 @@ namespace ZirconSound.Modules
 
             if (voiceState.VoiceChannel != player.VoiceChannel)
             {
-                await ReplyAsync("You need to be in the same voice channel as me!");
+                zirconEmbed.AddField("Warning:", "You need to be in the same voice channel as me!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
             if (player.Queue.Count == 0)
             {
-                await ReplyAsync("There are no more song in the queue!");
+                zirconEmbed.AddField("Warning:", "There are no more song in the queue!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
 
             await player.SkipAsync();
-            await ReplyAsync($"Skipped! Now playing: **{player.Track.Title}**\n{player.Track.Url}");
+            zirconEmbed.ChangeType(ZirconEmbedType.Info);
+            zirconEmbed.AddField("Skipped:", $"Now playing: [{player.Track.Title}]({player.Track.Url})");
+            await ReplyAsync(embed: zirconEmbed.Build());
         }
 
         [Command("pause")]
         public async Task PauseAsync()
         {
+            var zirconEmbed = new ZirconEmbedBuilder(ZirconEmbedType.Warning);
+
             var voiceState = Context.User as IVoiceState;
             if (voiceState?.VoiceChannel == null)
             {
-                await ReplyAsync("You must be connected to a voice channel!");
+                zirconEmbed.AddField("Warning:", "You must be connected to a voice channel!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
             if (!_lavaNode.HasPlayer(Context.Guild))
             {
-                await ReplyAsync("I'm not connected to a voice channel!");
+                zirconEmbed.AddField("Warning:", "I'm not connected to a voice channel!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
@@ -216,34 +248,43 @@ namespace ZirconSound.Modules
 
             if (voiceState.VoiceChannel != player.VoiceChannel)
             {
-                await ReplyAsync("You need to be in the same voice channel as me!");
+                zirconEmbed.AddField("Warning:", "You need to be in the same voice channel as me!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
             if (player.PlayerState == PlayerState.Paused || player.PlayerState == PlayerState.Stopped)
             {
-                await ReplyAsync("The music is already paused!");
+                zirconEmbed.AddField("Warning:", "The music is already paused!");
+                zirconEmbed.AddField("Paused:", $"[{player.Track.Title}]({player.Track.Url})");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
 
             await player.PauseAsync();
-            await ReplyAsync($"Paused the music!");
+            zirconEmbed.ChangeType(ZirconEmbedType.Info);
+            zirconEmbed.AddField("Paused:", $"Paused: [{player.Track.Title}]({player.Track.Url})");
+            await ReplyAsync(embed: zirconEmbed.Build());
         }
 
         [Command("resume")]
         public async Task ResumeAsync()
         {
+            var zirconEmbed = new ZirconEmbedBuilder(ZirconEmbedType.Warning);
+
             var voiceState = Context.User as IVoiceState;
             if (voiceState?.VoiceChannel == null)
             {
-                await ReplyAsync("You must be connected to a voice channel!");
+                zirconEmbed.AddField("Warning:", "You must be connected to a voice channel!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
             if (!_lavaNode.HasPlayer(Context.Guild))
             {
-                await ReplyAsync("I'm not connected to a voice channel!");
+                zirconEmbed.AddField("Warning:", "I'm not connected to a voice channel!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
@@ -251,34 +292,44 @@ namespace ZirconSound.Modules
 
             if (voiceState.VoiceChannel != player.VoiceChannel)
             {
-                await ReplyAsync("You need to be in the same voice channel as me!");
+                zirconEmbed.AddField("Warning:", "You need to be in the same voice channel as me!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
             if (player.PlayerState == PlayerState.Playing)
             {
-                await ReplyAsync("The music is already playing!");
+                zirconEmbed.AddField("Warning:", "The music is already playing!");
+                zirconEmbed.AddField("Playing:", $"[{player.Track.Title}]({player.Track.Url})");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
 
             await player.ResumeAsync();
-            await ReplyAsync($"Resumed the music!");
+            zirconEmbed.ChangeType(ZirconEmbedType.Info);
+            zirconEmbed.AddField("Resumed:", $"[{player.Track.Title}]({player.Track.Url})");
+            await ReplyAsync(embed: zirconEmbed.Build());
         }
 
         [Command("queue")]
         public async Task QueueAsync()
         {
+
+            var zirconEmbed = new ZirconEmbedBuilder(ZirconEmbedType.Warning);
+
             var voiceState = Context.User as IVoiceState;
             if (voiceState?.VoiceChannel == null)
             {
-                await ReplyAsync("You must be connected to a voice channel!");
+                zirconEmbed.AddField("Warning:", "You must be connected to a voice channel!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
             if (!_lavaNode.HasPlayer(Context.Guild))
             {
-                await ReplyAsync("I'm not connected to a voice channel!");
+                zirconEmbed.AddField("Warning:", "I'm not connected to a voice channel!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
@@ -286,51 +337,51 @@ namespace ZirconSound.Modules
 
             if (voiceState.VoiceChannel != player.VoiceChannel)
             {
-                await ReplyAsync("You need to be in the same voice channel as me!");
+                zirconEmbed.AddField("Warning:", "You need to be in the same voice channel as me!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
             if (player.Queue.Count == 0)
             {
-                await ReplyAsync("There are no more song in the queue!");
+                zirconEmbed.AddField("Warning:", "There are no more song in the queue!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
             int i = 0;
             string queueString = "";
 
-            foreach (var item in player.Queue) 
+            foreach (var item in player.Queue)
             {
                 i++;
                 queueString += $"\n{i} - [{item.Title}]({item.Url})";
             }
-            var embed = new EmbedBuilder
-            {
-                Title = "Queue",
-                Description = $"Current playing music:\n[{player.Track.Title}]({player.Track.Url})"
-            };
-            embed.AddField("Current music in queue",
-                queueString)
-                .WithAuthor(Context.Client.CurrentUser)
-                .WithColor(Color.DarkBlue)
-                .WithCurrentTimestamp();
 
-            await ReplyAsync(embed: embed.Build());
+            await player.ResumeAsync();
+            zirconEmbed.ChangeType(ZirconEmbedType.Info);
+            zirconEmbed.AddField("Queue", $"Current playing music:\n[{player.Track.Title}]({player.Track.Url})");
+            zirconEmbed.AddField("Current music in queue", queueString);
+            await ReplyAsync(embed: zirconEmbed.Build());
         }
 
         [Command("clear")]
         public async Task ClearAsync()
         {
+            var zirconEmbed = new ZirconEmbedBuilder(ZirconEmbedType.Warning);
+
             var voiceState = Context.User as IVoiceState;
             if (voiceState?.VoiceChannel == null)
             {
-                await ReplyAsync("You must be connected to a voice channel!");
+                zirconEmbed.AddField("Warning:", "You must be connected to a voice channel!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
             if (!_lavaNode.HasPlayer(Context.Guild))
             {
-                await ReplyAsync("I'm not connected to a voice channel!");
+                zirconEmbed.AddField("Warning:", "I'm not connected to a voice channel!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
@@ -338,33 +389,41 @@ namespace ZirconSound.Modules
 
             if (voiceState.VoiceChannel != player.VoiceChannel)
             {
-                await ReplyAsync("You need to be in the same voice channel as me!");
+                zirconEmbed.AddField("Warning:", "You need to be in the same voice channel as me!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
             if (player.Queue.Count == 0)
             {
-                await ReplyAsync("There are no more song in the queue!");
+                zirconEmbed.AddField("Warning:", "There are no more song in the queue!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
             player.Queue.Clear();
-            await ReplyAsync($"Cleared the current queue!");
+            zirconEmbed.ChangeType(ZirconEmbedType.Info);
+            zirconEmbed.AddField("Cleared:", "Cleared the current queue!");
+            await ReplyAsync(embed: zirconEmbed.Build());
         }
 
         [Command("stop")]
         public async Task StopAsync()
         {
+            var zirconEmbed = new ZirconEmbedBuilder(ZirconEmbedType.Warning);
+
             var voiceState = Context.User as IVoiceState;
             if (voiceState?.VoiceChannel == null)
             {
-                await ReplyAsync("You must be connected to a voice channel!");
+                zirconEmbed.AddField("Warning:", "You must be connected to a voice channel!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
             if (!_lavaNode.HasPlayer(Context.Guild))
             {
-                await ReplyAsync("I'm not connected to a voice channel!");
+                zirconEmbed.AddField("Warning:", "I'm not connected to a voice channel!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
@@ -372,46 +431,65 @@ namespace ZirconSound.Modules
 
             if (voiceState.VoiceChannel != player.VoiceChannel)
             {
-                await ReplyAsync("You need to be in the same voice channel as me!");
+                zirconEmbed.AddField("Warning:", "You need to be in the same voice channel as me!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
             if (player.Track == null)
             {
-                await ReplyAsync("There is no song playing!");
+                zirconEmbed.AddField("Warning:", "There is no song playing!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
+            zirconEmbed.AddField("Stopped:", $"[{player.Track.Title}]({player.Track.Url})!");
 
             await player.StopAsync();
-            await ReplyAsync($"Stopped the current song!");
+            await ReplyAsync(embed: zirconEmbed.Build());
         }
 
         [Command("leave")]
         public async Task LeaveAsync()
         {
-            if (!_lavaNode.HasPlayer(Context.Guild))
-            {
-                await ReplyAsync("I'm not connected to a voice channel!");
-                return;
-            }
+            var zirconEmbed = new ZirconEmbedBuilder(ZirconEmbedType.Warning);
 
             var voiceState = Context.User as IVoiceState;
             if (voiceState?.VoiceChannel == null)
             {
-                await ReplyAsync("You must be connected to a voice channel!");
+                zirconEmbed.AddField("Warning:", "You must be connected to a voice channel!");
+                await ReplyAsync(embed: zirconEmbed.Build());
+                return;
+            }
+
+            if (!_lavaNode.HasPlayer(Context.Guild))
+            {
+                zirconEmbed.AddField("Warning:", "I'm not connected to a voice channel!");
+                await ReplyAsync(embed: zirconEmbed.Build());
+                return;
+            }
+
+            var player = _lavaNode.GetPlayer(Context.Guild);
+
+            if (voiceState.VoiceChannel != player.VoiceChannel)
+            {
+                zirconEmbed.AddField("Warning:", "You need to be in the same voice channel as me!");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 return;
             }
 
             try
             {
-                
-                await ReplyAsync($"Left the voice channel!");
+                zirconEmbed.ChangeType(ZirconEmbedType.Info);
+                zirconEmbed.AddField("Left the voice channel!", "You can reinvite the bot via \"!join\" or \"!play (YouTube song name or link)\"");
+                await ReplyAsync(embed: zirconEmbed.Build());
                 await _audioService.InitiateDisconnectAsync(_lavaNode.GetPlayer(Context.Guild), TimeSpan.FromSeconds(0));
             }
             catch (Exception exception)
             {
-                await ReplyAsync(exception.Message);
+                zirconEmbed.ChangeType(ZirconEmbedType.Error);
+                zirconEmbed.AddField("Error:", exception.Message);
+                await ReplyAsync(embed: zirconEmbed.Build());
             }
         }
     }

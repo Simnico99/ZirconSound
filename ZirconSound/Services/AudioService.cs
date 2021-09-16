@@ -11,10 +11,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Victoria;
 using Victoria.EventArgs;
+using ZirconSound.Common;
 
 namespace ZirconSound.Services
 {
-    public class AudioService : IHostedService
+    public class AudioService
     {
         private ConcurrentDictionary<ulong, CancellationTokenSource> _disconnectTokens;
         public LavaNode LavaNode { get; }
@@ -50,8 +51,10 @@ namespace ZirconSound.Services
         {
             Console.WriteLine($"Track {arg.Track.Title} threw an exception. Please check Lavalink console/logs.");
             arg.Player.Queue.Enqueue(arg.Track);
-            await arg.Player.TextChannel?.SendMessageAsync(
-                $"{arg.Track.Title} has been re-added to queue after throwing an exception.");
+
+            var zirconEmbed = new ZirconEmbedBuilder(ZirconEmbedType.Error);
+            zirconEmbed.AddField("Error:", $"{arg.Track.Title} has been re-added to queue after throwing an exception.");
+            await arg.Player.TextChannel?.SendMessageAsync(embed: zirconEmbed.Build());
         }
 
         private async Task OnTrackStuck(TrackStuckEventArgs arg)
@@ -59,8 +62,10 @@ namespace ZirconSound.Services
             Console.WriteLine(
                 $"Track {arg.Track.Title} got stuck for {arg.Threshold}ms. Please check Lavalink console/logs.");
             arg.Player.Queue.Enqueue(arg.Track);
-            await arg.Player.TextChannel?.SendMessageAsync(
-                $"{arg.Track.Title} has been re-added to queue after getting stuck.");
+
+            var zirconEmbed = new ZirconEmbedBuilder(ZirconEmbedType.Error);
+            zirconEmbed.AddField("Error:", $"{arg.Track.Title} has been re-added to queue after getting stuck.");
+            await arg.Player.TextChannel?.SendMessageAsync(embed: zirconEmbed.Build());
         }
 
 
@@ -98,7 +103,6 @@ namespace ZirconSound.Services
             }
 
             await LavaNode.LeaveAsync(player.VoiceChannel);
-            await player.TextChannel.SendMessageAsync("Invite me again for nice music! (!join)");
         }
 
 
@@ -119,22 +123,14 @@ namespace ZirconSound.Services
 
             if (queueable is not LavaTrack track)
             {
-                await player.TextChannel.SendMessageAsync("Next item in queue is not a track.");
+                var zirconEmbed = new ZirconEmbedBuilder(ZirconEmbedType.Error);
+                zirconEmbed.AddField("Error:", "Next item in queue is not a track.");
+                await player.TextChannel?.SendMessageAsync(embed: zirconEmbed.Build());
                 return;
             }
 
             await args.Player.PlayAsync(track);
             //await args.Player.TextChannel.SendMessageAsync($"{args.Reason}: {args.Track.Title}\nNow playing: {track.Title}");
-        }
-
-        public Task StartAsync(CancellationToken cancellationToken)
-        {
-            return null;
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return null;
         }
 
     }
