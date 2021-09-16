@@ -65,7 +65,7 @@ namespace ZirconSound.Services
 
         private async Task OnMessageReceived(SocketMessage socketMessage)
         {
-            if (!(socketMessage is SocketUserMessage message))
+            if (socketMessage is not SocketUserMessage message)
             {
                 return;
             }
