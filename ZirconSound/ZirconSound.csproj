@@ -28,6 +28,7 @@
     <PackageReference Include="Discord.Net.Rest" Version="2.4.0" />
     <PackageReference Include="Discord.Net.WebSocket" Version="2.4.0" />
     <PackageReference Include="Victoria" Version="5.2.3" />
+    <PackageReference Include="YoutubeExplode" Version="6.0.5" />
   </ItemGroup>
 
 </Project>

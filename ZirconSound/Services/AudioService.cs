@@ -50,22 +50,42 @@ namespace ZirconSound.Services
         private async Task OnTrackException(TrackExceptionEventArgs arg)
         {
             Console.WriteLine($"Track {arg.Track.Title} threw an exception. Please check Lavalink console/logs.");
-            arg.Player.Queue.Enqueue(arg.Track);
 
             var zirconEmbed = new ZirconEmbedBuilder(ZirconEmbedType.Error);
-            zirconEmbed.AddField("Error:", $"{arg.Track.Title} has been re-added to queue after throwing an exception.");
+            zirconEmbed.AddField("Error:", $"{arg.Track.Title} has been skipped after throwing an exception.");
+            zirconEmbed.AddField("Error Message:", arg.ErrorMessage);
+            zirconEmbed.AddField("Possible causes:", "The video could be age restricted, etc...");
             await arg.Player.TextChannel?.SendMessageAsync(embed: zirconEmbed.Build());
+
+            if (arg.Player.Queue.Count == 0)
+            {
+                await arg.Player.StopAsync();
+                await InitiateDisconnectAsync(arg.Player, TimeSpan.FromSeconds(60));
+            }
+            else 
+            {
+                await arg.Player.SkipAsync();
+            }
         }
 
         private async Task OnTrackStuck(TrackStuckEventArgs arg)
         {
-            Console.WriteLine(
-                $"Track {arg.Track.Title} got stuck for {arg.Threshold}ms. Please check Lavalink console/logs.");
-            arg.Player.Queue.Enqueue(arg.Track);
+            Console.WriteLine($"Track {arg.Track.Title} got stuck for {arg.Threshold}ms. Please check Lavalink console/logs.");
+
 
             var zirconEmbed = new ZirconEmbedBuilder(ZirconEmbedType.Error);
-            zirconEmbed.AddField("Error:", $"{arg.Track.Title} has been re-added to queue after getting stuck.");
+            zirconEmbed.AddField("Error:", $"{arg.Track.Title} has been skipped after getting stuck.");
             await arg.Player.TextChannel?.SendMessageAsync(embed: zirconEmbed.Build());
+
+            if (arg.Player.Queue.Count == 0)
+            {
+                await arg.Player.StopAsync();
+                await InitiateDisconnectAsync(arg.Player, TimeSpan.FromSeconds(60));
+            }
+            else
+            {
+                await arg.Player.SkipAsync();
+            }
         }
 
 

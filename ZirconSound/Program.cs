@@ -65,6 +65,7 @@ namespace ZirconSound
                         x.SelfDeaf = true;
                     });
                     services.AddHostedService<BotStatusService>();
+                    services.AddSingleton<YoutubeModule>();
                     services.AddSingleton<AudioService>();
                     services.AddSingleton<ZirconEmbedBuilder>();
 
