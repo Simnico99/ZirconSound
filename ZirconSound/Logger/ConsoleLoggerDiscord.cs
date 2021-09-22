@@ -37,7 +37,7 @@ namespace ZirconSound.Logger
                 {
                     if (Program.Configuration.GetSection("Logging").GetSection("LogLevel").GetValue<LogLevel>("Discord") <= logLevel)
                     {
-                        var logChannel = _client.GetChannel(890242665256460339) as IMessageChannel;
+                        var logChannel = _client.GetChannel(Program.Configuration.GetValue<ulong>("LogChannel")) as IMessageChannel;
                         var embed = _embedHandler.Create();
                         embed.WithTitle(logLevel.ToString());
                         embed.AddField("Process name", name);
