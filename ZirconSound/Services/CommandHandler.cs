@@ -7,7 +7,6 @@ using Discord.Addons.Hosting;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
-using ZirconSound.Common;
 
 namespace ZirconSound.Services
 {
@@ -16,11 +15,9 @@ namespace ZirconSound.Services
     using System.Threading;
     using System.Threading.Tasks;
     using Discord;
-    using Discord.Addons.Hosting;
-    using Discord.Commands;
-    using Discord.WebSocket;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
+    using ZirconSound.DiscordHandlers;
 
     /// <summary>
     /// The class responsible for handling the commands and various events.
@@ -31,13 +28,15 @@ namespace ZirconSound.Services
         private readonly CommandService _commandService;
         private readonly IConfiguration _config;
         private readonly DiscordSocketClient _client;
+        private readonly EmbedHandler _embedHandler;
 
-        public CommandHandler(DiscordSocketClient client, ILogger<CommandHandler> logger, IServiceProvider provider, CommandService commandService, IConfiguration config) : base(client, logger)
+        public CommandHandler(EmbedHandler embedHandler, DiscordSocketClient client, ILogger<CommandHandler> logger, IServiceProvider provider, CommandService commandService, IConfiguration config) : base(client, logger)
         {
             _provider = provider;
             _commandService = commandService;
             _config = config;
             _client = client;
+            _embedHandler = embedHandler;
         }
         // This'll be executed during startup.
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -49,14 +48,14 @@ namespace ZirconSound.Services
 
         private async Task OnCommandExecuted(Optional<CommandInfo> commandInfo, ICommandContext commandContext, IResult result)
         {
-            if (result.IsSuccess)
+            if (result.IsSuccess || result.ErrorReason.Contains("Unknown command"))
             {
                 return;
             }
 
-            var zirconEmbed = new ZirconEmbedBuilder(ZirconEmbedType.Error);
-            zirconEmbed.AddField("Error:", result.ErrorReason);
-            await commandContext.Channel.SendMessageAsync(embed: zirconEmbed.Build());
+            var embed = _embedHandler.Create();
+            embed.AddField("Error:", result.ErrorReason);
+            await commandContext.Channel.SendMessageAsync(embed: embed.BuildSync(ZirconSound.Enum.ZirconEmbedType.Error));
         }
 
         private async Task OnMessageReceived(SocketMessage socketMessage)

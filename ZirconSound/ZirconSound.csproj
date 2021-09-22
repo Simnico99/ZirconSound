@@ -7,6 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Update="application.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -27,8 +30,8 @@
     <PackageReference Include="Discord.Net.Core" Version="2.4.0" />
     <PackageReference Include="Discord.Net.Rest" Version="2.4.0" />
     <PackageReference Include="Discord.Net.WebSocket" Version="2.4.0" />
-    <PackageReference Include="Victoria" Version="5.2.3" />
-    <PackageReference Include="YoutubeExplode" Version="6.0.5" />
+    <PackageReference Include="Lavalink4NET" Version="2.0.1-preview.3.1" />
+    <PackageReference Include="Lavalink4NET.Discord.NET" Version="2.0.1-preview.3.1" />
   </ItemGroup>
 
 </Project>
