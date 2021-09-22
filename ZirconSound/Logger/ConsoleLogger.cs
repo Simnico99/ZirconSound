@@ -48,7 +48,15 @@ namespace ZirconSound.Logger
                 Console.WriteLine($": {_name}[{eventId.Id}]");
                 Console.WriteLine($"{formatter(state, exception)}");
 
-                await Task.Run(() => _loggerDiscord.LogToChannel(logLevel, exception, eventId, formatter(state, exception), _name));
+                try
+                {
+                    await Task.Run(() => _loggerDiscord.LogToChannel(logLevel, exception, eventId, formatter(state, exception), _name));
+                }
+                catch (Discord.Net.HttpException)
+                { 
+                    //--Ignore
+                }
+                
             }
         }
     }
