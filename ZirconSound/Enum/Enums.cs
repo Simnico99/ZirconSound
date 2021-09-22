@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ZirconSound.Enum
+﻿namespace ZirconSound.Enum
 {
-    public enum AudioState 
-    { 
+    public enum AudioState
+    {
         BotIsInVoiceChannel,
         BotIsNotInVoiceChannel,
         BotAndUserInSameVoiceChannel,
@@ -24,8 +18,9 @@ namespace ZirconSound.Enum
 
     public enum ZirconEmbedType
     {
+        Debug,
         Info,
         Warning,
-        Error,
+        Error
     }
 }

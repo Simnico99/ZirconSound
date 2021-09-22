@@ -1,11 +1,5 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Lavalink4NET;
 using ZirconSound.Enum;
 
 namespace ZirconSound.DiscordHandlers
@@ -13,15 +7,23 @@ namespace ZirconSound.DiscordHandlers
     public class ZirconEmbed : EmbedBuilder
     {
         private readonly DiscordSocketClient _client;
-        private readonly EmbedAuthorBuilder botAuthor;
+        private readonly EmbedAuthorBuilder _actualAuthor;
 
         public ZirconEmbed(DiscordSocketClient socketClient)
         {
             _client = socketClient;
-            botAuthor = new EmbedAuthorBuilder()
+            _actualAuthor = new EmbedAuthorBuilder()
             .WithName(_client.CurrentUser.Username)
             .WithIconUrl(_client.CurrentUser.GetAvatarUrl());
-            WithAuthor(botAuthor);
+            WithAuthor(_actualAuthor);
+        }
+
+        public ZirconEmbed(IUser user)
+        {
+            _actualAuthor = new EmbedAuthorBuilder()
+            .WithName($"@{user.Username}#{user.Discriminator}")
+            .WithIconUrl(user.GetAvatarUrl());
+            WithAuthor(_actualAuthor);
         }
 
         private void ChangeType(ZirconEmbedType embedType)
@@ -38,9 +40,13 @@ namespace ZirconSound.DiscordHandlers
             {
                 WithColor(Discord.Color.DarkRed);
             }
+            else if (embedType == ZirconEmbedType.Debug)
+            {
+                WithColor(Discord.Color.DarkerGrey);
+            }
         }
 
-        public Embed BuildSync() 
+        public Embed BuildSync()
         {
             ChangeType(ZirconEmbedType.Info);
             WithCurrentTimestamp();

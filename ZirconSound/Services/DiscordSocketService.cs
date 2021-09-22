@@ -1,13 +1,12 @@
 ﻿using Discord;
 using Discord.Addons.Hosting;
 using Discord.Addons.Hosting.Util;
+using Discord.Commands;
 using Discord.WebSocket;
 using Lavalink4NET;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ZirconSound.Player;
@@ -21,7 +20,7 @@ namespace ZirconSound.Services
         private IAudioService AudioService { get; set; }
         private readonly PlayerService _playerService;
 
-        public DiscordSocketService(DiscordSocketClient client, ILogger<DiscordSocketService> logger, IAudioService audioService, PlayerService playerService) : base(client, logger)
+        public DiscordSocketService(DiscordSocketClient client, ILogger<DiscordSocketService> logger, IAudioService audioService, PlayerService playerService, CommandService commandService) : base(client, logger)
         {
             Client = client;
             Logger = logger;
@@ -32,11 +31,14 @@ namespace ZirconSound.Services
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             // Wait for the client to be ready before setting the status
+
+
             await Client.WaitForReadyAsync(stoppingToken);
             Logger.LogInformation("Client is ready!");
 
             await Client.SetActivityAsync(new Game("!help for commands"));
             await AudioService.InitializeAsync();
+
             Client.UserVoiceStateUpdated += Client_UserVoiceStateUpdated;
         }
 
@@ -108,6 +110,5 @@ namespace ZirconSound.Services
                 }
             }
         }
-
     }
 }

@@ -1,21 +1,12 @@
-﻿using Discord;
-using Discord.Commands;
-using Discord.WebSocket;
-using Lavalink4NET;
-using Lavalink4NET.Player;
+﻿using Lavalink4NET;
 using Lavalink4NET.Events;
+using Lavalink4NET.Player;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ZirconSound.DiscordHandlers;
-using ZirconSound.Enum;
-using ZirconSound.Services;
-using Microsoft.Extensions.Logging;
-using Discord.Addons.Hosting;
 
 namespace ZirconSound.Player
 {
@@ -27,9 +18,9 @@ namespace ZirconSound.Player
         private readonly IAudioService _audioService;
         private readonly ILogger _logger;
 
-        public PlayerService(EmbedHandler embedHandler ,IAudioService audioService, ILogger<PlayerService> logger)
+        public PlayerService(EmbedHandler embedHandler, IAudioService audioService, ILogger<PlayerService> logger)
         {
-            _disconnectTokens = new ();
+            _disconnectTokens = new();
             _alonedisconnectTokens = new();
             _audioService = audioService;
             _logger = logger;
@@ -51,7 +42,7 @@ namespace ZirconSound.Player
             embed.AddField("Error Message:", eventArgs.Exception.Message);
             embed.AddField("Possible causes:", "The video could be age restricted, etc...");
 
- 
+
             if (player.Queue.Count == 0)
             {
                 await player.StopAsync();
@@ -96,7 +87,7 @@ namespace ZirconSound.Player
 
         public async Task CancelDisconnectAsync(LavalinkPlayer player)
         {
-            _logger.LogInformation("Canceling Disconnect");
+            _logger.LogDebug("Canceling Disconnect");
             if (!_disconnectTokens.TryGetValue(player.VoiceChannelId, out var value))
             {
                 value = new CancellationTokenSource();
@@ -107,12 +98,12 @@ namespace ZirconSound.Player
             }
 
             await Task.Run(() => value.Cancel(true));
-            _logger.LogInformation("Canceled Disconnect");
+            _logger.LogDebug("Canceled Disconnect");
         }
 
         public async Task CancelAloneDisconnectAsync(LavalinkPlayer player)
         {
-            _logger.LogInformation("Canceling Alone Disconnect");
+            _logger.LogDebug("Canceling Alone Disconnect");
             if (!_alonedisconnectTokens.TryGetValue(player.VoiceChannelId, out var value))
             {
                 value = new CancellationTokenSource();
@@ -123,12 +114,12 @@ namespace ZirconSound.Player
             }
 
             await Task.Run(() => value.Cancel(true));
-            _logger.LogInformation("Canceled Alone Disconnect");
+            _logger.LogDebug("Canceled Alone Disconnect");
         }
 
         public async Task InitiateDisconnectAsync(LavalinkPlayer player, TimeSpan timeSpan)
         {
-            _logger.LogInformation("Disconnecting");
+            _logger.LogDebug("Disconnecting");
             if (!_disconnectTokens.TryGetValue(player.VoiceChannelId, out var value))
             {
                 value = new CancellationTokenSource();
@@ -147,12 +138,12 @@ namespace ZirconSound.Player
             }
 
             await player.DisconnectAsync();
-            _logger.LogInformation("Disconnected");
+            _logger.LogDebug("Disconnected");
         }
 
         public async Task BotIsAloneAsync(LavalinkPlayer player, TimeSpan timeSpan)
         {
-            _logger.LogInformation("Alone Disconnecting");
+            _logger.LogDebug("Alone Disconnecting");
             if (!_alonedisconnectTokens.TryGetValue(player.VoiceChannelId, out var value))
             {
                 value = new CancellationTokenSource();
@@ -171,7 +162,7 @@ namespace ZirconSound.Player
             }
 
             await player.DisconnectAsync();
-            _logger.LogInformation("Alone Disconnected");
+            _logger.LogDebug("Alone Disconnected");
         }
     }
 }
