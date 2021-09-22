@@ -19,9 +19,7 @@ namespace ZirconSound.Extensions
 
         protected void OnFlush()
         {
-            var eh = Flushed;
-            if (eh != null)
-                eh(this, EventArgs.Empty);
+            Flushed?.Invoke(this, EventArgs.Empty);
         }
 
         public override void Flush()

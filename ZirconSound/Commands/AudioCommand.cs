@@ -16,13 +16,11 @@ namespace ZirconSound.Commands
     public class AudioCommand : ModuleBase<SocketCommandContext>
     {
         private readonly IAudioService AudioService;
-        private readonly EmbedHandler EmbedHandler;
         private readonly PlayerService playerService;
 
-        public AudioCommand(IAudioService audioService, EmbedHandler embedHandler, PlayerService iplayerService)
+        public AudioCommand(IAudioService audioService, PlayerService iplayerService)
         {
             AudioService = audioService;
-            EmbedHandler = embedHandler;
             playerService = iplayerService;
         }
 
