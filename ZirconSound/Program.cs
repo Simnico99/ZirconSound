@@ -6,14 +6,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Victoria;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using ZirconSound.Services;
-using ZirconSound.Modules;
-using ZirconSound.Common;
+using Lavalink4NET;
+using Lavalink4NET.DiscordNet;
+using Lavalink4NET.Player;
+using ZirconSound.DiscordHandlers;
+using ZirconSound.Player;
 
 namespace ZirconSound
 {
@@ -40,12 +41,12 @@ namespace ZirconSound
                     x.SetMinimumLevel(LogLevel.Debug);
                 })
                 .ConfigureDiscordHost((context, config) =>
-                {
-                     config.SocketConfig = new DiscordSocketConfig()
+                { 
+                    config.SocketConfig = new DiscordSocketConfig()
                     {
                         LogLevel = LogSeverity.Debug,
                         AlwaysDownloadUsers = false,
-                        MessageCacheSize = 200, 
+                        MessageCacheSize = 200,
                     };
 
                     config.Token = context.Configuration["Token"];
@@ -58,30 +59,51 @@ namespace ZirconSound
                 })
                 .ConfigureServices((context, services) =>
                 {
-                    services.AddHostedService<CommandHandler>().AddLavaNode(x =>
-                    {
-                        x.ReconnectAttempts = 200;
-                        x.ReconnectDelay = TimeSpan.FromSeconds(1);
-                        x.SelfDeaf = true;
-                    });
+                    services.AddSingleton<EmbedHandler>();
+                    services.AddSingleton<PlayerService>();
+                    services.AddHostedService<CommandHandler>();
+                    /*
                     services.AddHostedService<BotStatusService>();
                     services.AddSingleton<YoutubeModule>();
-                    services.AddSingleton<AudioService>();
+                    services.AddSingleton<AudioServiceOld>();
+                    services.AddSingleton<LavalinkAudioService>();
                     services.AddSingleton<ZirconEmbedBuilder>();
+                    */
+                    services.AddSingleton<QueuedLavalinkPlayer>();
+                    services.AddSingleton<IDiscordClientWrapper, DiscordClientWrapper>();
+                    services.AddSingleton<IAudioService, LavalinkNode>().AddSingleton(new LavalinkNodeOptions
+                    {
+                        RestUri = "http://localhost:2333/",
+                        WebSocketUri = "ws://localhost:2333/",
+                        Password = "youshallnotpass"
+                    });
+
+                    services.AddHostedService<DiscordSocketService>();
 
                 })
                 .UseConsoleLifetime();
 
 
             var host = builder.Build();
-            var lavalink = await StartupService.StartLavalinkAsync();
+            var discordSocket = host.Services.GetRequiredService<ILogger<LavalinkJar>>();
+            LavalinkJar.Start(discordSocket);
             using (host)
             {
-                using (host)
+                try
                 {
-                        await host.RunAsync().ContinueWith(t => Task.Run(() => lavalink.Kill()), TaskContinuationOptions.None);
-  
+                    await Task.Delay(TimeSpan.FromSeconds(5));
+                    host.Run();
                 }
+                catch (Exception ex) 
+                {
+                    Console.WriteLine("Software existed with the following error:");
+                    Console.WriteLine(ex.Message);
+
+                    Console.ReadKey();
+
+                    Environment.Exit(ex.HResult);
+                }
+                Environment.Exit(0);
             }
         }
     }
