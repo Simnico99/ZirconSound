@@ -1,17 +1,6 @@
-﻿using Discord;
-using Discord.Addons.Hosting;
-using Discord.Commands;
-using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
+﻿using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ZirconSound.Services
 {

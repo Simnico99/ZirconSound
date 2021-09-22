@@ -1,11 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using ZirconSound.Services;
 
 namespace ZirconSound.Modules
 {
@@ -13,7 +9,7 @@ namespace ZirconSound.Modules
     {
 
         [Command("ping")]
-        public async Task Ping() 
+        public async Task Ping()
         {
             await Context.Channel.SendMessageAsync("PONG!");
         }
@@ -29,7 +25,7 @@ namespace ZirconSound.Modules
                 Timestamp = DateTime.Now,
             };
 
-            embed.AddField("Ping","Ping the bot should answer with 'PONG!'");
+            embed.AddField("Ping", "Ping the bot should answer with 'PONG!'");
             embed.AddField("Leave", "The bot will leave your current channel.");
             embed.AddField("Play (p)", "Play the specified video and will join your current channel. (Can use a youtube link or just the title.)");
             embed.AddField("Skip (next, s)", "Will skip to the next song in the queue.");

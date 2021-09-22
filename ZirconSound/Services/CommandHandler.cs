@@ -1,22 +1,16 @@
-﻿using System;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using Discord;
-using Discord.Addons.Hosting;
+﻿using Discord.Addons.Hosting;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
 
 namespace ZirconSound.Services
 {
+    using Discord;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Logging;
     using System;
     using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
-    using Discord;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Logging;
     using ZirconSound.DiscordHandlers;
 
     /// <summary>
@@ -48,7 +42,13 @@ namespace ZirconSound.Services
 
         private async Task OnCommandExecuted(Optional<CommandInfo> commandInfo, ICommandContext commandContext, IResult result)
         {
-            if (result.IsSuccess || result.ErrorReason.Contains("Unknown command"))
+            if (result.IsSuccess)
+            {
+                await commandContext.Message.DeleteAsync();
+                return;
+            }
+
+            if (result.ErrorReason.Contains("Unknown command"))
             {
                 return;
             }

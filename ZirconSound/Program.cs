@@ -2,6 +2,9 @@
 using Discord.Addons.Hosting;
 using Discord.Commands;
 using Discord.WebSocket;
+using Lavalink4NET;
+using Lavalink4NET.DiscordNet;
+using Lavalink4NET.Player;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,12 +12,10 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using ZirconSound.Services;
-using Lavalink4NET;
-using Lavalink4NET.DiscordNet;
-using Lavalink4NET.Player;
 using ZirconSound.DiscordHandlers;
+using ZirconSound.Logger;
 using ZirconSound.Player;
+using ZirconSound.Services;
 
 namespace ZirconSound
 {
@@ -23,8 +24,16 @@ namespace ZirconSound
     /// </summary>
     internal class Program
     {
+        public static IConfiguration Configuration;
+
         private static async Task Main()
         {
+            var configBuilder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+            Configuration = configBuilder.Build();
+
+
             var builder = new HostBuilder()
                 .ConfigureAppConfiguration(x =>
                 {
@@ -35,13 +44,8 @@ namespace ZirconSound
 
                     x.AddConfiguration(configuration);
                 })
-                .ConfigureLogging(x =>
-                {
-                    x.AddConsole();
-                    x.SetMinimumLevel(LogLevel.Debug);
-                })
                 .ConfigureDiscordHost((context, config) =>
-                { 
+                {
                     config.SocketConfig = new DiscordSocketConfig()
                     {
                         LogLevel = LogSeverity.Debug,
@@ -60,6 +64,7 @@ namespace ZirconSound
                 .ConfigureServices((context, services) =>
                 {
                     services.AddSingleton<EmbedHandler>();
+                    services.AddSingleton<ConsoleLoggerDiscord>();
                     services.AddSingleton<PlayerService>();
                     services.AddHostedService<CommandHandler>();
                     /*
@@ -81,12 +86,23 @@ namespace ZirconSound
                     services.AddHostedService<DiscordSocketService>();
 
                 })
-                .UseConsoleLifetime();
-
+                .UseConsoleLifetime()
+                .ConfigureLogging(x =>
+                {
+                    x.AddConsole();
+                    x.ClearProviders().AddColorConsoleLogger(configuration =>
+                    {
+                        configuration.LogLevels.Add(
+                            LogLevel.Critical, ConsoleColor.Red);
+                    });
+                    x.SetMinimumLevel(Configuration.GetSection("Logging").GetSection("LogLevel").GetValue<LogLevel>("Default"));
+                });
 
             var host = builder.Build();
             var discordSocket = host.Services.GetRequiredService<ILogger<LavalinkJar>>();
             LavalinkJar.Start(discordSocket);
+
+
             using (host)
             {
                 try
@@ -94,7 +110,7 @@ namespace ZirconSound
                     await Task.Delay(TimeSpan.FromSeconds(5));
                     host.Run();
                 }
-                catch (Exception ex) 
+                catch (Exception ex)
                 {
                     Console.WriteLine("Software existed with the following error:");
                     Console.WriteLine(ex.Message);
