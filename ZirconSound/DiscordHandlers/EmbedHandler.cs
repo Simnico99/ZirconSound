@@ -19,7 +19,7 @@ namespace ZirconSound.DiscordHandlers
             return embed;
         }
 
-        public ZirconEmbed Create(SocketCommandContext socketCommand)
+        public static ZirconEmbed Create(SocketCommandContext socketCommand)
         {
             var embed = new ZirconEmbed(socketCommand.User);
 
