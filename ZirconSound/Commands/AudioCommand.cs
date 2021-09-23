@@ -182,6 +182,8 @@ namespace ZirconSound.Commands
                         if (tracks.Count() <= 1)
                         {
                             var track = tracks.First();
+                            tracks = tracks.Skip(1);
+
                             embed.AddField("Queued:", $"[{track.Title}]({track.Source})");
                             EmbedSong(ref embed, track);
 
@@ -190,13 +192,14 @@ namespace ZirconSound.Commands
                             {
                                 timeLeft += trackQueue.Duration;
                             }
+                            var test = player.CurrentTrack.Position;
+
                             timeLeft += (player.CurrentTrack.Duration - player.CurrentTrack.Position);
 
                             var estimatedTime = new EmbedFieldBuilder().WithName("Estimated time until track").WithValue(timeLeft).WithIsInline(true);
 
                             embed.AddField(estimatedTime);
                             embed.AddField("Position in queue", player.Queue.Tracks.Count + 1);
-                            tracks = tracks.Skip(1);
                             player.Queue.Add(track);
                         }
                     }

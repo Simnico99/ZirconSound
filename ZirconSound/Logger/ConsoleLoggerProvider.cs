@@ -10,17 +10,16 @@ namespace ZirconSound.Logger
         private readonly IDisposable _onChangeToken;
         private ConsoleLoggerConfiguration _currentConfig;
         private readonly ConcurrentDictionary<string, ConsoleLogger> _loggers = new();
-        private readonly ConsoleLoggerDiscord _loggerDiscord;
 
-        public ConsoleLoggerProvider(IOptionsMonitor<ConsoleLoggerConfiguration> config, ConsoleLoggerDiscord loggerDiscord)
+
+        public ConsoleLoggerProvider(IOptionsMonitor<ConsoleLoggerConfiguration> config)
         {
             _currentConfig = config.CurrentValue;
             _onChangeToken = config.OnChange(updatedConfig => _currentConfig = updatedConfig);
-            _loggerDiscord = loggerDiscord;
         }
 
         public ILogger CreateLogger(string categoryName) =>
-            _loggers.GetOrAdd(categoryName, name => new ConsoleLogger(name, _loggerDiscord, GetCurrentConfig));
+            _loggers.GetOrAdd(categoryName, name => new ConsoleLogger(name, GetCurrentConfig));
 
         private ConsoleLoggerConfiguration GetCurrentConfig() => _currentConfig;
 
