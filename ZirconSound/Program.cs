@@ -64,7 +64,6 @@ namespace ZirconSound
                 .ConfigureServices((context, services) =>
                 {
                     services.AddSingleton<EmbedHandler>();
-                    services.AddSingleton<ConsoleLoggerDiscord>();
                     services.AddSingleton<PlayerService>();
                     services.AddHostedService<CommandHandler>();
                     /*
