@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Threading.Tasks;
 
 namespace ZirconSound.Logger
 {
@@ -34,21 +33,21 @@ namespace ZirconSound.Logger
             ConsoleLoggerConfiguration config = _getCurrentConfig();
             if (config.EventId == 0 || config.EventId == eventId.Id)
             {
-                if (!string.IsNullOrEmpty(formatter(state, exception)) && !string.IsNullOrEmpty(eventId.Id.ToString()))
+                if (!string.IsNullOrEmpty(formatter(state, exception)) && !string.IsNullOrEmpty(eventId.Id.ToString()) && _name != null)
                 {
-                    ConsoleColor originalColor = ConsoleColor.White;
-                    ConsoleColor originalBckColor = ConsoleColor.Black;
+                    try
+                    {
+                        Console.ForegroundColor = config.LogLevels[logLevel];
+                        Console.BackgroundColor = config.LogBackground[logLevel];
+                        Console.Write($"{config.LogShort[logLevel]}");
 
+                        Console.ResetColor();
+                        Console.WriteLine($": {_name}[{eventId.Id}]\n{formatter(state, exception)}");
+                    }
+                    catch
+                    {
 
-                    Console.ForegroundColor = config.LogLevels[logLevel];
-                    Console.BackgroundColor = config.LogBackground[logLevel];
-                    Console.Write($"{config.LogShort[logLevel]}");
-
-                    Console.ForegroundColor = originalColor;
-                    Console.BackgroundColor = originalBckColor;
-                    Console.WriteLine($": {_name}[{eventId.Id}]");
-                    Console.WriteLine($"{formatter(state, exception)}");
-
+                    }
                 }
             }
         }
