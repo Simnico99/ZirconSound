@@ -1,7 +1,6 @@
 ﻿using Discord;
 using Discord.Addons.Hosting;
 using Discord.Addons.Hosting.Util;
-using Discord.Commands;
 using Discord.WebSocket;
 using Lavalink4NET;
 using Lavalink4NET.Player;
@@ -30,7 +29,8 @@ namespace ZirconSound.Services
             _playerService = playerService;
         }
 
-        private static string GetPlural<T>(IEnumerable<T> enumberable) 
+
+        private static string GetPlural<T>(IEnumerable<T> enumberable)
         {
             var plural = "";
             if (enumberable.Count() > 1)
@@ -42,10 +42,10 @@ namespace ZirconSound.Services
 
         private async Task StatusLoop()
         {
-            var timeSpan = TimeSpan.FromSeconds(20);
+            var timeSpan = TimeSpan.FromSeconds(60);
             while (true)
             {
-                await Client.SetActivityAsync(new Game("!help for commands"));
+                await Client.SetActivityAsync(new Game("/help for commands"));
                 Logger.LogDebug("Setting activity");
 
                 await Task.Delay(timeSpan);
@@ -69,6 +69,7 @@ namespace ZirconSound.Services
             // Wait for the client to be ready before setting the status
 
             await Client.WaitForReadyAsync(stoppingToken);
+
             Logger.LogInformation("Client is ready!");
 
             await AudioService.InitializeAsync();
@@ -76,8 +77,13 @@ namespace ZirconSound.Services
 
             Client.UserVoiceStateUpdated += Client_UserVoiceStateUpdated;
 
-            await Task.Run(() => StatusLoop(), stoppingToken);
+            _ = Task.Run(async () =>
+            {
+                await StatusLoop();
+                return Task.CompletedTask;
+            });
         }
+
 
         private int NumberOfUserInChannel(SocketVoiceChannel socketChannel)
         {
@@ -98,7 +104,7 @@ namespace ZirconSound.Services
             return false;
         }
 
-        private async Task DisconnectBot(SocketVoiceChannel voiceState, LavalinkPlayer player) 
+        private async Task DisconnectBot(SocketVoiceChannel voiceState, LavalinkPlayer player)
         {
             _ = Task.Run(async () =>
             {
@@ -146,6 +152,7 @@ namespace ZirconSound.Services
                     }
                 }
             }
+
         }
     }
 }

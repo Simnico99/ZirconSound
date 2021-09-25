@@ -16,6 +16,7 @@ using ZirconSound.DiscordHandlers;
 using ZirconSound.Logger;
 using ZirconSound.Player;
 using ZirconSound.Services;
+using ZirconSound.SlashCommands;
 
 namespace ZirconSound
 {
@@ -52,7 +53,6 @@ namespace ZirconSound
                         AlwaysDownloadUsers = false,
                         MessageCacheSize = 200,
                     };
-
                     config.Token = context.Configuration["Token"];
                 })
                 .UseCommandService((context, config) =>
@@ -65,14 +65,6 @@ namespace ZirconSound
                 {
                     services.AddSingleton<EmbedHandler>();
                     services.AddSingleton<PlayerService>();
-                    services.AddHostedService<CommandHandler>();
-                    /*
-                    services.AddHostedService<BotStatusService>();
-                    services.AddSingleton<YoutubeModule>();
-                    services.AddSingleton<AudioServiceOld>();
-                    services.AddSingleton<LavalinkAudioService>();
-                    services.AddSingleton<ZirconEmbedBuilder>();
-                    */
                     services.AddSingleton<QueuedLavalinkPlayer>();
                     services.AddSingleton<IDiscordClientWrapper, DiscordClientWrapper>();
                     services.AddSingleton<IAudioService, LavalinkNode>().AddSingleton(new LavalinkNodeOptions
@@ -83,6 +75,7 @@ namespace ZirconSound
                     });
 
                     services.AddHostedService<DiscordSocketService>();
+                    services.AddHostedService<SlashCommandService>();
 
                 })
                 .UseConsoleLifetime()
