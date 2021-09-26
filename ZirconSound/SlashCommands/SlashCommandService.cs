@@ -91,7 +91,6 @@ namespace ZirconSound.SlashCommands
         }
 
         private async Task Client_InteractionCreated(SocketInteraction arg)
-        
         {
             Logger.LogDebug("Recieved an interaction");
             await arg.DeferAsync();
@@ -101,27 +100,39 @@ namespace ZirconSound.SlashCommands
                 {
                     _ = Task.Run(async () =>
                     {
-                        Logger.LogDebug($"Executing {command.CommandName} / UserName:{command.User.Username}");
-
-                        var commandToExec = Commands.FirstOrDefault(x => x.Command.Name == command.CommandName);
-
-                        var slashCommandContext = new SlashCommandContext(Client, command);
-
-                        dynamic commandClass = ActivatorUtilities.CreateInstance(_provider, commandToExec.CommandModule);
-
-                        MethodInfo setContext = commandClass.GetType().GetMethod("SetContext");
-                        var parameterArray = new object[] { slashCommandContext };
-                        setContext.Invoke(commandClass, parameterArray);
-
-                        MethodInfo theMethod = commandClass.GetType().GetMethod(commandToExec.Method.Name);
-                        var secondparameterArray = Array.Empty<object>();
-                        if (command.Data.Options != null)
+                        try 
                         {
-                            secondparameterArray = new object[] { command.Data.Options.First().Value };
-                        }
-                        theMethod.Invoke(commandClass, secondparameterArray);
+                            Logger.LogDebug($"Executing {command.CommandName} / UserName:{command.User.Username}");
 
-                        await Task.Delay(0);
+                            var commandToExec = Commands.FirstOrDefault(x => x.Command.Name == command.CommandName);
+
+                            var slashCommandContext = new SlashCommandContext(Client, command);
+
+                            dynamic commandClass = ActivatorUtilities.CreateInstance(_provider, commandToExec.CommandModule);
+
+                            MethodInfo setContext = commandClass.GetType().GetMethod("SetContext");
+                            var parameterArray = new object[] { slashCommandContext };
+                            setContext.Invoke(commandClass, parameterArray);
+
+                            MethodInfo theMethod = commandClass.GetType().GetMethod(commandToExec.Method.Name);
+                            var secondparameterArray = Array.Empty<object>();
+                            if (command.Data.Options != null)
+                            {
+                                secondparameterArray = new object[] { command.Data.Options.First().Value };
+                            }
+                            else if(commandToExec.Command.CommandOptionType == ApplicationCommandOptionType.Integer) 
+                            {
+                                secondparameterArray = new object[] { 0 };
+                            }
+                            theMethod.Invoke(commandClass, secondparameterArray);
+
+                            await Task.Delay(0);
+                        } 
+                        catch (Exception ex) 
+                        {
+                            await arg.FollowupAsync("Error: " + ex.Message);
+
+                        }
                     });
                 }
             }
