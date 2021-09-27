@@ -31,10 +31,10 @@ namespace ZirconSound.Services
         private IAudioService AudioService { get; }
 
 
-        private static string GetPlural<T>(IEnumerable<T> enumberable)
+        private static string GetPlural<T>(IEnumerable<T> enumerable)
         {
             var plural = "";
-            if (enumberable.Count() > 1)
+            if (enumerable.Count() > 1)
             {
                 plural = "s";
             }
