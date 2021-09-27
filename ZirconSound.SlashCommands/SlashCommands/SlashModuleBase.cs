@@ -1,8 +1,8 @@
-﻿using Discord.Commands;
+﻿using System;
+using Discord.Commands;
 using Discord.Commands.Builders;
-using System;
 
-namespace ZirconSound.SlashCommands.Handlers
+namespace ZirconSound.ApplicationCommands.SlashCommands
 {
     public abstract class SlashModuleBase : SlashModuleBase<ICommandContext>
     {

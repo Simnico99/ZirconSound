@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ZirconSound.SlashCommands\ZirconSound.SlashCommands.csproj" />
+    <ProjectReference Include="..\ZirconSound.SlashCommands\ZirconSound.ApplicationCommands.csproj" />
   </ItemGroup>
 
 </Project>

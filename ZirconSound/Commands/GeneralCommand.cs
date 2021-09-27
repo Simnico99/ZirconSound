@@ -1,7 +1,7 @@
 ﻿using Discord;
 using System;
 using System.Threading.Tasks;
-using ZirconSound.SlashCommands.Handlers;
+using ZirconSound.ApplicationCommands.SlashCommands;
 
 namespace ZirconSound.Commands
 {
