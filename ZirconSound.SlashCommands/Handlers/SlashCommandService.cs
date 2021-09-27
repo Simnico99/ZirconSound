@@ -1,31 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Addons.Hosting.Util;
 using Discord.Commands;
 using Discord.Net;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using ZirconSound.SlashCommands.Events;
 
 namespace ZirconSound.SlashCommands.Handlers
 {
     public class SlashCommandService
     {
-        private readonly LocalAsyncEvent<Func<Optional<SocketSlashCommand>, ICommandContext, IResult, Task>> _commandExecutedEvent = new();
+        private readonly AsyncEvent<Func<Optional<SocketSlashCommand>, ICommandContext, IResult, Task>> _commandExecutedEvent = new();
         private readonly SlashCommandServiceConfig _config;
         private IServiceProvider _provider;
         public Func<LogMessage, Task> Log;
 
-        public SlashCommandService(SlashCommandServiceConfig config)
-        {
-            _config = config;
-        }
+        public SlashCommandService(SlashCommandServiceConfig config) => _config = config;
 
         private IEnumerable<SlashCommandGroup> Commands { get; set; }
 

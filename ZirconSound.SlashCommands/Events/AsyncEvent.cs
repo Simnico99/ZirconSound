@@ -5,23 +5,20 @@ using System.Threading.Tasks;
 
 namespace ZirconSound.SlashCommands.Events
 {
-    internal class LocalAsyncEvent<T>
+    internal class AsyncEvent<T>
         where T : class
     {
         private readonly object _subLock = new();
         private ImmutableArray<T> _subscriptions;
 
-        public LocalAsyncEvent()
-        {
-            _subscriptions = ImmutableArray.Create<T>();
-        }
+        public AsyncEvent() => _subscriptions = ImmutableArray.Create<T>();
 
         public bool HasSubscribers => _subscriptions.Length != 0;
         public IReadOnlyList<T> SubscriptionsList => _subscriptions;
 
         public void Add(T subscriber)
         {
-            LocalPreconditions.NotNull(subscriber, nameof(subscriber));
+            Preconditions.NotNull(subscriber, nameof(subscriber));
             lock (_subLock)
             {
                 _subscriptions = _subscriptions.Add(subscriber);
@@ -30,7 +27,7 @@ namespace ZirconSound.SlashCommands.Events
 
         public void Remove(T subscriber)
         {
-            LocalPreconditions.NotNull(subscriber, nameof(subscriber));
+            Preconditions.NotNull(subscriber, nameof(subscriber));
             lock (_subLock)
             {
                 _subscriptions = _subscriptions.Remove(subscriber);
@@ -40,42 +37,42 @@ namespace ZirconSound.SlashCommands.Events
 
     internal static class EventExtensions
     {
-        public static async Task InvokeAsync(this LocalAsyncEvent<Func<Task>> eventHandler)
+        public static async Task InvokeAsync(this AsyncEvent<Func<Task>> eventHandler)
         {
             var subscribers = eventHandler.SubscriptionsList;
             for (var i = 0; i < subscribers.Count; i++)
                 await subscribers[i].Invoke().ConfigureAwait(false);
         }
 
-        public static async Task InvokeAsync<T>(this LocalAsyncEvent<Func<T, Task>> eventHandler, T arg)
+        public static async Task InvokeAsync<T>(this AsyncEvent<Func<T, Task>> eventHandler, T arg)
         {
             var subscribers = eventHandler.SubscriptionsList;
             for (var i = 0; i < subscribers.Count; i++)
                 await subscribers[i].Invoke(arg).ConfigureAwait(false);
         }
 
-        public static async Task InvokeAsync<T1, T2>(this LocalAsyncEvent<Func<T1, T2, Task>> eventHandler, T1 arg1, T2 arg2)
+        public static async Task InvokeAsync<T1, T2>(this AsyncEvent<Func<T1, T2, Task>> eventHandler, T1 arg1, T2 arg2)
         {
             var subscribers = eventHandler.SubscriptionsList;
             for (var i = 0; i < subscribers.Count; i++)
                 await subscribers[i].Invoke(arg1, arg2).ConfigureAwait(false);
         }
 
-        public static async Task InvokeAsync<T1, T2, T3>(this LocalAsyncEvent<Func<T1, T2, T3, Task>> eventHandler, T1 arg1, T2 arg2, T3 arg3)
+        public static async Task InvokeAsync<T1, T2, T3>(this AsyncEvent<Func<T1, T2, T3, Task>> eventHandler, T1 arg1, T2 arg2, T3 arg3)
         {
             var subscribers = eventHandler.SubscriptionsList;
             for (var i = 0; i < subscribers.Count; i++)
                 await subscribers[i].Invoke(arg1, arg2, arg3).ConfigureAwait(false);
         }
 
-        public static async Task InvokeAsync<T1, T2, T3, T4>(this LocalAsyncEvent<Func<T1, T2, T3, T4, Task>> eventHandler, T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+        public static async Task InvokeAsync<T1, T2, T3, T4>(this AsyncEvent<Func<T1, T2, T3, T4, Task>> eventHandler, T1 arg1, T2 arg2, T3 arg3, T4 arg4)
         {
             var subscribers = eventHandler.SubscriptionsList;
             for (var i = 0; i < subscribers.Count; i++)
                 await subscribers[i].Invoke(arg1, arg2, arg3, arg4).ConfigureAwait(false);
         }
 
-        public static async Task InvokeAsync<T1, T2, T3, T4, T5>(this LocalAsyncEvent<Func<T1, T2, T3, T4, T5, Task>> eventHandler, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
+        public static async Task InvokeAsync<T1, T2, T3, T4, T5>(this AsyncEvent<Func<T1, T2, T3, T4, T5, Task>> eventHandler, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
         {
             var subscribers = eventHandler.SubscriptionsList;
             for (var i = 0; i < subscribers.Count; i++)
