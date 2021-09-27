@@ -1,16 +1,11 @@
-﻿using Discord;
-using System;
+﻿using System;
+using Discord;
 
 namespace ZirconSound.SlashCommands
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class SlashCommand : Attribute
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public SlashCommandOptionBuilder Options { get; set; }
-        public ApplicationCommandOptionType CommandOptionType { get; set; }
-
         public SlashCommand(string name, string description)
         {
             Name = name;
@@ -24,5 +19,10 @@ namespace ZirconSound.SlashCommands
             Options = new SlashCommandOptionBuilder().WithName(optionName).WithType(optionType).WithDescription(optionDesc).WithRequired(required);
             CommandOptionType = optionType;
         }
+
+        public string Name { get; }
+        public string Description { get; }
+        public SlashCommandOptionBuilder Options { get; }
+        public ApplicationCommandOptionType CommandOptionType { get; }
     }
 }

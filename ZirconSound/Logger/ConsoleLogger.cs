@@ -1,22 +1,29 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
+using Microsoft.Extensions.Logging;
 
 namespace ZirconSound.Logger
 {
     public class ConsoleLogger : ILogger
     {
-        private readonly string _name;
         private readonly Func<ConsoleLoggerConfiguration> _getCurrentConfig;
+        private readonly string _name;
 
         public ConsoleLogger(
             string name,
-            Func<ConsoleLoggerConfiguration> getCurrentConfig) =>
+            Func<ConsoleLoggerConfiguration> getCurrentConfig)
+        {
             (_name, _getCurrentConfig) = (name, getCurrentConfig);
+        }
 
-        public IDisposable BeginScope<TState>(TState state) => default;
+        public IDisposable BeginScope<TState>(TState state)
+        {
+            return default;
+        }
 
-        public bool IsEnabled(LogLevel logLevel) =>
-            _getCurrentConfig().LogLevels.ContainsKey(logLevel);
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            return _getCurrentConfig().LogLevels.ContainsKey(logLevel);
+        }
 
         public void Log<TState>(
             LogLevel logLevel,
@@ -30,8 +37,8 @@ namespace ZirconSound.Logger
                 return;
             }
 
-            ConsoleLoggerConfiguration config = _getCurrentConfig();
-            if (config.EventId == 0 || config.EventId == eventId.Id)
+            var config = _getCurrentConfig();
+            if (ConsoleLoggerConfiguration.EventId == 0 || ConsoleLoggerConfiguration.EventId == eventId.Id)
             {
                 if (!string.IsNullOrEmpty(formatter(state, exception)) && !string.IsNullOrEmpty(eventId.Id.ToString()) && _name != null)
                 {
@@ -46,11 +53,10 @@ namespace ZirconSound.Logger
                     }
                     catch
                     {
-
+                        // ignored
                     }
                 }
             }
         }
     }
-
 }

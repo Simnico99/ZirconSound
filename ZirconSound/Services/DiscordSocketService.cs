@@ -1,24 +1,21 @@
-﻿using Discord;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Discord;
 using Discord.Addons.Hosting;
 using Discord.Addons.Hosting.Util;
 using Discord.WebSocket;
 using Lavalink4NET;
 using Lavalink4NET.Player;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using ZirconSound.Player;
 
 namespace ZirconSound.Services
 {
     public class DiscordSocketService : DiscordClientService
     {
-        public new DiscordSocketClient Client { get; }
-        private new ILogger Logger { get; set; }
-        private IAudioService AudioService { get; set; }
         private readonly PlayerService _playerService;
 
         public DiscordSocketService(DiscordSocketClient client, ILogger<DiscordSocketService> logger, IAudioService audioService, PlayerService playerService) : base(client, logger)
@@ -29,6 +26,10 @@ namespace ZirconSound.Services
             _playerService = playerService;
         }
 
+        private new DiscordSocketClient Client { get; }
+        private new ILogger Logger { get; }
+        private IAudioService AudioService { get; }
+
 
         private static string GetPlural<T>(IEnumerable<T> enumberable)
         {
@@ -37,6 +38,7 @@ namespace ZirconSound.Services
             {
                 plural = "s";
             }
+
             return plural;
         }
 
@@ -81,30 +83,28 @@ namespace ZirconSound.Services
             {
                 await StatusLoop();
                 return Task.CompletedTask;
-            });
+            }, stoppingToken);
         }
 
 
-        private int NumberOfUserInChannel(SocketVoiceChannel socketChannel)
+        private int NumberOfUserInChannel(SocketGuildChannel socketChannel)
         {
             var voiceUsers = Client.Guilds.FirstOrDefault(
-            x => x.Name.Equals(socketChannel.Guild.Name)).VoiceChannels.FirstOrDefault(
-            x => x.Name.Equals(socketChannel.Name)).Users;
+                    x => x.Name.Equals(socketChannel.Guild.Name))
+                ?.VoiceChannels.FirstOrDefault(
+                    x => x.Name.Equals(socketChannel.Name))
+                ?.Users;
 
-            return voiceUsers.Count;
+            return voiceUsers?.Count ?? 0;
         }
 
-        private bool IsBotInChannel(SocketVoiceChannel socketChannel)
+        private bool IsBotInChannel(SocketGuildChannel socketChannel)
         {
             var bot = socketChannel.Users.FirstOrDefault(x => x.Id.Equals(Client.CurrentUser.Id));
-            if (bot != null)
-            {
-                return true;
-            }
-            return false;
+            return bot != null;
         }
 
-        private async Task DisconnectBot(SocketVoiceChannel voiceState, LavalinkPlayer player)
+        private async Task DisconnectBot(IChannel voiceState, LavalinkPlayer player)
         {
             _ = Task.Run(async () =>
             {
@@ -136,6 +136,7 @@ namespace ZirconSound.Services
                     }
                 }
             }
+
             if (voiceSocket2 != null)
             {
                 if (IsBotInChannel(voiceSocket2))
@@ -152,7 +153,6 @@ namespace ZirconSound.Services
                     }
                 }
             }
-
         }
     }
 }

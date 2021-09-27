@@ -5,8 +5,8 @@ namespace ZirconSound.SlashCommands
 {
     public class SlashCommandGroup
     {
-        public SlashCommand Command { get; set; }
-        public MethodInfo Method { get; set; }
-        public Type CommandModule { get; set; }
+        public SlashCommand Command { get; init; }
+        public MethodInfo Method { get; init; }
+        public Type CommandModule { get; init; }
     }
 }

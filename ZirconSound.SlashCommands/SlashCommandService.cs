@@ -1,42 +1,49 @@
-﻿using Discord;
-using Discord.Addons.Hosting;
-using Discord.Addons.Hosting.Util;
-using Discord.Commands;
-using Discord.Net;
-using Discord.WebSocket;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Discord;
+using Discord.Addons.Hosting.Util;
+using Discord.Commands;
+using Discord.Net;
+using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using ZirconSound.SlashCommands.Events;
 
 namespace ZirconSound.SlashCommands
 {
     public class SlashCommandService
     {
-        private IEnumerable<SlashCommandGroup> Commands { get; set; }
+        private readonly LocalAsyncEvent<Func<Optional<SocketSlashCommand>, ICommandContext, IResult, Task>> _commandExecutedEvent = new();
+        private readonly SlashCommandServiceConfig _config;
         private IServiceProvider _provider;
-        private readonly SlashCommmandServiceConfig _config;
         public Func<LogMessage, Task> Log;
 
-        public event Func<SocketSlashCommand, Task> MessageReceived { add { _messageReceivedEvent.Add(value); } remove { _messageReceivedEvent.Remove(value); } }
-        internal readonly LocalAsyncEvent<Func<SocketSlashCommand, Task>> _messageReceivedEvent = new();
-        public event Func<Optional<SocketSlashCommand>, ICommandContext, IResult, Task> CommandExecuted { add { _commandExecutedEvent.Add(value); } remove { _commandExecutedEvent.Remove(value); } }
-        internal readonly LocalAsyncEvent<Func<Optional<SocketSlashCommand>, ICommandContext, IResult, Task>> _commandExecutedEvent = new();
-
-        public SlashCommandService(SlashCommmandServiceConfig config)
+        public SlashCommandService(SlashCommandServiceConfig config)
         {
             _config = config;
         }
 
+        private IEnumerable<SlashCommandGroup> Commands { get; set; }
+
+        /*
+        public event Func<SocketSlashCommand, Task> MessageReceived { add => _messageReceivedEvent.Add(value);
+            remove => _messageReceivedEvent.Remove(value);
+        }
+        private readonly LocalAsyncEvent<Func<SocketSlashCommand, Task>> _messageReceivedEvent = new();
+        */
+        public event Func<Optional<SocketSlashCommand>, ICommandContext, IResult, Task> CommandExecuted
+        {
+            add => _commandExecutedEvent.Add(value);
+            remove => _commandExecutedEvent.Remove(value);
+        }
+
         private async Task CommandBuilder(IEnumerable<SlashCommand> commands, DiscordSocketClient client)
         {
-            var CommandList = new List<SlashCommandProperties>();
+            var commandList = new List<ApplicationCommandProperties>();
 
             foreach (var command in commands)
             {
@@ -46,6 +53,7 @@ namespace ZirconSound.SlashCommands
                 {
                     globalCommand.WithDescription(command.Description);
                 }
+
                 if (command.Options != null)
                 {
                     globalCommand.AddOption(command.Options);
@@ -53,7 +61,7 @@ namespace ZirconSound.SlashCommands
 
                 await Log.Invoke(new LogMessage(_config.LogLevel, "SlashCommandService", $"Adding Command: {command.Name}\n{command.Description}"));
 
-                CommandList.Add(globalCommand.Build());
+                commandList.Add(globalCommand.Build());
             }
 
             try
@@ -68,7 +76,7 @@ namespace ZirconSound.SlashCommands
                     }
                 }
                 */
-                await client.BulkOverwriteGlobalApplicationCommandsAsync(CommandList.ToArray());
+                await client.BulkOverwriteGlobalApplicationCommandsAsync(commandList.ToArray());
 
                 await Log.Invoke(new LogMessage(_config.LogLevel, "SlashCommandService", "Added slash commands"));
             }
@@ -85,28 +93,31 @@ namespace ZirconSound.SlashCommands
 
         private async Task ExecuteInternalAsync(SocketSlashCommand command, SlashCommandContext slashCommandContext)
         {
-
             var commandToExec = Commands.FirstOrDefault(x => x.Command.Name == command.CommandName);
 
             try
             {
-                dynamic commandClass = ActivatorUtilities.CreateInstance(_provider, commandToExec.CommandModule);
-
-                MethodInfo setContext = commandClass.GetType().GetMethod("SetContext");
-                var parameterArray = new object[] { slashCommandContext };
-                setContext.Invoke(commandClass, parameterArray);
-
-                MethodInfo theMethod = commandClass.GetType().GetMethod(commandToExec.Method.Name);
-                var secondparameterArray = Array.Empty<object>();
-                if (command.Data.Options != null)
+                if (commandToExec?.CommandModule != null)
                 {
-                    secondparameterArray = new object[] { command.Data.Options.First().Value };
+                    dynamic commandClass = ActivatorUtilities.CreateInstance(_provider, commandToExec.CommandModule);
+
+                    MethodInfo setContext = commandClass.GetType().GetMethod("SetContext");
+                    var parameterArray = new object[] { slashCommandContext };
+                    setContext.Invoke(commandClass, parameterArray);
+
+                    MethodInfo theMethod = commandClass.GetType().GetMethod(commandToExec.Method.Name);
+                    var secondParameterArray = Array.Empty<object>();
+                    if (command.Data.Options != null)
+                    {
+                        secondParameterArray = new[] { command.Data.Options.First().Value };
+                    }
+                    else if (commandToExec.Command.CommandOptionType == ApplicationCommandOptionType.Integer)
+                    {
+                        secondParameterArray = new object[] { 0 };
+                    }
+
+                    theMethod.Invoke(commandClass, secondParameterArray);
                 }
-                else if (commandToExec.Command.CommandOptionType == ApplicationCommandOptionType.Integer)
-                {
-                    secondparameterArray = new object[] { 0 };
-                }
-                theMethod.Invoke(commandClass, secondparameterArray);
 
                 await _commandExecutedEvent.InvokeAsync(command, slashCommandContext, new SlashCommandResult("Success", true)).ConfigureAwait(false);
             }
@@ -126,10 +137,7 @@ namespace ZirconSound.SlashCommands
                     await ExecuteInternalAsync(command, slashCommandContext).ConfigureAwait(false);
                     break;
                 case RunMode.Async:
-                    var t2 = Task.Run(async () =>
-                    {
-                        await ExecuteInternalAsync(command, slashCommandContext).ConfigureAwait(false);
-                    });
+                    _ = Task.Run(async () => { await ExecuteInternalAsync(command, slashCommandContext).ConfigureAwait(false); });
                     break;
             }
         }
@@ -142,10 +150,7 @@ namespace ZirconSound.SlashCommands
             var commands = new List<SlashCommand>();
             Commands = SlashCommandHelper.GetSlashCommands(assembly);
 
-            foreach (var commandsMethods in Commands)
-            {
-                commands.Add(commandsMethods.Command);
-            }
+            foreach (var commandsMethods in Commands) commands.Add(commandsMethods.Command);
 
             await CommandBuilder(commands, client);
         }

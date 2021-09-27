@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
+using Microsoft.Extensions.Logging;
 
 namespace ZirconSound.Services
 {
-    class LavalinkJar
+    internal class LavalinkJar
     {
         private static ILogger<LavalinkJar> Client { get; set; }
 
@@ -21,8 +21,8 @@ namespace ZirconSound.Services
             clientProcess.StartInfo.RedirectStandardOutput = true;
             clientProcess.StartInfo.RedirectStandardError = true;
             //* Set your output and error (asynchronous) handlers
-            clientProcess.OutputDataReceived += new DataReceivedEventHandler(OutputHandler);
-            clientProcess.ErrorDataReceived += new DataReceivedEventHandler(OutputHandler);
+            clientProcess.OutputDataReceived += OutputHandler;
+            clientProcess.ErrorDataReceived += OutputHandler;
             //* Start process and handlers
             clientProcess.Start();
             clientProcess.BeginOutputReadLine();

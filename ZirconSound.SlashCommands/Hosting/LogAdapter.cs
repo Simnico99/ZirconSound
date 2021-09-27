@@ -1,16 +1,16 @@
-﻿using Discord;
+﻿using System;
+using System.Threading.Tasks;
+using Discord;
 using Discord.Addons.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Threading.Tasks;
 
 namespace ZirconSound.SlashCommands.Hosting
 {
     internal class LogAdapter<T> where T : class
     {
-        private readonly ILogger<T> _logger;
         private readonly Func<LogMessage, Exception, string> _formatter;
+        private readonly ILogger<T> _logger;
 
         public LogAdapter(ILogger<T> logger, IOptions<DiscordHostConfiguration> options)
         {
@@ -25,7 +25,8 @@ namespace ZirconSound.SlashCommands.Hosting
         }
 
         private static LogLevel GetLogLevel(LogSeverity severity)
-            => severity switch
+        {
+            return severity switch
             {
                 LogSeverity.Critical => LogLevel.Critical,
                 LogSeverity.Error => LogLevel.Error,
@@ -35,5 +36,6 @@ namespace ZirconSound.SlashCommands.Hosting
                 LogSeverity.Debug => LogLevel.Trace,
                 _ => throw new ArgumentOutOfRangeException(nameof(severity), severity, null)
             };
+        }
     }
 }
