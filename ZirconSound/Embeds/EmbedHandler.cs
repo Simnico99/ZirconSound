@@ -1,7 +1,7 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
 
-namespace ZirconSound.DiscordHandlers
+namespace ZirconSound.Embeds
 {
     public class EmbedHandler
     {

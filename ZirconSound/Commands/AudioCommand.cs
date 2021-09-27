@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ZirconSound.DiscordHandlers;
+using ZirconSound.Embeds;
 using ZirconSound.Enum;
 using ZirconSound.Extensions;
 using ZirconSound.Player;

@@ -12,11 +12,12 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using ZirconSound.DiscordHandlers;
+using ZirconSound.Embeds;
 using ZirconSound.Logger;
 using ZirconSound.Player;
 using ZirconSound.Services;
 using ZirconSound.SlashCommands;
+using ZirconSound.SlashCommands.Hosting;
 
 namespace ZirconSound
 {
@@ -55,10 +56,9 @@ namespace ZirconSound
                     };
                     config.Token = context.Configuration["Token"];
                 })
-                .UseCommandService((context, config) =>
+                .UseSlashCommandService((context, config) =>
                 {
-                    config.CaseSensitiveCommands = false;
-                    config.LogLevel = LogSeverity.Debug;
+                    config.LogLevel = LogSeverity.Verbose;
                     config.DefaultRunMode = RunMode.Async;
                 })
                 .ConfigureServices((context, services) =>
@@ -75,7 +75,7 @@ namespace ZirconSound
                     });
 
                     services.AddHostedService<DiscordSocketService>();
-                    services.AddHostedService<SlashCommandService>();
+                    services.AddHostedService<SlashCommandHandler>();
 
                 })
                 .UseConsoleLifetime()
