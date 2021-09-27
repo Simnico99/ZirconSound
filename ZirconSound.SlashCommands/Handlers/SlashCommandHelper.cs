@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace ZirconSound.SlashCommands
+namespace ZirconSound.SlashCommands.Handlers
 {
     internal static class SlashCommandHelper
     {

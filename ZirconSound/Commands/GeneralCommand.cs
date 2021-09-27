@@ -1,17 +1,14 @@
-﻿using System;
+﻿using Discord;
+using System;
 using System.Threading.Tasks;
-using Discord;
-using ZirconSound.SlashCommands;
+using ZirconSound.SlashCommands.Handlers;
 
 namespace ZirconSound.Commands
 {
     public class GeneralCommand : SlashModuleBase<SlashCommandContext>
     {
         [SlashCommand("ping", "Ping the bot!")]
-        public async Task Ping()
-        {
-            await Context.Command.FollowupAsync("PONG!");
-        }
+        public async Task Ping() => await Context.Command.FollowupAsync("PONG!");
 
         [SlashCommand("help", "Show the commands you can execute")]
         public async Task Help()

@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using ZirconSound.SlashCommands.Handlers;
 
 namespace ZirconSound.SlashCommands.Hosting
 {

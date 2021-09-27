@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Threading;
-using System.Threading.Tasks;
-using Lavalink4NET;
+﻿using Lavalink4NET;
 using Lavalink4NET.Events;
 using Lavalink4NET.Player;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Concurrent;
+using System.Threading;
+using System.Threading.Tasks;
 using ZirconSound.Embeds;
 
 namespace ZirconSound.Player
@@ -68,10 +68,7 @@ namespace ZirconSound.Player
             }
         }
 
-        private async Task AudioService_TrackStarted(object sender, TrackStartedEventArgs eventArgs)
-        {
-            await CancelDisconnectAsync(eventArgs.Player);
-        }
+        private async Task AudioService_TrackStarted(object sender, TrackStartedEventArgs eventArgs) => await CancelDisconnectAsync(eventArgs.Player);
 
         private async Task AudioService_TrackEnd(object sender, TrackEndEventArgs eventArgs)
         {

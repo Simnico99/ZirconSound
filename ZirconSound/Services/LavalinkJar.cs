@@ -1,6 +1,6 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using System.IO;
-using Microsoft.Extensions.Logging;
 
 namespace ZirconSound.Services
 {

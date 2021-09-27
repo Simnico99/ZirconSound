@@ -1,6 +1,6 @@
-﻿using System;
-using Discord;
+﻿using Discord;
 using Discord.WebSocket;
+using System;
 using ZirconSound.Enum;
 
 namespace ZirconSound.Embeds
