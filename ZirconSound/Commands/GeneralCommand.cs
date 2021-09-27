@@ -1,13 +1,12 @@
-﻿using Discord;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using Discord;
 using ZirconSound.SlashCommands;
 
-namespace ZirconSound.Modules
+namespace ZirconSound.Commands
 {
     public class GeneralCommand : SlashModuleBase<SlashCommandContext>
     {
-
         [SlashCommand("ping", "Ping the bot!")]
         public async Task Ping()
         {
@@ -22,7 +21,7 @@ namespace ZirconSound.Modules
                 Title = "Commands",
                 Description = "The current commands you can use with ZirconSound.",
                 Color = Color.DarkRed,
-                Timestamp = DateTime.Now,
+                Timestamp = DateTime.Now
             };
 
             embed.AddField("Ping", "Ping the bot should answer with 'PONG!'");

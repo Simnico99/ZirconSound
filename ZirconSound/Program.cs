@@ -1,4 +1,7 @@
-﻿using Discord;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
+using Discord;
 using Discord.Addons.Hosting;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -9,31 +12,27 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using ZirconSound.Embeds;
 using ZirconSound.Logger;
 using ZirconSound.Player;
 using ZirconSound.Services;
-using ZirconSound.SlashCommands;
 using ZirconSound.SlashCommands.Hosting;
 
 namespace ZirconSound
 {
     /// <summary>
-    /// The entry point of the bot.
+    ///     The entry point of the bot.
     /// </summary>
-    internal class Program
+    internal static class Program
     {
-        public static IConfiguration Configuration;
+        private static IConfiguration _configuration;
 
         private static async Task Main()
         {
             var configBuilder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+                .AddJsonFile("appsettings.json", true, true);
 
-            Configuration = configBuilder.Build();
+            _configuration = configBuilder.Build();
 
 
             var builder = new HostBuilder()
@@ -48,20 +47,20 @@ namespace ZirconSound
                 })
                 .ConfigureDiscordHost((context, config) =>
                 {
-                    config.SocketConfig = new DiscordSocketConfig()
+                    config.SocketConfig = new DiscordSocketConfig
                     {
-                        LogLevel = LogSeverity.Debug,
+                        LogLevel = LogSeverity.Info,
                         AlwaysDownloadUsers = false,
-                        MessageCacheSize = 200,
+                        MessageCacheSize = 200
                     };
                     config.Token = context.Configuration["Token"];
                 })
-                .UseSlashCommandService((context, config) =>
+                .UseSlashCommandService((_, config) =>
                 {
-                    config.LogLevel = LogSeverity.Verbose;
+                    config.LogLevel = LogSeverity.Info;
                     config.DefaultRunMode = RunMode.Async;
                 })
-                .ConfigureServices((context, services) =>
+                .ConfigureServices((_, services) =>
                 {
                     services.AddSingleton<EmbedHandler>();
                     services.AddSingleton<PlayerService>();
@@ -76,7 +75,6 @@ namespace ZirconSound
 
                     services.AddHostedService<DiscordSocketService>();
                     services.AddHostedService<SlashCommandHandler>();
-
                 })
                 .UseConsoleLifetime()
                 .ConfigureLogging(x =>
@@ -87,7 +85,7 @@ namespace ZirconSound
                         configuration.LogLevels.Add(
                             LogLevel.Critical, ConsoleColor.Red);
                     });
-                    x.SetMinimumLevel(Configuration.GetSection("Logging").GetSection("LogLevel").GetValue<LogLevel>("Default"));
+                    x.SetMinimumLevel(_configuration.GetSection("Logging").GetSection("LogLevel").GetValue<LogLevel>("Default"));
                 });
 
             var host = builder.Build();
@@ -99,8 +97,8 @@ namespace ZirconSound
             {
                 try
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(5));
-                    host.Run();
+                    await Task.Delay(TimeSpan.FromSeconds(4));
+                    await host.RunAsync();
                 }
                 catch (Exception ex)
                 {
@@ -111,9 +109,9 @@ namespace ZirconSound
 
                     Environment.Exit(ex.HResult);
                 }
+
                 Environment.Exit(0);
             }
         }
     }
 }
-

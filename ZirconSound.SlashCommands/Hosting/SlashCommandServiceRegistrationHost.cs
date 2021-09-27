@@ -1,15 +1,15 @@
-﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace ZirconSound.SlashCommands.Hosting
 {
     internal class SlashCommandServiceRegistrationHost : IHostedService
     {
+        private readonly LogAdapter<SlashCommandService> _adapter;
         private readonly SlashCommandService _commandService;
         private readonly ILogger<SlashCommandServiceRegistrationHost> _logger;
-        private readonly LogAdapter<SlashCommandService> _adapter;
 
         public SlashCommandServiceRegistrationHost(SlashCommandService commandService, ILogger<SlashCommandServiceRegistrationHost> logger, LogAdapter<SlashCommandService> adapter)
         {
@@ -25,6 +25,9 @@ namespace ZirconSound.SlashCommands.Hosting
             return Task.CompletedTask;
         }
 
-        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
     }
 }

@@ -5,16 +5,16 @@ namespace ZirconSound.Embeds
 {
     public class EmbedHandler
     {
-        public DiscordSocketClient Client;
+        private readonly DiscordSocketClient _client;
 
         public EmbedHandler(DiscordSocketClient client)
         {
-            Client = client;
+            _client = client;
         }
 
         public ZirconEmbed Create()
         {
-            var embed = new ZirconEmbed(Client);
+            var embed = new ZirconEmbed(_client);
 
             return embed;
         }

@@ -1,14 +1,14 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace ZirconSound.Logger
 {
     public class ConsoleLoggerConfiguration
     {
-        public int EventId { get; set; }
+        public static int EventId => 0;
 
-        public Dictionary<LogLevel, ConsoleColor> LogLevels { get; set; } = new()
+        public Dictionary<LogLevel, ConsoleColor> LogLevels { get; } = new()
         {
             [LogLevel.Information] = ConsoleColor.DarkGreen,
             [LogLevel.Warning] = ConsoleColor.Yellow,
@@ -16,7 +16,7 @@ namespace ZirconSound.Logger
             [LogLevel.Debug] = ConsoleColor.DarkCyan
         };
 
-        public Dictionary<LogLevel, ConsoleColor> LogBackground { get; set; } = new()
+        public Dictionary<LogLevel, ConsoleColor> LogBackground { get; } = new()
         {
             [LogLevel.Information] = ConsoleColor.Black,
             [LogLevel.Warning] = ConsoleColor.Black,
@@ -24,7 +24,7 @@ namespace ZirconSound.Logger
             [LogLevel.Debug] = ConsoleColor.Black
         };
 
-        public Dictionary<LogLevel, string> LogShort { get; set; } = new()
+        public Dictionary<LogLevel, string> LogShort { get; } = new()
         {
             [LogLevel.Information] = "Info",
             [LogLevel.Warning] = "Warn",
@@ -32,5 +32,4 @@ namespace ZirconSound.Logger
             [LogLevel.Debug] = "Dbg"
         };
     }
-
 }

@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using System;
+using Discord;
 using Discord.WebSocket;
 using ZirconSound.Enum;
 
@@ -6,43 +7,40 @@ namespace ZirconSound.Embeds
 {
     public class ZirconEmbed : EmbedBuilder
     {
-        private readonly DiscordSocketClient _client;
-        private readonly EmbedAuthorBuilder _actualAuthor;
-
-        public ZirconEmbed(DiscordSocketClient socketClient)
+        public ZirconEmbed(BaseSocketClient socketClient)
         {
-            _client = socketClient;
-            _actualAuthor = new EmbedAuthorBuilder()
-            .WithName(_client.CurrentUser.Username)
-            .WithIconUrl(_client.CurrentUser.GetAvatarUrl());
-            WithAuthor(_actualAuthor);
+            var actualAuthor = new EmbedAuthorBuilder()
+                .WithName(socketClient.CurrentUser.Username)
+                .WithIconUrl(socketClient.CurrentUser.GetAvatarUrl());
+            WithAuthor(actualAuthor);
         }
 
         public ZirconEmbed(IUser user)
         {
-            _actualAuthor = new EmbedAuthorBuilder()
-            .WithName($"@{user.Username}#{user.Discriminator}")
-            .WithIconUrl(user.GetAvatarUrl());
-            WithAuthor(_actualAuthor);
+            var actualAuthor = new EmbedAuthorBuilder()
+                .WithName($"@{user.Username}#{user.Discriminator}")
+                .WithIconUrl(user.GetAvatarUrl());
+            WithAuthor(actualAuthor);
         }
 
         private void ChangeType(ZirconEmbedType embedType)
         {
-            if (embedType == ZirconEmbedType.Info)
+            switch (embedType)
             {
-                WithColor(Discord.Color.DarkBlue);
-            }
-            else if (embedType == ZirconEmbedType.Warning)
-            {
-                WithColor(Discord.Color.Orange);
-            }
-            else if (embedType == ZirconEmbedType.Error)
-            {
-                WithColor(Discord.Color.DarkRed);
-            }
-            else if (embedType == ZirconEmbedType.Debug)
-            {
-                WithColor(Discord.Color.DarkerGrey);
+                case ZirconEmbedType.Info:
+                    WithColor(Discord.Color.DarkBlue);
+                    break;
+                case ZirconEmbedType.Warning:
+                    WithColor(Discord.Color.Orange);
+                    break;
+                case ZirconEmbedType.Error:
+                    WithColor(Discord.Color.DarkRed);
+                    break;
+                case ZirconEmbedType.Debug:
+                    WithColor(Discord.Color.DarkerGrey);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(embedType), embedType, null);
             }
         }
 
