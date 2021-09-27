@@ -2,7 +2,7 @@
 using Discord.Commands;
 using Discord.WebSocket;
 
-namespace ZirconSound.SlashCommands
+namespace ZirconSound.SlashCommands.Handlers
 {
     public class SlashCommandContext : ICommandContext
     {

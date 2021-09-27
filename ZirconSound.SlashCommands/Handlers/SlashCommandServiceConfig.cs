@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 
-namespace ZirconSound.SlashCommands
+namespace ZirconSound.SlashCommands.Handlers
 {
     public class SlashCommandServiceConfig
     {

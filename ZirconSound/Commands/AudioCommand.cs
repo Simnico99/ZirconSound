@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
 using Lavalink4NET;
 using Lavalink4NET.Player;
 using Lavalink4NET.Rest;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using ZirconSound.Embeds;
 using ZirconSound.Enum;
 using ZirconSound.Extensions;
 using ZirconSound.Player;
-using ZirconSound.SlashCommands;
+using ZirconSound.SlashCommands.Handlers;
 
 namespace ZirconSound.Commands
 {

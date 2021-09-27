@@ -1,5 +1,5 @@
-﻿using System;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using System;
 
 namespace ZirconSound.Logger
 {
@@ -10,20 +10,11 @@ namespace ZirconSound.Logger
 
         public ConsoleLogger(
             string name,
-            Func<ConsoleLoggerConfiguration> getCurrentConfig)
-        {
-            (_name, _getCurrentConfig) = (name, getCurrentConfig);
-        }
+            Func<ConsoleLoggerConfiguration> getCurrentConfig) => (_name, _getCurrentConfig) = (name, getCurrentConfig);
 
-        public IDisposable BeginScope<TState>(TState state)
-        {
-            return default;
-        }
+        public IDisposable BeginScope<TState>(TState state) => default;
 
-        public bool IsEnabled(LogLevel logLevel)
-        {
-            return _getCurrentConfig().LogLevels.ContainsKey(logLevel);
-        }
+        public bool IsEnabled(LogLevel logLevel) => _getCurrentConfig().LogLevels.ContainsKey(logLevel);
 
         public void Log<TState>(
             LogLevel logLevel,

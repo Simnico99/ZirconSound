@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using ZirconSound.SlashCommands.Events;
 
-namespace ZirconSound.SlashCommands
+namespace ZirconSound.SlashCommands.Handlers
 {
     public class SlashCommandService
     {

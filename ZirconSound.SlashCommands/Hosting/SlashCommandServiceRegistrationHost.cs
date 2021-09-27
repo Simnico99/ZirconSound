@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using ZirconSound.SlashCommands.Handlers;
 
 namespace ZirconSound.SlashCommands.Hosting
 {

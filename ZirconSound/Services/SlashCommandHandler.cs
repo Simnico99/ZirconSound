@@ -1,15 +1,15 @@
-﻿using System;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Addons.Hosting;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using ZirconSound.Embeds;
 using ZirconSound.Enum;
-using ZirconSound.SlashCommands;
+using ZirconSound.SlashCommands.Handlers;
 
 namespace ZirconSound.Services
 {

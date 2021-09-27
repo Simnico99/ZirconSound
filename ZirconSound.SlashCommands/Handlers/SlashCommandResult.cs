@@ -1,6 +1,6 @@
 ﻿using Discord.Commands;
 
-namespace ZirconSound.SlashCommands
+namespace ZirconSound.SlashCommands.Handlers
 {
     internal class SlashCommandResult : IResult
     {

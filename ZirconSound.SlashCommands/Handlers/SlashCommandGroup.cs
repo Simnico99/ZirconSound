@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace ZirconSound.SlashCommands
+namespace ZirconSound.SlashCommands.Handlers
 {
     public class SlashCommandGroup
     {

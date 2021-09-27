@@ -1,7 +1,7 @@
 ﻿using Discord.Commands;
 using Discord.Commands.Builders;
 
-namespace ZirconSound.SlashCommands
+namespace ZirconSound.SlashCommands.Handlers
 {
     public interface ISlashModuleBase
     {

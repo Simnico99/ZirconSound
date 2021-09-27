@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Concurrent;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Concurrent;
 
 namespace ZirconSound.Logger
 {
@@ -18,10 +18,7 @@ namespace ZirconSound.Logger
             _onChangeToken = config.OnChange(updatedConfig => _currentConfig = updatedConfig);
         }
 
-        public ILogger CreateLogger(string categoryName)
-        {
-            return _loggers.GetOrAdd(categoryName, name => new ConsoleLogger(name, GetCurrentConfig));
-        }
+        public ILogger CreateLogger(string categoryName) => _loggers.GetOrAdd(categoryName, name => new ConsoleLogger(name, GetCurrentConfig));
 
         public void Dispose()
         {
@@ -29,9 +26,6 @@ namespace ZirconSound.Logger
             _onChangeToken.Dispose();
         }
 
-        private ConsoleLoggerConfiguration GetCurrentConfig()
-        {
-            return _currentConfig;
-        }
+        private ConsoleLoggerConfiguration GetCurrentConfig() => _currentConfig;
     }
 }
