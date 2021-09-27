@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Addons.Hosting.Util;
 using Discord.Commands;
 using Discord.Net;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using ZirconSound.ApplicationCommands.Events;
 
 namespace ZirconSound.ApplicationCommands.SlashCommands
@@ -41,6 +41,7 @@ namespace ZirconSound.ApplicationCommands.SlashCommands
         private async Task CommandBuilder(IEnumerable<SlashCommand> commands, DiscordSocketClient client)
         {
             var commandList = new List<ApplicationCommandProperties>();
+            var commandToAdd = new List<SlashCommandBuilder>();
 
             foreach (var command in commands)
             {
@@ -58,24 +59,27 @@ namespace ZirconSound.ApplicationCommands.SlashCommands
 
                 await Log.Invoke(new LogMessage(_config.LogLevel, "SlashCommandService", $"Adding Command: {command.Name}\n{command.Description}"));
 
+                commandToAdd.Add(globalCommand);
                 commandList.Add(globalCommand.Build());
+
             }
 
             try
             {
-                //await Client.BulkOverwriteGlobalApplicationCommandsAsync(CommandList.ToArray());
-                /*
-                foreach (var command in CommandList)
-                {
-                    foreach (var guild in Client.Guilds)
-                    {
-                        await Client.Rest.CreateGuildCommand(command, guild.Id);
-                    }
-                }
-                */
-                await client.BulkOverwriteGlobalApplicationCommandsAsync(commandList.ToArray());
+                var actualCommands = await client.GetGlobalApplicationCommandsAsync();
 
-                await Log.Invoke(new LogMessage(_config.LogLevel, "SlashCommandService", "Added slash commands"));
+                var addCommands = actualCommands.Any(command => !commandToAdd.Any(x => x.Name == command.Name && x.Description == command.Description));
+
+                if (addCommands)
+                {
+                    await client.BulkOverwriteGlobalApplicationCommandsAsync(commandList.ToArray());
+
+                    await Log.Invoke(new LogMessage(_config.LogLevel, "SlashCommandService", "Added slash commands"));
+                }
+                else
+                {
+                    await Log.Invoke(new LogMessage(LogSeverity.Warning, "SlashCommandService", "Command creation got skipped:\nBecause no new commands got added!"));
+                }
             }
             catch (ApplicationCommandException exception)
             {
@@ -144,10 +148,9 @@ namespace ZirconSound.ApplicationCommands.SlashCommands
             await client.WaitForReadyAsync(cancellationToken);
             _provider = provider;
 
-            var commands = new List<SlashCommand>();
             Commands = SlashCommandHelper.GetSlashCommands(assembly);
 
-            foreach (var commandsMethods in Commands) commands.Add(commandsMethods.Command);
+            var commands = Commands.Select(commandsMethods => commandsMethods.Command).ToList();
 
             await CommandBuilder(commands, client);
         }

@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Discord;
+using System;
 using System.Linq;
-using Discord;
 
 namespace ZirconSound.ApplicationCommands.Events
 {
