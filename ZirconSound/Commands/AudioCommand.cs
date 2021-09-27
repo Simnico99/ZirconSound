@@ -7,11 +7,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ZirconSound.ApplicationCommands.SlashCommands;
 using ZirconSound.Embeds;
 using ZirconSound.Enum;
 using ZirconSound.Extensions;
 using ZirconSound.Player;
-using ZirconSound.SlashCommands.Handlers;
 
 namespace ZirconSound.Commands
 {

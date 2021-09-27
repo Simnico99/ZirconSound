@@ -7,9 +7,9 @@ using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using ZirconSound.ApplicationCommands.SlashCommands;
 using ZirconSound.Embeds;
 using ZirconSound.Enum;
-using ZirconSound.SlashCommands.Handlers;
 
 namespace ZirconSound.Services
 {

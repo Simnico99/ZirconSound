@@ -1,7 +1,7 @@
-﻿using Discord;
-using System;
+﻿using System;
+using Discord;
 
-namespace ZirconSound.SlashCommands.Handlers
+namespace ZirconSound.ApplicationCommands.SlashCommands
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class SlashCommand : Attribute

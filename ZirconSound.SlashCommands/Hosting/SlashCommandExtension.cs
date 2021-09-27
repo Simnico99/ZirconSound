@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using System;
-using System.Linq;
-using ZirconSound.SlashCommands.Handlers;
+using ZirconSound.ApplicationCommands.SlashCommands;
 
-namespace ZirconSound.SlashCommands.Hosting
+namespace ZirconSound.ApplicationCommands.Hosting
 {
     public static class SlashCommandExtension
     {

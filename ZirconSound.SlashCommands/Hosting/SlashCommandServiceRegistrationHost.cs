@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using ZirconSound.SlashCommands.Handlers;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using ZirconSound.ApplicationCommands.SlashCommands;
 
-namespace ZirconSound.SlashCommands.Hosting
+namespace ZirconSound.ApplicationCommands.Hosting
 {
     internal class SlashCommandServiceRegistrationHost : IHostedService
     {

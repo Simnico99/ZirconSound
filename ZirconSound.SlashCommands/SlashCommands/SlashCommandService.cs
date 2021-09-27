@@ -1,19 +1,19 @@
-﻿using Discord;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using Discord;
 using Discord.Addons.Hosting.Util;
 using Discord.Commands;
 using Discord.Net;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using ZirconSound.SlashCommands.Events;
+using ZirconSound.ApplicationCommands.Events;
 
-namespace ZirconSound.SlashCommands.Handlers
+namespace ZirconSound.ApplicationCommands.SlashCommands
 {
     public class SlashCommandService
     {

@@ -8,7 +8,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconSound", "ZirconSound\
 		{582BA1C3-4D21-4295-B751-010BDB5F9AEA} = {582BA1C3-4D21-4295-B751-010BDB5F9AEA}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZirconSound.SlashCommands", "ZirconSound.SlashCommands\ZirconSound.SlashCommands.csproj", "{582BA1C3-4D21-4295-B751-010BDB5F9AEA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconSound.ApplicationCommands", "ZirconSound.SlashCommands\ZirconSound.ApplicationCommands.csproj", "{582BA1C3-4D21-4295-B751-010BDB5F9AEA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

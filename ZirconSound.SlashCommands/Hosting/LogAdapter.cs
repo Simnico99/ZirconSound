@@ -1,11 +1,11 @@
-﻿using Discord;
+﻿using System;
+using System.Threading.Tasks;
+using Discord;
 using Discord.Addons.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Threading.Tasks;
 
-namespace ZirconSound.SlashCommands.Hosting
+namespace ZirconSound.ApplicationCommands.Hosting
 {
     internal class LogAdapter<T> where T : class
     {

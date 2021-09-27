@@ -1,8 +1,8 @@
-﻿using Discord;
-using System;
+﻿using System;
 using System.Linq;
+using Discord;
 
-namespace ZirconSound.SlashCommands.Events
+namespace ZirconSound.ApplicationCommands.Events
 {
     internal static class Preconditions
     {

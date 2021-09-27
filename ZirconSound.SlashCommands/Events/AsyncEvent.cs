@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
-namespace ZirconSound.SlashCommands.Events
+namespace ZirconSound.ApplicationCommands.Events
 {
     internal class AsyncEvent<T>
         where T : class
