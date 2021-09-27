@@ -2,7 +2,7 @@
 using Discord.WebSocket;
 using ZirconSound.Enum;
 
-namespace ZirconSound.DiscordHandlers
+namespace ZirconSound.Embeds
 {
     public class ZirconEmbed : EmbedBuilder
     {

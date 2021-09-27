@@ -1,0 +1,36 @@
+﻿using Discord.Commands;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace ZirconSound.SlashCommands.Hosting
+{
+
+    public static class SlashCommandExtension
+    {
+        public static IHostBuilder UseSlashCommandService(this IHostBuilder builder, Action<HostBuilderContext, SlashCommmandServiceConfig> config)
+        {
+            if (config == null)
+                throw new ArgumentNullException(nameof(config));
+
+            builder.ConfigureServices((context, collection) =>
+            {
+                if (collection.Any(x => x.ServiceType == typeof(SlashCommandService)))
+                    throw new InvalidOperationException("Cannot add more than one SlashCommandService to host");
+
+                collection.AddSingleton(typeof(LogAdapter<>));
+                collection.Configure<SlashCommmandServiceConfig>(x => config(context, x));
+
+                collection.AddSingleton(x => new SlashCommandService(x.GetRequiredService<IOptions<SlashCommmandServiceConfig>>().Value));
+                collection.AddHostedService<SlashCommandServiceRegistrationHost>();
+                
+            });
+
+            return builder;
+        }
+    }
+}
