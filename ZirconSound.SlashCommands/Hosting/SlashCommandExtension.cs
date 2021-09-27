@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using System;
+using System.Linq;
 using ZirconSound.SlashCommands.Handlers;
 
 namespace ZirconSound.SlashCommands.Hosting

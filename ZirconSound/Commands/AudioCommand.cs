@@ -164,7 +164,7 @@ namespace ZirconSound.Commands
                         var track = lavalinkTracks.First();
                         embed.AddField("Playing:", $"[{track.Title}]({track.Source})");
                         EmbedSong(ref embed, track);
-                        lavalinkTracks.Skip(1);
+                        lavalinkTracks = lavalinkTracks.Skip(1).ToList();
                         if (player != null)
                         {
                             await player.PlayAsync(track);
@@ -172,10 +172,10 @@ namespace ZirconSound.Commands
                     }
                     else
                     {
-                        if (lavalinkTracks.Count() <= 1)
+                        if (lavalinkTracks.Count <= 1)
                         {
                             var track = lavalinkTracks.First();
-                            lavalinkTracks.Skip(1);
+                            lavalinkTracks = lavalinkTracks.Skip(1).ToList();
 
                             embed.AddField("Queued:", $"[{track.Title}]({track.Source})");
                             EmbedSong(ref embed, track);
@@ -192,9 +192,9 @@ namespace ZirconSound.Commands
                         }
                     }
 
-                    if (lavalinkTracks.Count() > 1)
+                    if (lavalinkTracks.Count > 1)
                     {
-                        var estimatedTime = new EmbedFieldBuilder().WithName("Queued:").WithValue($"{lavalinkTracks.Count()} tracks!").WithIsInline(true);
+                        var estimatedTime = new EmbedFieldBuilder().WithName("Queued:").WithValue($"{lavalinkTracks.Count} tracks!").WithIsInline(true);
 
                         embed.AddField(estimatedTime);
 

@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Discord;
+using System;
 using System.Linq;
-using Discord;
 
 namespace ZirconSound.SlashCommands.Events
 {
-    internal static class LocalPreconditions
+    internal static class Preconditions
     {
         //Objects
         /// <exception cref="ArgumentNullException"><paramref name="obj" /> must not be <see langword="null" />.</exception>
@@ -120,10 +120,7 @@ namespace ZirconSound.SlashCommands.Events
             }
         }
 
-        private static ArgumentException CreateNotEmptyException(string name, string msg)
-        {
-            return new ArgumentException(msg ?? "Argument cannot be blank.", name);
-        }
+        private static ArgumentException CreateNotEmptyException(string name, string msg) => new(msg ?? "Argument cannot be blank.", name);
 
         //Numeric
         /// <exception cref="ArgumentException">Value may not be equal to <paramref name="value" />.</exception>
@@ -414,10 +411,7 @@ namespace ZirconSound.SlashCommands.Events
             }
         }
 
-        private static ArgumentException CreateNotEqualException<T>(string name, string msg, T value)
-        {
-            return new ArgumentException(msg ?? $"Value may not be equal to {value}.", name);
-        }
+        private static ArgumentException CreateNotEqualException<T>(string name, string msg, T value) => new(msg ?? $"Value may not be equal to {value}.", name);
 
         /// <exception cref="ArgumentException">Value must be at least <paramref name="value" />.</exception>
         public static void AtLeast(sbyte obj, sbyte value, string name, string msg = null)
@@ -563,10 +557,7 @@ namespace ZirconSound.SlashCommands.Events
             }
         }
 
-        private static ArgumentException CreateAtLeastException<T>(string name, string msg, T value)
-        {
-            return new ArgumentException(msg ?? $"Value must be at least {value}.", name);
-        }
+        private static ArgumentException CreateAtLeastException<T>(string name, string msg, T value) => new(msg ?? $"Value must be at least {value}.", name);
 
         /// <exception cref="ArgumentException">Value must be greater than <paramref name="value" />.</exception>
         public static void GreaterThan(sbyte obj, sbyte value, string name, string msg = null)
@@ -712,10 +703,7 @@ namespace ZirconSound.SlashCommands.Events
             }
         }
 
-        private static ArgumentException CreateGreaterThanException<T>(string name, string msg, T value)
-        {
-            return new ArgumentException(msg ?? $"Value must be greater than {value}.", name);
-        }
+        private static ArgumentException CreateGreaterThanException<T>(string name, string msg, T value) => new(msg ?? $"Value must be greater than {value}.", name);
 
         /// <exception cref="ArgumentException">Value must be at most <paramref name="value" />.</exception>
         public static void AtMost(sbyte obj, sbyte value, string name, string msg = null)
@@ -861,10 +849,7 @@ namespace ZirconSound.SlashCommands.Events
             }
         }
 
-        private static ArgumentException CreateAtMostException<T>(string name, string msg, T value)
-        {
-            return new ArgumentException(msg ?? $"Value must be at most {value}.", name);
-        }
+        private static ArgumentException CreateAtMostException<T>(string name, string msg, T value) => new(msg ?? $"Value must be at most {value}.", name);
 
         /// <exception cref="ArgumentException">Value must be less than <paramref name="value" />.</exception>
         public static void LessThan(sbyte obj, sbyte value, string name, string msg = null)
@@ -1010,10 +995,7 @@ namespace ZirconSound.SlashCommands.Events
             }
         }
 
-        private static ArgumentException CreateLessThanException<T>(string name, string msg, T value)
-        {
-            return new ArgumentException(msg ?? $"Value must be less than {value}.", name);
-        }
+        private static ArgumentException CreateLessThanException<T>(string name, string msg, T value) => new(msg ?? $"Value must be less than {value}.", name);
 
         // Bulk Delete
         /// <exception cref="ArgumentOutOfRangeException">Messages are younger than 2 weeks.</exception>

@@ -1,6 +1,6 @@
-﻿using System;
-using Discord.Commands;
+﻿using Discord.Commands;
 using Discord.Commands.Builders;
+using System;
 
 namespace ZirconSound.SlashCommands.Handlers
 {
@@ -18,20 +18,11 @@ namespace ZirconSound.SlashCommands.Handlers
             Context = newValue ?? throw new InvalidOperationException($"Invalid context type. Expected {typeof(T).Name}, got {context.GetType().Name}.");
         }
 
-        void ISlashModuleBase.BeforeExecute(CommandInfo command)
-        {
-            BeforeExecute(command);
-        }
+        void ISlashModuleBase.BeforeExecute(CommandInfo command) => BeforeExecute(command);
 
-        void ISlashModuleBase.AfterExecute(CommandInfo command)
-        {
-            AfterExecute(command);
-        }
+        void ISlashModuleBase.AfterExecute(CommandInfo command) => AfterExecute(command);
 
-        void ISlashModuleBase.OnModuleBuilding(CommandService commandService, ModuleBuilder builder)
-        {
-            OnModuleBuilding(commandService, builder);
-        }
+        void ISlashModuleBase.OnModuleBuilding(CommandService commandService, ModuleBuilder builder) => OnModuleBuilding(commandService, builder);
 
         public void SetContext(ICommandContext context)
         {
