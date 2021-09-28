@@ -14,7 +14,7 @@ variables:
   buildConfiguration: 'Release'
 
 jobs:
-- job: Build Windows
+- job: "Build-Windows"
   pool:
     vmImage: 'windows-latest'
   steps:
