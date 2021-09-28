@@ -6,6 +6,7 @@
 trigger:
 - master
 
+
 pool:
   vmImage: 'windows-latest'
 
@@ -37,6 +38,8 @@ steps:
     searchFolder: '$(System.DefaultWorkingDirectory)'
 
 - task: ado-discord-webhook@1
+  displayName: Publish test results
+  condition: succeededOrFailed()
   inputs:
     channelId: '892075724847079494'
     webhookKey: 'S3CPGp0vqpF-azkSH-LSxjUf47h3LrTliK7M7QZlJV2GacMn1sQe4OVvpqrItEVd1sBf'
