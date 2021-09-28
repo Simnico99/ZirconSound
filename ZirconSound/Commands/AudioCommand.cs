@@ -5,6 +5,7 @@ using Lavalink4NET.Player;
 using Lavalink4NET.Rest;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using ZirconSound.ApplicationCommands.SlashCommands;
@@ -15,6 +16,7 @@ using ZirconSound.Player;
 
 namespace ZirconSound.Commands
 {
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public class AudioCommand : SlashModuleBase<SlashCommandContext>
     {
         private readonly IAudioService _audioService;
