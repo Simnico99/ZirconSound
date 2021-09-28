@@ -48,7 +48,6 @@ steps:
             "type": "rich",
             "title": "Azure Build Pipeline",
             "description": "Build [$(Build.BuildNumber)]($(Build.BuildUri)) $(Agent.JobStatus)",
-            "color": 0x121212,
             "fields": [
               {
                 "name": "Project",
