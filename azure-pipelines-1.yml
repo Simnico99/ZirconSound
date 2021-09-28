@@ -46,13 +46,13 @@ steps:
     embeds: |
       {
             "type": "rich",
-            "title": 'Azure Build Pipeline',
-            "description": 'Build [$(Build.BuildNumber)]($(Build.BuildUri)) $(Agent.JobStatus)',
+            "title": "Azure Build Pipeline",
+            "description": "Build [$(Build.BuildNumber)]($(Build.BuildUri)) $(Agent.JobStatus)",
             "color": 0x121212,
             "fields": [
               {
-                "name": 'Project',
-                "value": '$(Build.Repository.Name)'
+                "name": "Project",
+                "value": "$(Build.Repository.Name)"
               }
             ]
           }
