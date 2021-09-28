@@ -52,7 +52,7 @@ steps:
                 "name": "Project",
                 "value": "$(Build.Repository.Name)"
                 "inline": true
-              }
+              },
               {
                 "name": "Id",
                 "value": "$(Build.BuildId)",
