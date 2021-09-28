@@ -45,14 +45,14 @@ steps:
     messageType: 'embeds'
     embeds: |
       {
-         "type":"rich",
-         "title":"`Azure Build Pipeline`",
-         "description":"`Build [$(Build.BuildNumber)]($(Build.BuildUri)) $(Agent.JobStatus)`",
-         "color":0x121212,
-         "fields":[
-            {
-               "name":"`Project`",
-               "value":"`$(Build.Repository.Name)`",
-               "inline":true
-            }
-         ]
+            "type": "rich",
+            "title": `Azure Build Pipeline`,
+            "description": `Build [$(Build.BuildNumber)]($(Build.BuildUri)) $(Agent.JobStatus)`,
+            "color": 0x121212,
+            "fields": [
+              {
+                "name": `Project`,
+                "value": `$(Build.Repository.Name)`
+              }
+            ]
+          }
