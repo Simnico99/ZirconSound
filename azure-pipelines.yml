@@ -25,4 +25,4 @@ jobs:
   pool:
     vmImage: 'windows-latest'
   steps:
-  - template: azure/discordhook.yaml
+  - template: azure/discordhook.yml
