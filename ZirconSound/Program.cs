@@ -25,7 +25,7 @@ namespace ZirconSound
     /// </summary>
     internal static class Program
     {
-        private static IConfiguration _configuration
+        private static IConfiguration _configuration;
 
         private static async Task Main()
         {
