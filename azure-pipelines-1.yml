@@ -50,7 +50,7 @@ steps:
             "fields": [
               {
                 "name": "Project",
-                "value": "$(Build.Repository.Name)"
+                "value": "$(Build.Repository.Name)",
                 "inline": true
               },
               {
