@@ -1,0 +1,21 @@
+steps:
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: VSBuild@1
+  inputs:
+    solution: '$(solution)'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+
+- task: VSTest@2
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: |
+      **\$(buildConfiguration)\*\*ZirconSound*.dll
+      **\$(buildConfiguration)\*\*ZirconSound.exe
+      !**\obj\**
+    searchFolder: '$(System.DefaultWorkingDirectory)'
