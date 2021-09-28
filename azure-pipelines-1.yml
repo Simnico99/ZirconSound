@@ -48,6 +48,7 @@ steps:
     messageType: 'embeds'
     embeds: |
       [{
+            "color": "0xff0000",
             "title": "Azure Build Pipeline",
             "description": "Build [$(Build.BuildNumber)](https://dev.azure.com/ZirconCloud/web/build.aspx?builduri=$(Build.BuildUri)) $(Agent.JobStatus)\n",
             "fields": [
