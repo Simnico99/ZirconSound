@@ -46,7 +46,7 @@ steps:
     embeds: |
       [{
             "title": "Azure Build Pipeline",
-            "description": "Build [$(Build.BuildNumber)](https://dev.azure.com/ZirconCloud/ZirconSound/builduri=$(Build.BuildUri)) $(Agent.JobStatus)\n",
+            "description": "Build [$(Build.BuildNumber)](https://dev.azure.com/ZirconCloud/web/build.aspx?builduri=$(Build.BuildUri)) $(Agent.JobStatus)\n",
             "fields": [
               {
                 "name": "Project",
