@@ -44,8 +44,7 @@ steps:
     avatar: 'https://i2.wp.com/elanderson.net/wp-content/uploads/2020/02/AzureDevOpsPipelinesIcon.png?resize=300%2C300&ssl=1'
     messageType: 'embeds'
     embeds: |
-      {
-            "type": "rich",
+      [{
             "title": "Azure Build Pipeline",
             "description": "Build [$(Build.BuildNumber)]($(Build.BuildUri)) $(Agent.JobStatus)",
             "fields": [
@@ -54,4 +53,4 @@ steps:
                 "value": "$(Build.Repository.Name)"
               }
             ]
-          }
+          }]
