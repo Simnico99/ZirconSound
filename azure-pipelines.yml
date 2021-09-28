@@ -14,13 +14,13 @@ variables:
   buildConfiguration: 'Release'
 
 jobs:
-- job: "Build-Windows"
+- job: "Build_Windows"
   pool:
     vmImage: 'windows-latest'
   steps:
   - template: azure/build.yml
 
-- job: "Send-Notification"
+- job: "Send_Notification"
   condition: succeededOrFailed()
   pool:
     vmImage: 'windows-latest'
