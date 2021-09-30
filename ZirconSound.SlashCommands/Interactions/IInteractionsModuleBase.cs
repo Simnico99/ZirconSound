@@ -1,9 +1,9 @@
 ﻿using Discord.Commands;
 using Discord.Commands.Builders;
 
-namespace ZirconSound.ApplicationCommands.SlashCommands
+namespace ZirconSound.ApplicationCommands.Interactions
 {
-    public interface ISlashModuleBase
+    public interface IInteractionsModuleBase
     {
         /// <summary>
         /// Set the context of the command.

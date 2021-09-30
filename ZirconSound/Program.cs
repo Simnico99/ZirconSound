@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using ZirconSound.ApplicationCommands.Hosting;
+using ZirconSound.ApplicationCommands.Interactions;
 using ZirconSound.Embeds;
 using ZirconSound.Logger;
 using ZirconSound.Player;
@@ -55,7 +55,7 @@ namespace ZirconSound
                     };
                     config.Token = context.Configuration["Token"];
                 })
-                .UseSlashCommandService((_, config) =>
+                .UseInteractionService((_, config) =>
                 {
                     config.LogLevel = LogSeverity.Info;
                     config.DefaultRunMode = RunMode.Async;
@@ -74,7 +74,7 @@ namespace ZirconSound
                     });
 
                     services.AddHostedService<DiscordSocketService>();
-                    services.AddHostedService<SlashCommandHandler>();
+                    services.AddHostedService<InteractionService>();
                 })
                 .UseConsoleLifetime()
                 .ConfigureLogging(x =>
@@ -91,7 +91,6 @@ namespace ZirconSound
             var host = builder.Build();
             var discordSocket = host.Services.GetRequiredService<ILogger<LavalinkJar>>();
             LavalinkJar.Start(discordSocket);
-
 
             using (host)
             {
