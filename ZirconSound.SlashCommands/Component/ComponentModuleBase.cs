@@ -1,15 +1,15 @@
-﻿using Discord.Commands;
+﻿using System;
+using Discord.Commands;
 using Discord.Commands.Builders;
-using System;
 using ZirconSound.ApplicationCommands.Interactions;
 
-namespace ZirconSound.ApplicationCommands.SlashCommands
+namespace ZirconSound.ApplicationCommands.Component
 {
-    public abstract class SlashModuleBase : SlashModuleBase<ICommandContext>
+    public abstract class ComponentModuleBase : ComponentModuleBase<ICommandContext>
     {
     }
 
-    public abstract class SlashModuleBase<T> : IInteractionsModuleBase where T : class, ICommandContext
+    public abstract class ComponentModuleBase<T> : IInteractionsModuleBase where T : class, ICommandContext
     {
         protected T Context { get; private set; }
 

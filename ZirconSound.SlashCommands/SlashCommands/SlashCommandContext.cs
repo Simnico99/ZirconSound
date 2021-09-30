@@ -17,10 +17,12 @@ namespace ZirconSound.ApplicationCommands.SlashCommands
             Guild = chanel?.Guild;
             User = command.User;
             Channel = command.Channel;
+            Message = null;
             Command = command;
         }
 
         public SocketSlashCommand Command { get; }
+
         public IDiscordClient Client { get; }
 
         public IGuild Guild { get; }
