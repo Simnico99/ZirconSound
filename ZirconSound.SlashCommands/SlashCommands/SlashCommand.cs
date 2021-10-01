@@ -3,6 +3,7 @@ using System;
 
 namespace ZirconSound.ApplicationCommands.SlashCommands
 {
+    //test
     [AttributeUsage(AttributeTargets.Method)]
     public class SlashCommand : Attribute
     {
