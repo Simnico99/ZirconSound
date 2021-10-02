@@ -705,7 +705,7 @@ namespace ZirconSound.Commands
                         await _playerService.CancelDisconnectAsync(player);
                         player.IsLooping = true;
 
-                        var button = new ComponentBuilder().WithButton("Loop", "loop-button", ButtonStyle.Secondary);
+                        var button = new ComponentBuilder().WithButton("Unloop", "loop-button", ButtonStyle.Secondary);
 
                         embed.AddField("Looping", "The player is now looping tracks!");
                         await Context.ReplyToCommandAsync(embed: embed.BuildSync(), component: button.Build());
@@ -716,7 +716,7 @@ namespace ZirconSound.Commands
                         await _playerService.CancelDisconnectAsync(player);
                         player.IsLooping = false;
 
-                        var button = new ComponentBuilder().WithButton("Unloop", "loop-button", ButtonStyle.Secondary);
+                        var button = new ComponentBuilder().WithButton("Loop", "loop-button", ButtonStyle.Secondary);
 
                         embed.AddField("Looping", "The player not looping tracks anymore!");
                         await Context.ReplyToCommandAsync(embed: embed.BuildSync(), component: button.Build());
