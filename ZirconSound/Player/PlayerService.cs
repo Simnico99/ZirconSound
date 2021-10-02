@@ -6,6 +6,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using Lavalink4NET.Rest;
 using ZirconSound.Embeds;
 
 namespace ZirconSound.Player
@@ -15,6 +16,7 @@ namespace ZirconSound.Player
         private readonly ConcurrentDictionary<ulong?, CancellationTokenSource> _aloneDisconnectTokens;
         private readonly ConcurrentDictionary<ulong?, CancellationTokenSource> _disconnectTokens;
         private readonly EmbedHandler _embedHandler;
+        private readonly IAudioService _audioService;
         private readonly ILogger _logger;
 
         public PlayerService(EmbedHandler embedHandler, IAudioService audioService, ILogger<PlayerService> logger)
@@ -23,6 +25,7 @@ namespace ZirconSound.Player
             _aloneDisconnectTokens = new ConcurrentDictionary<ulong?, CancellationTokenSource>();
             _logger = logger;
             _embedHandler = embedHandler;
+            _audioService = audioService;
 
             audioService.TrackEnd += AudioService_TrackEnd;
             audioService.TrackStuck += AudioService_TrackStuck;
@@ -56,6 +59,30 @@ namespace ZirconSound.Player
         {
             _logger.LogWarning($"Track {eventArgs.Player.CurrentTrack?.Title} got stuck. Please check Lavalink console/logs.");
             var player = (QueuedLavalinkPlayer)eventArgs.Player;
+
+            if (player.IsLooping)
+            {
+                if (player.CurrentTrack != null)
+                {
+                    var currentSong = player.CurrentTrack.Source;
+                    var track = await _audioService.GetTrackAsync(currentSong ?? string.Empty, SearchMode.YouTube, true);
+                    if (track != null)
+                    {
+                        await player.PlayAsync(track);
+                    }
+                    else
+                    {
+                        await player.StopAsync();
+                        await InitiateDisconnectAsync(player, TimeSpan.FromSeconds(40));
+                    }
+                }
+                else
+                {
+                    await player.StopAsync();
+                    await InitiateDisconnectAsync(player, TimeSpan.FromSeconds(40));
+                }
+                return;
+            }
 
             if (player.Queue.Count == 0)
             {
