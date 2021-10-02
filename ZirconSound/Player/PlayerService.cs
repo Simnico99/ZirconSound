@@ -74,6 +74,12 @@ namespace ZirconSound.Player
         {
             var player = (QueuedLavalinkPlayer)eventArgs.Player;
 
+            if (player.IsLooping)
+            {
+                await player.ReplayAsync();
+                return;
+            }
+
             if (player.Queue.IsEmpty)
             {
                 await InitiateDisconnectAsync(eventArgs.Player, TimeSpan.FromSeconds(40));
