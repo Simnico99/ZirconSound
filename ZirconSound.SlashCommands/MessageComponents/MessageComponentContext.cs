@@ -1,27 +1,24 @@
 ﻿using Discord;
-using Discord.Commands;
 using Discord.WebSocket;
+using ZirconSound.ApplicationCommands.Interactions;
 
-namespace ZirconSound.ApplicationCommands.Component
+namespace ZirconSound.ApplicationCommands.MessageComponents
 {
-    public class ComponentContext : ICommandContext
+    public class MessageComponentContext : IInteractionContext
     {
-        private ComponentContext()
+        private MessageComponentContext()
         {
         }
 
-        public ComponentContext(IDiscordClient client, SocketMessageComponent component)
+        public MessageComponentContext(IDiscordClient client, SocketMessageComponent component)
         {
             Client = client;
             var chanel = component.Channel as SocketGuildChannel;
             Guild = chanel?.Guild;
             User = component.User;
             Channel = component.Channel;
-            Component = component;
-            Message = component.Message;
+            Interaction = component;
         }
-
-        public SocketMessageComponent Component { get; }
 
         public IDiscordClient Client { get; }
 
@@ -31,6 +28,6 @@ namespace ZirconSound.ApplicationCommands.Component
 
         public IUser User { get; }
 
-        public IUserMessage Message { get; }
+        public SocketInteraction Interaction { get; }
     }
 }

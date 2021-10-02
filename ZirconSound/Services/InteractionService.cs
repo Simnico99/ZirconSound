@@ -1,6 +1,4 @@
-﻿using Discord;
-using Discord.Addons.Hosting;
-using Discord.Commands;
+﻿using Discord.Addons.Hosting;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using System;
@@ -28,7 +26,9 @@ namespace ZirconSound.Services
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             Client.InteractionCreated += Client_InteractionCreated;
-            _interactionsService.CommandExecuted += SlashCommandHandler.InteractionsExecuted;
+            _interactionsService.CommandExecuted += SlashCommandHandler.Executed;
+            _interactionsService.MessageComponentExecuted += MessageComponentHandler.Executed;
+
             await _interactionsService.AddModuleAsync(Assembly.GetExecutingAssembly(), _provider, _client, stoppingToken);
         }
 
@@ -44,7 +44,7 @@ namespace ZirconSound.Services
 
                 // Button clicks/selection dropdowns
                 case SocketMessageComponent componentInteraction:
-                    //await MyMessageComponentHandler(componentInteraction);
+                    await MessageComponentHandler.Invoke(_client, componentInteraction, _interactionsService);
                     break;
 
                 // Unused or Unknown/Unsupported

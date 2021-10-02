@@ -3,9 +3,10 @@ using System.Reflection;
 
 namespace ZirconSound.ApplicationCommands.Interactions
 {
-    public interface IInteractionGroup
+    public interface IInteractionGroup<T>
     {
-        MethodInfo Method { get; init; }
-        Type CommandModule { get; init; }
+        T Interaction { get; set; }
+        MethodInfo Method { get; set; }
+        Type Module { get; set; }
     }
 }

@@ -11,39 +11,39 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using ZirconSound.ApplicationCommands.Component;
 using ZirconSound.ApplicationCommands.Events;
 using ZirconSound.ApplicationCommands.Helpers;
+using ZirconSound.ApplicationCommands.MessageComponents;
 using ZirconSound.ApplicationCommands.SlashCommands;
 
 namespace ZirconSound.ApplicationCommands.Interactions
 {
     public class InteractionsService
     {
-        private readonly AsyncEvent<Func<Optional<SocketSlashCommand>, ICommandContext, IResult, Task>> _commandExecutedEvent = new();
-        private readonly AsyncEvent<Func<Optional<SocketMessageComponent>, ICommandContext, IResult, Task>> _componentExecutedEvent = new();
+        private readonly AsyncEvent<Func<Optional<SocketSlashCommand>, IInteractionContext, IResult, Task>> _commandExecutedEvent = new();
+        private readonly AsyncEvent<Func<Optional<SocketMessageComponent>, IInteractionContext, IResult, Task>> _messageComponentExecutedEvent = new();
         private readonly InteractionsServiceConfig _config;
         private IServiceProvider _provider;
         public Func<LogMessage, Task> Log;
 
         public InteractionsService(InteractionsServiceConfig config) => _config = config;
 
-        private IEnumerable<SlashCommandGroup> Commands { get; set; }
+        private IEnumerable<SlashCommandGroup> SlashCommands { get; set; }
+        private IEnumerable<MessageComponentGroup> MessageComponents { get; set; }
 
-
-        public event Func<Optional<SocketSlashCommand>, ICommandContext, IResult, Task> CommandExecuted
+        public event Func<Optional<SocketSlashCommand>, IInteractionContext, IResult, Task> CommandExecuted
         {
             add => _commandExecutedEvent.Add(value);
             remove => _commandExecutedEvent.Remove(value);
         }
 
-        public event Func<Optional<SocketMessageComponent>, ICommandContext, IResult, Task> ComponentExecuted
+        public event Func<Optional<SocketMessageComponent>, IInteractionContext, IResult, Task> MessageComponentExecuted
         {
-            add => _componentExecutedEvent.Add(value);
-            remove => _componentExecutedEvent.Remove(value);
+            add => _messageComponentExecutedEvent.Add(value);
+            remove => _messageComponentExecutedEvent.Remove(value);
         }
 
-        private async Task CommandBuilder(IEnumerable<SlashCommand> commands, DiscordSocketClient client)
+        private async Task CommandBuilder(IEnumerable<SlashCommandAttribute> commands, DiscordSocketClient client)
         {
             var commandList = new List<ApplicationCommandProperties>();
             var commandToAdd = new List<SlashCommandBuilder>();
@@ -97,27 +97,55 @@ namespace ZirconSound.ApplicationCommands.Interactions
             }
         }
 
-        private async Task ExecuteInternalAsync(SocketSlashCommand command, ICommandContext slashCommandContext)
+        private async Task ExecuteInternalAsync(SocketInteraction interaction, IInteractionContext context)
         {
-            var commandToExec = Commands.FirstOrDefault(x => x.Command.Name == command.CommandName);
+            var interactionData = new InteractionData();
+
+            switch (interaction)
+            {
+                case SocketSlashCommand commandInteraction:
+                    interactionData.Data = commandInteraction.Data;
+                    interactionData.Name = commandInteraction.CommandName;
+                    interactionData.Type = InteractionType.SlashCommand;
+                    break;
+
+
+                case SocketMessageComponent componentInteraction:
+                    interactionData.Data = componentInteraction.Data;
+                    interactionData.Name = componentInteraction.Data.CustomId;
+                    interactionData.Type = InteractionType.MessageComponent;
+                    break;
+
+
+                default:
+                    await interaction.FollowupAsync("Unsupported interaction.");
+                    break;
+            }
 
             try
             {
-                if (commandToExec?.CommandModule != null)
+                var commandToExec = SlashCommands.FirstOrDefault(x => x.Interaction.Name == interactionData.Name);
+
+                if (commandToExec?.Module != null)
                 {
-                    dynamic commandClass = ActivatorUtilities.CreateInstance(_provider, commandToExec.CommandModule);
+                    dynamic commandClass = ActivatorUtilities.CreateInstance(_provider, commandToExec.Module);
 
                     MethodInfo setContext = commandClass.GetType().GetMethod("SetContext");
-                    var parameterArray = new object[] { slashCommandContext };
+                    var parameterArray = new object[] { context };
                     setContext.Invoke(commandClass, parameterArray);
 
                     MethodInfo theMethod = commandClass.GetType().GetMethod(commandToExec.Method.Name);
                     var secondParameterArray = Array.Empty<object>();
-                    if (command.Data.Options != null)
+                    if (interactionData.Data?.Options != null)
                     {
-                        secondParameterArray = new[] { command.Data.Options.First().Value };
+                        var length = interactionData.Data.Options.Length;
+                        secondParameterArray = new object[length];
+                        for (var runs = 0; runs < length; runs++)
+                        {
+                            secondParameterArray[runs] = interactionData.Data.Options[runs].Value.ToString();
+                        }
                     }
-                    else if (commandToExec.Command.CommandOptionType == ApplicationCommandOptionType.Integer)
+                    else if (commandToExec.Interaction.CommandOptionType == ApplicationCommandOptionType.Integer)
                     {
                         secondParameterArray = new object[] { 0 };
                     }
@@ -125,47 +153,26 @@ namespace ZirconSound.ApplicationCommands.Interactions
                     theMethod.Invoke(commandClass, secondParameterArray);
                 }
 
-                await _commandExecutedEvent.InvokeAsync(command, slashCommandContext, new SlashCommandResult("Success", true)).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                await _commandExecutedEvent.InvokeAsync(command, slashCommandContext, new SlashCommandResult(CommandError.Exception, ex.Message, true)).ConfigureAwait(false);
-            }
-        }
-
-        private async Task ExecuteInternalAsync(SocketMessageComponent component, ICommandContext slashCommandContext)
-        {
-            var commandToExec = Commands.FirstOrDefault(x => x.Command.Name == component.Data.CustomId);
-
-            try
-            {
-                if (commandToExec?.CommandModule != null)
+                if (interactionData.Type == InteractionType.SlashCommand)
                 {
-                    dynamic commandClass = ActivatorUtilities.CreateInstance(_provider, commandToExec.CommandModule);
-
-                    MethodInfo setContext = commandClass.GetType().GetMethod("SetContext");
-                    var parameterArray = new object[] { slashCommandContext };
-                    setContext.Invoke(commandClass, parameterArray);
-
-                    MethodInfo theMethod = commandClass.GetType().GetMethod(commandToExec.Method.Name);
-                    var secondParameterArray = Array.Empty<object>();
-                    if (component.Data.Values != null)
-                    {
-                        secondParameterArray = new object[] { component.Data.Values.FirstOrDefault() };
-                    }
-                    else if (commandToExec.Command.CommandOptionType == ApplicationCommandOptionType.Integer)
-                    {
-                        secondParameterArray = new object[] { 0 };
-                    }
-
-                    theMethod.Invoke(commandClass, secondParameterArray);
+                    await _commandExecutedEvent.InvokeAsync(interaction as SocketSlashCommand, context, new InteractionResult("Success", true)).ConfigureAwait(false);
                 }
-
-                await _componentExecutedEvent.InvokeAsync(component, slashCommandContext, new SlashCommandResult("Success", true)).ConfigureAwait(false);
+                else
+                {
+                    await _messageComponentExecutedEvent.InvokeAsync(interaction as SocketMessageComponent, context, new InteractionResult("Success", true)).ConfigureAwait(false);
+                }
             }
             catch (Exception ex)
             {
-                await _componentExecutedEvent.InvokeAsync(component, slashCommandContext, new SlashCommandResult(CommandError.Exception, ex.Message, true)).ConfigureAwait(false);
+                if (interactionData.Type == InteractionType.SlashCommand)
+                {
+                    await _commandExecutedEvent.InvokeAsync(interaction as SocketSlashCommand, context, new InteractionResult(CommandError.Exception, ex.Message, true)).ConfigureAwait(false);
+                }
+                else
+                {
+                    await _messageComponentExecutedEvent.InvokeAsync(interaction as SocketMessageComponent, context, new InteractionResult(CommandError.Exception, ex.Message, true)).ConfigureAwait(false);
+                }
+               
             }
         }
 
@@ -184,7 +191,7 @@ namespace ZirconSound.ApplicationCommands.Interactions
             }
         }
 
-        public async Task InvokeComponent(SocketMessageComponent component, ComponentContext componentContext)
+        public async Task InvokeComponent(SocketMessageComponent component, MessageComponentContext componentContext)
         {
             await Log.Invoke(new LogMessage(_config.LogLevel, "InteractionsService", $"Executed component: {component.Message} User:{componentContext.User.Username}/{componentContext.Guild.Id}"));
 
@@ -204,9 +211,10 @@ namespace ZirconSound.ApplicationCommands.Interactions
             await client.WaitForReadyAsync(cancellationToken);
             _provider = provider;
 
-            Commands = ModuleHelper.GetSlashModules(assembly);
+            SlashCommands = ModuleHelper.GetInteractionModules<SlashCommandGroup, SlashCommandAttribute>(assembly);
+            MessageComponents = ModuleHelper.GetInteractionModules<MessageComponentGroup, MessageComponentAttribute>(assembly);
 
-            var commands = Commands.Select(commandsMethods => commandsMethods.Command).ToList();
+            var commands = SlashCommands.Select(commandsMethods => commandsMethods.Interaction).ToList();
 
             await CommandBuilder(commands, client);
         }

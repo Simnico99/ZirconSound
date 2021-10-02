@@ -4,10 +4,12 @@ using ZirconSound.ApplicationCommands.Interactions;
 
 namespace ZirconSound.ApplicationCommands.SlashCommands
 {
-    public class SlashCommandGroup : IInteractionGroup
+    public class SlashCommandGroup : SlashCommandGroup<SlashCommandAttribute>{}
+
+    public class SlashCommandGroup<T> : IInteractionGroup<T> where T : SlashCommandAttribute
     {
-        public SlashCommand Command { get; init; }
-        public MethodInfo Method { get; init; }
-        public Type CommandModule { get; init; }
+        public T Interaction { get; set; }
+        public MethodInfo Method { get; set; }
+        public Type Module { get; set; }
     }
 }
