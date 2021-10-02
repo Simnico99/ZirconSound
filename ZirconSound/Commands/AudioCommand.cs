@@ -129,6 +129,8 @@ namespace ZirconSound.Commands
         [SlashCommand("play", "Play the track", "id", ApplicationCommandOptionType.String, "Id/Name/Link/Playlist", true)]
         public async Task PlayAsync([Remainder] string id)
         {
+            var embed = EmbedHandler.Create(Context);
+
             if (CheckState(new List<AudioState> { AudioState.BotIsNotInVoiceChannel }, Context))
             {
                 if (CheckState(new List<AudioState> { AudioState.UserIsInVoiceChannel }, Context))
@@ -160,8 +162,6 @@ namespace ZirconSound.Commands
 
                 if (lavalinkTracks.FirstOrDefault() != null)
                 {
-                    var embed = EmbedHandler.Create(Context);
-
                     if (player?.CurrentTrack == null)
                     {
                         await _playerService.CancelDisconnectAsync(player);
@@ -216,9 +216,8 @@ namespace ZirconSound.Commands
                     return;
                 }
 
-                var embeder = EmbedHandler.Create(Context);
-                embeder.AddField("Warning:", "Unable to find the specified track!");
-                await Context.ReplyToCommandAsync(embed: embeder.BuildSync(ZirconEmbedType.Warning), ephemeral: false);
+                embed.AddField("Warning:", "Unable to find the specified track!");
+                await Context.ReplyToCommandAsync(embed: embed.BuildSync(ZirconEmbedType.Warning), ephemeral: false);
             }
             else
             {
@@ -229,6 +228,8 @@ namespace ZirconSound.Commands
         [SlashCommand("stop", "Stop the current track")]
         public async Task StopAsync()
         {
+            var embed = EmbedHandler.Create(Context);
+
             if (CheckState(new List<AudioState>
             {
                 AudioState.UserIsInVoiceChannel,
@@ -239,7 +240,6 @@ namespace ZirconSound.Commands
                 var player = _audioService.GetPlayer<QueuedLavalinkPlayer>(Context.Guild.Id);
                 if (player is { State: PlayerState.Playing or PlayerState.Paused })
                 {
-                    var embed = EmbedHandler.Create(Context);
                     embed.AddField("Stopped", "Stopped current track!");
                     await Context.ReplyToCommandAsync(embed: embed.BuildSync());
 
@@ -247,9 +247,8 @@ namespace ZirconSound.Commands
                 }
                 else
                 {
-                    var embed1 = EmbedHandler.Create(Context);
-                    embed1.AddField("Unable to stop:", "No track are actually playing couln't stop the track!");
-                    await Context.ReplyToCommandAsync(embed: embed1.BuildSync(ZirconEmbedType.Warning));
+                    embed.AddField("Unable to stop:", "No track are actually playing couln't stop the track!");
+                    await Context.ReplyToCommandAsync(embed: embed.BuildSync(ZirconEmbedType.Warning));
                 }
             }
             else
@@ -261,6 +260,8 @@ namespace ZirconSound.Commands
         [SlashCommand("skip", "Skip the current track")]
         public async Task SkipAsync()
         {
+            var embed = EmbedHandler.Create(Context);
+
             if (CheckState(new List<AudioState>
             {
                 AudioState.UserIsInVoiceChannel,
@@ -274,19 +275,18 @@ namespace ZirconSound.Commands
                 {
                     var track = player.Queue.FirstOrDefault();
 
-                    var embed1 = EmbedHandler.Create(Context);
-                    embed1.AddField("Skipped now playing:", $"[{track?.Title}]({track?.Source})");
-                    EmbedSong(ref embed1, track);
+                    embed.AddField("Skipped now playing:", $"[{track?.Title}]({track?.Source})");
+                    EmbedSong(ref embed, track);
 
                     await player.SkipAsync();
 
                     if (player.Queue.Count > 1)
                     {
                         var queueLength = new EmbedFieldBuilder().WithName("Queue count").WithValue($"{player.Queue.Count} tracks").WithIsInline(true);
-                        embed1.AddField(queueLength);
+                        embed.AddField(queueLength);
                     }
 
-                    await Context.ReplyToCommandAsync(embed: embed1.BuildSync());
+                    await Context.ReplyToCommandAsync(embed: embed.BuildSync());
                 }
                 else
                 {
@@ -303,8 +303,6 @@ namespace ZirconSound.Commands
         public async Task LeaveAsync()
         {
             var embed = EmbedHandler.Create(Context);
-            embed.AddField("Leaving", "Leaving the current channel.");
-            await Context.ReplyToCommandAsync(embed: embed.BuildSync());
 
             if (CheckState(new List<AudioState>
             {
@@ -320,9 +318,8 @@ namespace ZirconSound.Commands
                     await player.DisconnectAsync();
                 }
 
-                embed = EmbedHandler.Create(Context);
-                embed.AddField("Left", "Left the channel.");
-                await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
+                embed.AddField("ZirconSound Left", "ZirconSound left the voice channel.");
+                await Context.ReplyToCommandAsync(embed: embed.BuildSync());
             }
             else
             {
@@ -340,6 +337,7 @@ namespace ZirconSound.Commands
         [SlashCommand("pause", "Pause the current track.")]
         public async Task PauseAsync()
         {
+            var embed = EmbedHandler.Create(Context);
 
             if (CheckState(new List<AudioState>
             {
@@ -356,20 +354,17 @@ namespace ZirconSound.Commands
 
                     var button = new ComponentBuilder().WithButton("Resume", "resume-button");
 
-                    var embed = EmbedHandler.Create(Context);
                     embed.AddField("Paused", "Paused the current track.");
                     await Context.ReplyToCommandAsync(embed: embed.BuildSync(), component: button.Build());
 
                 }
                 else if (player is { State: PlayerState.Paused })
                 {
-                    var embed = EmbedHandler.Create(Context);
                     embed.AddField("Pause", "The track is already paused.");
                     await Context.ReplyToCommandAsync(embed: embed.BuildSync());
                 }
                 else
                 {
-                    var embed = EmbedHandler.Create(Context);
                     embed.AddField("Warning", "Unabled to pause the track.");
                     await Context.ReplyToCommandAsync(embed: embed.BuildSync(ZirconEmbedType.Warning));
                 }
@@ -390,6 +385,8 @@ namespace ZirconSound.Commands
         [SlashCommand("resume", "Resume the track if the track is paused.")]
         public async Task ResumeAsync()
         {
+            var embed = EmbedHandler.Create(Context);
+
             if (CheckState(new List<AudioState>
             {
                 AudioState.UserIsInVoiceChannel,
@@ -401,7 +398,6 @@ namespace ZirconSound.Commands
 
                 if (player != null)
                 {
-                    var embed = EmbedHandler.Create(Context);
                     switch (player.State)
                     {
                         case PlayerState.Paused:
@@ -478,6 +474,7 @@ namespace ZirconSound.Commands
         [SlashCommand("queue", "Get the queue lenght and list of tracks", "page", ApplicationCommandOptionType.Integer, "the page number", false)]
         public async Task QueueAsync(long pageNum)
         {
+            var embed = EmbedHandler.Create(Context);
             var page = (int)pageNum;
             if (page - 1 < 0)
             {
@@ -517,13 +514,12 @@ namespace ZirconSound.Commands
                         songList += $"{i}- [{track.Title}]({track.Source})\n";
                     }
 
-                    foreach (var track in tracks) estimatedTime += track.Duration;
+                    estimatedTime = tracks.Aggregate(estimatedTime, (current, track) => current + track.Duration);
 
-                    var embed1 = EmbedHandler.Create(Context);
-                    embed1.AddField("Queue", songList);
+                    embed.AddField("Queue", songList);
                     if (tracksChunk.Count > 1)
                     {
-                        embed1.AddField(new EmbedFieldBuilder().WithName("Pages").WithValue($"{page + 1} of {tracksChunk.Count}").WithIsInline(true));
+                        embed.AddField(new EmbedFieldBuilder().WithName("Pages").WithValue($"{page + 1} of {tracksChunk.Count}").WithIsInline(true));
                     }
 
 
@@ -542,15 +538,15 @@ namespace ZirconSound.Commands
 
                     var button = new ComponentBuilder().WithButton("First", "queue-first-button", ButtonStyle.Secondary, disabled: firstDisabled)
                         .WithButton("Back", $"queue-back-button,{page}", ButtonStyle.Secondary, disabled: firstDisabled)
+                        .WithButton("Clear", "clear-button")
                         .WithButton("Next", $"queue-next-button,{page + 2}", ButtonStyle.Secondary, disabled: lastDisabled)
                         .WithButton("Last", "queue-last-button", ButtonStyle.Secondary, disabled: lastDisabled);
 
-                    embed1.AddField(new EmbedFieldBuilder().WithName("Estimated play time").WithValue(estimatedTime).WithIsInline(true));
-                    await Context.ReplyToCommandAsync(embed: embed1.BuildSync(), component: button.Build());
+                    embed.AddField(new EmbedFieldBuilder().WithName("Estimated play time").WithValue(estimatedTime).WithIsInline(true));
+                    await Context.ReplyToCommandAsync(embed: embed.BuildSync(), component: button.Build());
                     return;
                 }
 
-                var embed = EmbedHandler.Create(Context);
                 embed.AddField("Empty", "The queue is empty!");
                 await Context.ReplyToCommandAsync(embed: embed.BuildSync());
             }
@@ -560,12 +556,17 @@ namespace ZirconSound.Commands
             }
         }
 
+        [MessageComponent("clear-button")]
+        public async Task ClearButtonAsync()
+        {
+            Context.ModifyOriginalMessage = true;
+            await ClearAsync();
+        }
+
         [SlashCommand("clear", "Clear the playlist.")]
         public async Task ClearAsync()
         {
             var embed = EmbedHandler.Create(Context);
-            embed.AddField("Clearing Queue.", "Clearing the queue.");
-            await Context.ReplyToCommandAsync(embed: embed.BuildSync());
 
             if (CheckState(new List<AudioState>
             {
@@ -580,19 +581,18 @@ namespace ZirconSound.Commands
                 {
                     player.Queue.Clear();
 
-                    embed = EmbedHandler.Create(Context);
+                    var button = new ComponentBuilder();
                     embed.AddField("Cleared", "Cleared the queue!");
-                    await Context.Interaction.ModifyOriginalResponseAsync(messageProperties => messageProperties.Embed = embed.BuildSync());
+                    await Context.ReplyToCommandAsync(embed: embed.BuildSync(), component: button.Build());
                     return;
                 }
 
-                embed = EmbedHandler.Create(Context);
                 embed.AddField("Empty", "The queue is empty!");
-                await Context.Interaction.ModifyOriginalResponseAsync(messageProperties => messageProperties.Embed = embed.BuildSync());
+                await Context.ReplyToCommandAsync(embed: embed.BuildSync());
             }
             else
             {
-                await Context.ReplyToCommandAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
+                await Context.ReplyToCommandAsync(embed: embed.BuildSync(ZirconEmbedType.Warning));
             }
         }
 
@@ -600,8 +600,6 @@ namespace ZirconSound.Commands
         public async Task SeekAsync(string seekTime)
         {
             var embed = EmbedHandler.Create(Context);
-            embed.AddField("Seeking.", "Seeking to the specified time.");
-            await Context.ReplyToCommandAsync(embed: embed.BuildSync());
 
             if (CheckState(new List<AudioState>
             {
@@ -622,27 +620,23 @@ namespace ZirconSound.Commands
                         {
                             await player.SeekPositionAsync(timeSeek);
 
-                            embed = EmbedHandler.Create(Context);
                             embed.AddField("Seeked", $"Seeked to: {timeSeek}");
-                            await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
+                            await Context.ReplyToCommandAsync(embed: embed.BuildSync());
                             return;
                         }
 
-                        embed = EmbedHandler.Create(Context);
                         embed.AddField("Out of range", "You can't seek to a time higher than the duration of the track!");
-                        await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
+                        await Context.ReplyToCommandAsync(embed: embed.BuildSync());
                         return;
                     }
 
-                    embed = EmbedHandler.Create(Context);
                     embed.AddField("Negative", "You can't seek to a negative number!");
-                    await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
+                    await Context.ReplyToCommandAsync(embed: embed.BuildSync());
                     return;
                 }
 
-                embed = EmbedHandler.Create(Context);
                 embed.AddField("Not playing", "No track is playing...");
-                await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
+                await Context.ReplyToCommandAsync(embed: embed.BuildSync());
             }
             else
             {
@@ -651,12 +645,9 @@ namespace ZirconSound.Commands
         }
 
         [SlashCommand("replay", "Replay the current track.")]
-        [MessageComponent("replay-button")]
         public async Task ReplayAsync()
         {
             var embed = EmbedHandler.Create(Context);
-            embed.AddField("Replaying.", "Replaying track.");
-            await Context.ReplyToCommandAsync(embed: embed.BuildSync());
 
             if (CheckState(new List<AudioState>
             {
@@ -672,15 +663,13 @@ namespace ZirconSound.Commands
                     await _playerService.CancelDisconnectAsync(player);
                     await player.ReplayAsync();
 
-                    embed = EmbedHandler.Create(Context);
                     embed.AddField("Replaying", "Replaying current track!");
-                    await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
+                    await Context.ReplyToCommandAsync(embed: embed.BuildSync());
                     return;
                 }
 
-                embed = EmbedHandler.Create(Context);
                 embed.AddField("Not playing", "No track is playing...");
-                await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
+                await Context.ReplyToCommandAsync(embed: embed.BuildSync());
             }
             else
             {
