@@ -100,35 +100,53 @@ namespace ZirconSound.ApplicationCommands.Interactions
         private async Task ExecuteInternalAsync(SocketInteraction interaction, IInteractionContext context)
         {
             var interactionData = new InteractionData();
-
-            switch (interaction)
-            {
-                case SocketSlashCommand commandInteraction:
-                    interactionData.Data = commandInteraction.Data;
-                    interactionData.Name = commandInteraction.CommandName;
-                    interactionData.Type = InteractionType.SlashCommand;
-                    break;
-
-
-                case SocketMessageComponent componentInteraction:
-                    interactionData.Data = componentInteraction.Data;
-                    interactionData.Name = componentInteraction.Data.CustomId;
-                    interactionData.Type = InteractionType.MessageComponent;
-                    break;
-
-
-                default:
-                    await interaction.FollowupAsync("Unsupported interaction.");
-                    break;
-            }
+            dynamic commandToExec = new List<IInteractionGroup<Attribute>>();
 
             try
             {
-                var commandToExec = SlashCommands.FirstOrDefault(x => x.Interaction.Name == interactionData.Name);
+                switch (interaction)
+                {
+                    case SocketSlashCommand commandInteraction:
+                        interactionData.Data = commandInteraction.Data;
+                        interactionData.Name = commandInteraction.CommandName;
+                        interactionData.Type = InteractionType.SlashCommand;
+                        commandToExec = SlashCommands.FirstOrDefault(x => x.Interaction.Name == interactionData.Name);
+                        break;
+
+
+                    case SocketMessageComponent componentInteraction:
+                        var dataArray = Array.Empty<object>();
+                        if (componentInteraction.Data.CustomId.Contains(","))
+                        {
+                            var splitData = componentInteraction.Data.CustomId.Split(",");
+                            interactionData.Name = splitData[0];
+                            var length = splitData.Length;
+                            dataArray = new object[length - 1];
+                            for (var runs = 1; runs < length; runs++)
+                            {
+                                dataArray[runs - 1] = splitData[runs];
+                            }
+                        }
+                        else
+                        {
+                            interactionData.Name = componentInteraction.Data.CustomId;
+                        }
+
+                        interactionData.Data = dataArray;
+                        
+                        interactionData.Type = InteractionType.MessageComponent;
+                        commandToExec = MessageComponents.FirstOrDefault(x => x.Interaction.Id == interactionData.Name);
+                        break;
+
+
+                    default:
+                        await interaction.FollowupAsync("Unsupported interaction.");
+                        break;
+                }
 
                 if (commandToExec?.Module != null)
                 {
-                    dynamic commandClass = ActivatorUtilities.CreateInstance(_provider, commandToExec.Module);
+                    var commandClass = ActivatorUtilities.CreateInstance(_provider, commandToExec.Module);
 
                     MethodInfo setContext = commandClass.GetType().GetMethod("SetContext");
                     var parameterArray = new object[] { context };
@@ -136,18 +154,31 @@ namespace ZirconSound.ApplicationCommands.Interactions
 
                     MethodInfo theMethod = commandClass.GetType().GetMethod(commandToExec.Method.Name);
                     var secondParameterArray = Array.Empty<object>();
-                    if (interactionData.Data?.Options != null)
+                    if (interactionData.Type == InteractionType.SlashCommand)
                     {
-                        var length = interactionData.Data.Options.Length;
-                        secondParameterArray = new object[length];
-                        for (var runs = 0; runs < length; runs++)
+                        if (interactionData.Data?.GetType().GetProperty("Options") != null)
                         {
-                            secondParameterArray[runs] = interactionData.Data.Options[runs].Value.ToString();
+                            if (interactionData.Data.Options != null)
+                            {
+                                var length = interactionData.Data.Options.Length;
+                                secondParameterArray = new object[length];
+                                for (var runs = 0; runs < length; runs++)
+                                {
+                                    secondParameterArray[runs] = interactionData.Data.Options[runs].Value.ToString();
+                                }
+                            }
+                            else if (commandToExec.Interaction.CommandOptionType == ApplicationCommandOptionType.Integer)
+                            {
+                                secondParameterArray = new object[] { 0 };
+                            }
                         }
                     }
-                    else if (commandToExec.Interaction.CommandOptionType == ApplicationCommandOptionType.Integer)
+                    else
                     {
-                        secondParameterArray = new object[] { 0 };
+                        if (interactionData.Data.Length > 0)
+                        {
+                            secondParameterArray = interactionData.Data;
+                        }
                     }
 
                     theMethod.Invoke(commandClass, secondParameterArray);
@@ -164,44 +195,28 @@ namespace ZirconSound.ApplicationCommands.Interactions
             }
             catch (Exception ex)
             {
-                if (interactionData.Type == InteractionType.SlashCommand)
+                if (interaction is SocketSlashCommand command)
                 {
-                    await _commandExecutedEvent.InvokeAsync(interaction as SocketSlashCommand, context, new InteractionResult(CommandError.Exception, ex.Message, true)).ConfigureAwait(false);
+                    await _commandExecutedEvent.InvokeAsync(command, context, new InteractionResult(CommandError.Exception, ex.Message, false)).ConfigureAwait(false);
                 }
                 else
                 {
-                    await _messageComponentExecutedEvent.InvokeAsync(interaction as SocketMessageComponent, context, new InteractionResult(CommandError.Exception, ex.Message, true)).ConfigureAwait(false);
+                    await _messageComponentExecutedEvent.InvokeAsync(interaction as SocketMessageComponent, context, new InteractionResult(CommandError.Exception, ex.Message, false)).ConfigureAwait(false);
                 }
-               
             }
         }
 
-        public async Task InvokeSlashCommand(SocketSlashCommand command, SlashCommandContext slashCommandContext)
+        public async Task Invoke(SocketInteraction component, IInteractionContext context)
         {
-            await Log.Invoke(new LogMessage(_config.LogLevel, "InteractionsService", $"Executed command: {command.CommandName} User:{slashCommandContext.User.Username}/{slashCommandContext.Guild.Id}"));
+            await Log.Invoke(new LogMessage(_config.LogLevel, "InteractionsService", $"Executed Interaction: User:{context.User.Username}/{context.Guild.Id}"));
 
             switch (_config.DefaultRunMode)
             {
                 case RunMode.Sync:
-                    await ExecuteInternalAsync(command, slashCommandContext).ConfigureAwait(false);
+                    await ExecuteInternalAsync(component, context).ConfigureAwait(false);
                     break;
                 case RunMode.Async:
-                    _ = Task.Run(async () => { await ExecuteInternalAsync(command, slashCommandContext).ConfigureAwait(false); });
-                    break;
-            }
-        }
-
-        public async Task InvokeComponent(SocketMessageComponent component, MessageComponentContext componentContext)
-        {
-            await Log.Invoke(new LogMessage(_config.LogLevel, "InteractionsService", $"Executed component: {component.Message} User:{componentContext.User.Username}/{componentContext.Guild.Id}"));
-
-            switch (_config.DefaultRunMode)
-            {
-                case RunMode.Sync:
-                    await ExecuteInternalAsync(component, componentContext).ConfigureAwait(false);
-                    break;
-                case RunMode.Async:
-                    _ = Task.Run(async () => { await ExecuteInternalAsync(component, componentContext).ConfigureAwait(false); });
+                    _ = Task.Run(async () => { await ExecuteInternalAsync(component, context).ConfigureAwait(false); });
                     break;
             }
         }

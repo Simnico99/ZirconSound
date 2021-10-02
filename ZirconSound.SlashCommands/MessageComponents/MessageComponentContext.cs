@@ -29,5 +29,7 @@ namespace ZirconSound.ApplicationCommands.MessageComponents
         public IUser User { get; }
 
         public SocketInteraction Interaction { get; }
+
+        public bool ModifyOriginalMessage {  get; set; }
     }
 }

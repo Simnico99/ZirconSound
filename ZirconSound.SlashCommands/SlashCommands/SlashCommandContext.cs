@@ -30,5 +30,7 @@ namespace ZirconSound.ApplicationCommands.SlashCommands
         public IUser User { get; }
 
         public SocketInteraction Interaction { get; }
+
+        public bool ModifyOriginalMessage { get; set; }
     }
 }
