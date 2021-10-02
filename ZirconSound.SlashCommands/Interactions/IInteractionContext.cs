@@ -16,5 +16,6 @@ namespace ZirconSound.ApplicationCommands.Interactions
         IUser User { get; }
 
         bool ModifyOriginalMessage { get; set; }
+
     }
 }
