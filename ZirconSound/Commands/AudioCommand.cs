@@ -702,7 +702,6 @@ namespace ZirconSound.Commands
                 {
                     if (!player.IsLooping)
                     {
-                        await _playerService.CancelDisconnectAsync(player);
                         player.IsLooping = true;
 
                         var button = new ComponentBuilder().WithButton("Unloop", "loop-button", ButtonStyle.Secondary);
@@ -713,7 +712,6 @@ namespace ZirconSound.Commands
                     }
                     else
                     {
-                        await _playerService.CancelDisconnectAsync(player);
                         player.IsLooping = false;
 
                         var button = new ComponentBuilder().WithButton("Loop", "loop-button", ButtonStyle.Secondary);
