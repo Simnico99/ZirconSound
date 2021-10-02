@@ -28,7 +28,7 @@ namespace ZirconSound.ApplicationCommands.Interactions
 
         public InteractionsService(InteractionsServiceConfig config) => _config = config;
 
-        private IEnumerable<SlashCommandGroup> SlashCommands { get; set; }
+        public IEnumerable<SlashCommandGroup> SlashCommands { get; set; }
         private IEnumerable<MessageComponentGroup> MessageComponents { get; set; }
 
         public event Func<Optional<SocketSlashCommand>, IInteractionContext, IResult, Task> CommandExecuted
