@@ -1,42 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using ZirconSound.ApplicationCommands.SlashCommands;
+using ZirconSound.ApplicationCommands.Interactions;
 
 namespace ZirconSound.ApplicationCommands.Helpers
 {
     internal static class ModuleHelper
     {
-        public static IEnumerable<SlashCommandGroup> GetSlashModules(Assembly assembly) 
+        public static IEnumerable<T1> GetInteractionModules<T1, T2>(Assembly assembly) where T1 : IInteractionGroup<T2>  where T2 : Attribute
         {
-            var list = new List<SlashCommandGroup>();
+            var list = new List<T1>();
             foreach (var type in assembly.GetTypes())
             {
-                if (type.IsSubclassOf(typeof(SlashModuleBase<SlashCommandContext>)))
+                if (type.IsSubclassOf(typeof(InteractionModule<IInteractionContext>)))
                     foreach (var method in type.GetMethods())
                     {
-                        if (method.GetCustomAttributes(typeof(SlashCommand), false).Length > 0)
+                        if (method.GetCustomAttributes(typeof(T2), false).Length > 0)
                         {
-                            list.Add(new SlashCommandGroup { Command = method.GetCustomAttribute<SlashCommand>(), Method = method, CommandModule = type });
-                        }
-                    }
-            }
-
-            return list;
-        }
-
-        public static IEnumerable<SlashCommandGroup> GetInteractionModules(Assembly assembly)
-        {
-            var list = new List<SlashCommandGroup>();
-            foreach (var type in assembly.GetTypes())
-            {
-                if (type.IsSubclassOf(typeof(SlashModuleBase<SlashCommandContext>)))
-                    foreach (var method in type.GetMethods())
-                    {
-                        if (method.GetCustomAttributes(typeof(SlashCommand), false).Length > 0)
-                        {
-                            list.Add(new SlashCommandGroup { Command = method.GetCustomAttribute<SlashCommand>(), Method = method, CommandModule = type });
+                            var toAddToGroup = (T1)Activator.CreateInstance(typeof(T1));
+                            if (toAddToGroup != null)
+                            {
+                                toAddToGroup.Interaction = method.GetCustomAttribute<T2>();
+                                toAddToGroup.Method = method;
+                                toAddToGroup.Module = type;
+                                list.Add(toAddToGroup);
+                            }
                         }
                     }
             }

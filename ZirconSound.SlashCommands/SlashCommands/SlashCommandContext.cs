@@ -1,10 +1,10 @@
 ﻿using Discord;
-using Discord.Commands;
 using Discord.WebSocket;
+using ZirconSound.ApplicationCommands.Interactions;
 
 namespace ZirconSound.ApplicationCommands.SlashCommands
 {
-    public class SlashCommandContext : ICommandContext
+    public class SlashCommandContext : IInteractionContext
     {
         private SlashCommandContext()
         {
@@ -17,11 +17,9 @@ namespace ZirconSound.ApplicationCommands.SlashCommands
             Guild = chanel?.Guild;
             User = command.User;
             Channel = command.Channel;
-            Message = null;
-            Command = command;
+            Interaction = command;
         }
 
-        public SocketSlashCommand Command { get; }
 
         public IDiscordClient Client { get; }
 
@@ -31,6 +29,6 @@ namespace ZirconSound.ApplicationCommands.SlashCommands
 
         public IUser User { get; }
 
-        public IUserMessage Message { get; }
+        public SocketInteraction Interaction { get; }
     }
 }

@@ -3,17 +3,17 @@ using System;
 
 namespace ZirconSound.ApplicationCommands.SlashCommands
 {
-    //test
+
     [AttributeUsage(AttributeTargets.Method)]
-    public class SlashCommand : Attribute
+    public class SlashCommandAttribute : Attribute
     {
-        public SlashCommand(string name, string description)
+        public SlashCommandAttribute(string name, string description)
         {
             Name = name;
             Description = description;
         }
 
-        public SlashCommand(string name, string description, string optionName, ApplicationCommandOptionType optionType, string optionDesc, bool required)
+        public SlashCommandAttribute(string name, string description, string optionName, ApplicationCommandOptionType optionType, string optionDesc, bool required)
         {
             Name = name;
             Description = description;

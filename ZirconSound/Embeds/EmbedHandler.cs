@@ -1,5 +1,5 @@
-﻿using Discord.Commands;
-using Discord.WebSocket;
+﻿using Discord.WebSocket;
+using ZirconSound.ApplicationCommands.Interactions;
 
 namespace ZirconSound.Embeds
 {
@@ -16,7 +16,7 @@ namespace ZirconSound.Embeds
             return embed;
         }
 
-        public static ZirconEmbed Create(ICommandContext socketCommand)
+        public static ZirconEmbed Create(IInteractionContext socketCommand)
         {
             var embed = new ZirconEmbed(socketCommand.User);
 

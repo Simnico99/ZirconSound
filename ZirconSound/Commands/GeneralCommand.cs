@@ -1,14 +1,15 @@
 ﻿using Discord;
 using System;
 using System.Threading.Tasks;
+using ZirconSound.ApplicationCommands.Interactions;
 using ZirconSound.ApplicationCommands.SlashCommands;
 
 namespace ZirconSound.Commands
 {
-    public class GeneralCommand : SlashModuleBase<SlashCommandContext>
+    public class GeneralCommand : InteractionModule<IInteractionContext>
     {
         [SlashCommand("ping", "Ping the bot!")]
-        public async Task Ping() => await Context.Command.FollowupAsync("PONG!");
+        public async Task Ping() => await Context.Interaction.FollowupAsync("PONG!");
 
         [SlashCommand("help", "Show the commands you can execute")]
         public async Task Help()
@@ -32,7 +33,7 @@ namespace ZirconSound.Commands
             embed.AddField("Clear", "Will clear the song queue.");
             embed.AddField("Replay", "Will replay the current song.");
             embed.AddField("Seek", "Will seek to the that time in the track.\n{00:00:00(Hours:Minutes:Seconds)}");
-            await Context.Command.FollowupAsync(embed: embed.Build());
+            await Context.Interaction.FollowupAsync(embed: embed.Build());
         }
     }
 }

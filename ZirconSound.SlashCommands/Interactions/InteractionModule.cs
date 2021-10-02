@@ -1,15 +1,14 @@
-﻿using Discord.Commands;
+﻿using System;
+using Discord.Commands;
 using Discord.Commands.Builders;
-using System;
-using ZirconSound.ApplicationCommands.Interactions;
 
-namespace ZirconSound.ApplicationCommands.SlashCommands
+namespace ZirconSound.ApplicationCommands.Interactions
 {
-    public abstract class SlashModuleBase : SlashModuleBase<ICommandContext>
+    public abstract class InteractionModule : InteractionModule<IInteractionContext>
     {
     }
 
-    public abstract class SlashModuleBase<T> : IInteractionsModuleBase where T : class, ICommandContext
+    public abstract class InteractionModule<T> : IInteractionsModuleBase where T : class, IInteractionContext
     {
         protected T Context { get; private set; }
 
@@ -25,7 +24,7 @@ namespace ZirconSound.ApplicationCommands.SlashCommands
 
         void IInteractionsModuleBase.OnModuleBuilding(CommandService commandService, ModuleBuilder builder) => OnModuleBuilding(commandService, builder);
 
-        public void SetContext(ICommandContext context)
+        public void SetContext(IInteractionContext context)
         {
             var newValue = context as T;
             Context = newValue ?? throw new InvalidOperationException($"Invalid context type. Expected {typeof(T).Name}, got {context.GetType().Name}.");

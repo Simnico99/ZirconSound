@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using ZirconSound.ApplicationCommands.Interactions;
+using ZirconSound.ApplicationCommands.MessageComponents;
 using ZirconSound.ApplicationCommands.SlashCommands;
 using ZirconSound.Embeds;
 using ZirconSound.Enum;
@@ -17,7 +19,7 @@ using ZirconSound.Player;
 namespace ZirconSound.Commands
 {
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-    public class AudioCommand : SlashModuleBase<SlashCommandContext>
+    public class AudioCommand : InteractionModule<IInteractionContext>
     {
         private readonly IAudioService _audioService;
         private readonly PlayerService _playerService;
@@ -29,7 +31,7 @@ namespace ZirconSound.Commands
             _playerService = playerService;
         }
 
-        private bool CheckState(IEnumerable<AudioState> audioStates, ICommandContext context)
+        private bool CheckState(IEnumerable<AudioState> audioStates, IInteractionContext context)
         {
             var player = _audioService.GetPlayer<QueuedLavalinkPlayer>(context.Guild.Id);
             if (Context.User is IVoiceState voiceState)
@@ -135,7 +137,7 @@ namespace ZirconSound.Commands
                 }
                 else
                 {
-                    await Context.Command.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
+                    await Context.Interaction.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
                     return;
                 }
             }
@@ -210,17 +212,17 @@ namespace ZirconSound.Commands
                         embed.AddField("Estimated play time:", $"{timeLeft}");
                     }
 
-                    await Context.Command.FollowupAsync(embed: embed.BuildSync());
+                    await Context.Interaction.FollowupAsync(embed: embed.BuildSync());
                     return;
                 }
 
                 var embeder = EmbedHandler.Create(Context);
                 embeder.AddField("Warning:", "Unable to find the specified track!");
-                await Context.Command.FollowupAsync(embed: embeder.BuildSync(ZirconEmbedType.Warning), ephemeral: false);
+                await Context.Interaction.FollowupAsync(embed: embeder.BuildSync(ZirconEmbedType.Warning), ephemeral: false);
             }
             else
             {
-                await Context.Command.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
+                await Context.Interaction.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
             }
         }
 
@@ -239,7 +241,7 @@ namespace ZirconSound.Commands
                 {
                     var embed = EmbedHandler.Create(Context);
                     embed.AddField("Stopped", "Stopped current track!");
-                    await Context.Command.FollowupAsync(embed: embed.BuildSync());
+                    await Context.Interaction.FollowupAsync(embed: embed.BuildSync());
 
                     await player.StopAsync();
                 }
@@ -247,12 +249,12 @@ namespace ZirconSound.Commands
                 {
                     var embed1 = EmbedHandler.Create(Context);
                     embed1.AddField("Unable to stop:", "No track are actually playing couln't stop the track!");
-                    await Context.Command.FollowupAsync(embed: embed1.BuildSync(ZirconEmbedType.Warning));
+                    await Context.Interaction.FollowupAsync(embed: embed1.BuildSync(ZirconEmbedType.Warning));
                 }
             }
             else
             {
-                await Context.Command.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
+                await Context.Interaction.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
             }
         }
 
@@ -284,7 +286,7 @@ namespace ZirconSound.Commands
                         embed1.AddField(queueLength);
                     }
 
-                    await Context.Command.FollowupAsync(embed: embed1.BuildSync());
+                    await Context.Interaction.FollowupAsync(embed: embed1.BuildSync());
                 }
                 else
                 {
@@ -293,7 +295,7 @@ namespace ZirconSound.Commands
             }
             else
             {
-                await Context.Command.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
+                await Context.Interaction.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
             }
         }
 
@@ -302,7 +304,7 @@ namespace ZirconSound.Commands
         {
             var embed = EmbedHandler.Create(Context);
             embed.AddField("Leaving", "Leaving the current channel.");
-            await Context.Command.FollowupAsync(embed: embed.BuildSync());
+            await Context.Interaction.FollowupAsync(embed: embed.BuildSync());
 
             if (CheckState(new List<AudioState>
             {
@@ -320,11 +322,11 @@ namespace ZirconSound.Commands
 
                 embed = EmbedHandler.Create(Context);
                 embed.AddField("Left", "Left the channel.");
-                await Context.Command.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
+                await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
             }
             else
             {
-                await Context.Command.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
+                await Context.Interaction.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
             }
         }
 
@@ -333,7 +335,7 @@ namespace ZirconSound.Commands
         {
             var embed = EmbedHandler.Create(Context);
             embed.AddField("Pausing", "Pausing the current track.");
-            await Context.Command.FollowupAsync(embed: embed.BuildSync());
+            await Context.Interaction.FollowupAsync(embed: embed.BuildSync());
 
             if (CheckState(new List<AudioState>
             {
@@ -350,24 +352,24 @@ namespace ZirconSound.Commands
 
                     embed = EmbedHandler.Create(Context);
                     embed.AddField("Paused", "Paused the current track.");
-                    await Context.Command.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
+                    await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
                 }
                 else if (player is { State: PlayerState.Paused })
                 {
                     embed = EmbedHandler.Create(Context);
                     embed.AddField("Pause", "The track is already paused.");
-                    await Context.Command.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
+                    await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
                 }
                 else
                 {
                     embed = EmbedHandler.Create(Context);
                     embed.AddField("Warning", "Unabled to pause the track.");
-                    await Context.Command.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync(ZirconEmbedType.Warning));
+                    await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync(ZirconEmbedType.Warning));
                 }
             }
             else
             {
-                await Context.Command.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
+                await Context.Interaction.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
             }
         }
 
@@ -376,7 +378,7 @@ namespace ZirconSound.Commands
         {
             var embed = EmbedHandler.Create(Context);
             embed.AddField("Resuming", "Resuming the current track.");
-            await Context.Command.FollowupAsync(embed: embed.BuildSync());
+            await Context.Interaction.FollowupAsync(embed: embed.BuildSync());
 
             if (CheckState(new List<AudioState>
             {
@@ -396,12 +398,12 @@ namespace ZirconSound.Commands
 
                             embed = EmbedHandler.Create(Context);
                             embed.AddField("Resumed", "Resumed the current track.");
-                            await Context.Command.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
+                            await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
                             break;
                         case PlayerState.Playing:
                             embed = EmbedHandler.Create(Context);
                             embed.AddField("Playing", "Track is already playing.");
-                            await Context.Command.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
+                            await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
                             break;
                         case PlayerState.NotPlaying:
                             break;
@@ -412,14 +414,14 @@ namespace ZirconSound.Commands
                         default:
                             embed = EmbedHandler.Create(Context);
                             embed.AddField("Warning", "Unabled to resume the track.");
-                            await Context.Command.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync(ZirconEmbedType.Warning));
+                            await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync(ZirconEmbedType.Warning));
                             break;
                     }
                 }
             }
             else
             {
-                await Context.Command.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
+                await Context.Interaction.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
             }
         }
 
@@ -475,17 +477,17 @@ namespace ZirconSound.Commands
                     }
 
                     embed1.AddField(new EmbedFieldBuilder().WithName("Estimated play time").WithValue(estimatedTime).WithIsInline(true));
-                    await Context.Command.FollowupAsync(embed: embed1.BuildSync());
+                    await Context.Interaction.FollowupAsync(embed: embed1.BuildSync());
                     return;
                 }
 
                 var embed = EmbedHandler.Create(Context);
                 embed.AddField("Empty", "The queue is empty!");
-                await Context.Command.FollowupAsync(embed: embed.BuildSync());
+                await Context.Interaction.FollowupAsync(embed: embed.BuildSync());
             }
             else
             {
-                await Context.Command.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
+                await Context.Interaction.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
             }
         }
 
@@ -494,7 +496,7 @@ namespace ZirconSound.Commands
         {
             var embed = EmbedHandler.Create(Context);
             embed.AddField("Clearing Queue.", "Clearing the queue.");
-            await Context.Command.FollowupAsync(embed: embed.BuildSync());
+            await Context.Interaction.FollowupAsync(embed: embed.BuildSync());
 
             if (CheckState(new List<AudioState>
             {
@@ -511,17 +513,17 @@ namespace ZirconSound.Commands
 
                     embed = EmbedHandler.Create(Context);
                     embed.AddField("Cleared", "Cleared the queue!");
-                    await Context.Command.ModifyOriginalResponseAsync(messageProperties => messageProperties.Embed = embed.BuildSync());
+                    await Context.Interaction.ModifyOriginalResponseAsync(messageProperties => messageProperties.Embed = embed.BuildSync());
                     return;
                 }
 
                 embed = EmbedHandler.Create(Context);
                 embed.AddField("Empty", "The queue is empty!");
-                await Context.Command.ModifyOriginalResponseAsync(messageProperties => messageProperties.Embed = embed.BuildSync());
+                await Context.Interaction.ModifyOriginalResponseAsync(messageProperties => messageProperties.Embed = embed.BuildSync());
             }
             else
             {
-                await Context.Command.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
+                await Context.Interaction.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
             }
         }
 
@@ -530,7 +532,7 @@ namespace ZirconSound.Commands
         {
             var embed = EmbedHandler.Create(Context);
             embed.AddField("Seeking.", "Seeking to the specified time.");
-            await Context.Command.FollowupAsync(embed: embed.BuildSync());
+            await Context.Interaction.FollowupAsync(embed: embed.BuildSync());
 
             if (CheckState(new List<AudioState>
             {
@@ -553,38 +555,39 @@ namespace ZirconSound.Commands
 
                             embed = EmbedHandler.Create(Context);
                             embed.AddField("Seeked", $"Seeked to: {timeSeek}");
-                            await Context.Command.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
+                            await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
                             return;
                         }
 
                         embed = EmbedHandler.Create(Context);
                         embed.AddField("Out of range", "You can't seek to a time higher than the duration of the track!");
-                        await Context.Command.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
+                        await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
                         return;
                     }
 
                     embed = EmbedHandler.Create(Context);
                     embed.AddField("Negative", "You can't seek to a negative number!");
-                    await Context.Command.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
+                    await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
                     return;
                 }
 
                 embed = EmbedHandler.Create(Context);
                 embed.AddField("Not playing", "No track is playing...");
-                await Context.Command.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
+                await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
             }
             else
             {
-                await Context.Command.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
+                await Context.Interaction.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
             }
         }
 
         [SlashCommand("replay", "Replay the current track.")]
+        [MessageComponent("LooptyLoop", "replay-button")]
         public async Task ReplayAsync()
         {
             var embed = EmbedHandler.Create(Context);
             embed.AddField("Replaying.", "Replaying track.");
-            await Context.Command.FollowupAsync(embed: embed.BuildSync());
+            await Context.Interaction.FollowupAsync(embed: embed.BuildSync());
 
             if (CheckState(new List<AudioState>
             {
@@ -602,17 +605,17 @@ namespace ZirconSound.Commands
 
                     embed = EmbedHandler.Create(Context);
                     embed.AddField("Replaying", "Replaying current track!");
-                    await Context.Command.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
+                    await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
                     return;
                 }
 
                 embed = EmbedHandler.Create(Context);
                 embed.AddField("Not playing", "No track is playing...");
-                await Context.Command.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
+                await Context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.BuildSync());
             }
             else
             {
-                await Context.Command.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
+                await Context.Interaction.FollowupAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
             }
         }
     }

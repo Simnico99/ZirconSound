@@ -3,21 +3,21 @@ using Discord.Commands;
 using Discord.WebSocket;
 using System.Threading.Tasks;
 using ZirconSound.ApplicationCommands.Interactions;
-using ZirconSound.ApplicationCommands.SlashCommands;
+using ZirconSound.ApplicationCommands.MessageComponents;
 using ZirconSound.Embeds;
 using ZirconSound.Enum;
 
 namespace ZirconSound.Handlers
 {
-    public static class SlashCommandHandler
+    internal class MessageComponentHandler
     {
-        public static async Task Invoke(IDiscordClient client, SocketSlashCommand commandInteraction, InteractionsService commandService)
+        public static async Task Invoke(IDiscordClient client, SocketMessageComponent componentInteraction, InteractionsService commandService)
         {
-            var commandContext = new SlashCommandContext(client, commandInteraction);
-            await commandService.InvokeSlashCommand(commandInteraction, commandContext);
+            var componentContext = new MessageComponentContext(client, componentInteraction);
+            await commandService.InvokeComponent(componentInteraction, componentContext);
         }
 
-        public static async Task Executed(Optional<SocketSlashCommand> commandInfo, IInteractionContext commandContext, IResult result)
+        public static async Task Executed(Optional<SocketMessageComponent> commandInfo, IInteractionContext commandContext, IResult result)
         {
             if (result.IsSuccess)
             {
