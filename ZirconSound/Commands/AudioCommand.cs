@@ -126,7 +126,7 @@ namespace ZirconSound.Commands
             embedBuilder.AddField(duration);
         }
 
-        [SlashCommand("play", "Play the track", "id", ApplicationCommandOptionType.String, "Id/Name/Link/Playlist", true)]
+        [SlashCommand("play", "Play a track.", "id", ApplicationCommandOptionType.String, "Id/Name/Link/Playlist", true)]
         public async Task PlayAsync([Remainder] string id)
         {
             var embed = EmbedHandler.Create(Context);
@@ -225,7 +225,7 @@ namespace ZirconSound.Commands
             }
         }
 
-        [SlashCommand("stop", "Stop the current track")]
+        [SlashCommand("stop", "Stop the current track.")]
         public async Task StopAsync()
         {
             var embed = EmbedHandler.Create(Context);
@@ -257,7 +257,7 @@ namespace ZirconSound.Commands
             }
         }
 
-        [SlashCommand("skip", "Skip the current track")]
+        [SlashCommand("skip", "Skip the current track.")]
         public async Task SkipAsync()
         {
             var embed = EmbedHandler.Create(Context);
@@ -299,7 +299,7 @@ namespace ZirconSound.Commands
             }
         }
 
-        [SlashCommand("leave", "Leave the current channel")]
+        [SlashCommand("leave", "Leave the current voice channel.")]
         public async Task LeaveAsync()
         {
             var embed = EmbedHandler.Create(Context);
@@ -596,7 +596,7 @@ namespace ZirconSound.Commands
             }
         }
 
-        [SlashCommand("seek", "Seek the current track to the specified value", "time", ApplicationCommandOptionType.String, "(00:00:00) (Hours:Minutes:Seconds)", true)]
+        [SlashCommand("seek", "Seek the current track to the specified value. (00:00:00) (Hours:Minutes:Seconds)", "time", ApplicationCommandOptionType.String, "(00:00:00) (Hours:Minutes:Seconds)", true)]
         public async Task SeekAsync(string seekTime)
         {
             var embed = EmbedHandler.Create(Context);
@@ -668,6 +668,61 @@ namespace ZirconSound.Commands
                     return;
                 }
 
+                embed.AddField("Not playing", "No track is playing...");
+                await Context.ReplyToCommandAsync(embed: embed.BuildSync());
+            }
+            else
+            {
+                await Context.ReplyToCommandAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
+            }
+        }
+
+        [MessageComponent("loop-button")]
+        public async Task LoopButtonAsync()
+        {
+            Context.ModifyOriginalMessage = true;
+            await LoopAsync();
+        }
+
+        [SlashCommand("loop", "Set or unset the player into loop mode.")]
+        public async Task LoopAsync()
+        {
+            var embed = EmbedHandler.Create(Context);
+
+            if (CheckState(new List<AudioState>
+            {
+                AudioState.UserIsInVoiceChannel,
+                AudioState.BotIsInVoiceChannel,
+                AudioState.BotAndUserInSameVoiceChannel
+            }, Context))
+            {
+                var player = _audioService.GetPlayer<QueuedLavalinkPlayer>(Context.Guild.Id);
+
+                if (player != null && player.State != PlayerState.NotConnected)
+                {
+                    if (!player.IsLooping)
+                    {
+                        await _playerService.CancelDisconnectAsync(player);
+                        player.IsLooping = true;
+
+                        var button = new ComponentBuilder().WithButton("Loop", "loop-button", ButtonStyle.Secondary);
+
+                        embed.AddField("Looping", "The player is now looping tracks!");
+                        await Context.ReplyToCommandAsync(embed: embed.BuildSync(), component: button.Build());
+                        
+                    }
+                    else
+                    {
+                        await _playerService.CancelDisconnectAsync(player);
+                        player.IsLooping = false;
+
+                        var button = new ComponentBuilder().WithButton("Unloop", "loop-button", ButtonStyle.Secondary);
+
+                        embed.AddField("Looping", "The player not looping tracks anymore!");
+                        await Context.ReplyToCommandAsync(embed: embed.BuildSync(), component: button.Build());
+                    }
+                    return;
+                }
                 embed.AddField("Not playing", "No track is playing...");
                 await Context.ReplyToCommandAsync(embed: embed.BuildSync());
             }
