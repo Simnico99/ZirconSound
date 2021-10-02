@@ -9,12 +9,12 @@ using ZirconSound.Enum;
 
 namespace ZirconSound.Handlers
 {
-    internal class MessageComponentHandler
+    internal static class MessageComponentHandler
     {
         public static async Task Invoke(IDiscordClient client, SocketMessageComponent componentInteraction, InteractionsService commandService)
         {
             var componentContext = new MessageComponentContext(client, componentInteraction);
-            await commandService.InvokeComponent(componentInteraction, componentContext);
+            await commandService.Invoke(componentInteraction, componentContext);
         }
 
         public static async Task Executed(Optional<SocketMessageComponent> commandInfo, IInteractionContext commandContext, IResult result)

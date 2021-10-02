@@ -14,5 +14,7 @@ namespace ZirconSound.ApplicationCommands.Interactions
         IMessageChannel Channel { get; }
 
         IUser User { get; }
+
+        bool ModifyOriginalMessage { get; set; }
     }
 }
