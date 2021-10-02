@@ -15,7 +15,6 @@ using System.Threading.Tasks;
 using ZirconSound.ApplicationCommands.Interactions;
 using ZirconSound.Embeds;
 using ZirconSound.Logger;
-using ZirconSound.Player;
 using ZirconSound.Services;
 
 namespace ZirconSound
@@ -89,8 +88,8 @@ namespace ZirconSound
                 });
 
             var host = builder.Build();
-            var discordSocket = host.Services.GetRequiredService<ILogger<LavalinkJar>>();
-            LavalinkJar.Start(discordSocket);
+            var discordSocket = host.Services.GetRequiredService<ILogger<LavalinkService>>();
+            LavalinkService.Start(discordSocket);
 
             using (host)
             {

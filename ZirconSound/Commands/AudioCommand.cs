@@ -14,7 +14,7 @@ using ZirconSound.ApplicationCommands.SlashCommands;
 using ZirconSound.Embeds;
 using ZirconSound.Enum;
 using ZirconSound.Extensions;
-using ZirconSound.Player;
+using ZirconSound.Services;
 
 namespace ZirconSound.Commands
 {

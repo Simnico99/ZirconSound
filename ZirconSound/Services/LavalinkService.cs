@@ -4,11 +4,11 @@ using System.IO;
 
 namespace ZirconSound.Services
 {
-    internal class LavalinkJar
+    internal class LavalinkService
     {
-        private static ILogger<LavalinkJar> Client { get; set; }
+        private static ILogger<LavalinkService> Client { get; set; }
 
-        public static void Start(ILogger<LavalinkJar> socketClient)
+        public static void Start(ILogger<LavalinkService> socketClient)
         {
             Client = socketClient;
 

@@ -1,15 +1,15 @@
-﻿using Lavalink4NET;
-using Lavalink4NET.Events;
-using Lavalink4NET.Player;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using Lavalink4NET;
+using Lavalink4NET.Events;
+using Lavalink4NET.Player;
 using Lavalink4NET.Rest;
+using Microsoft.Extensions.Logging;
 using ZirconSound.Embeds;
 
-namespace ZirconSound.Player
+namespace ZirconSound.Services
 {
     public class PlayerService
     {
