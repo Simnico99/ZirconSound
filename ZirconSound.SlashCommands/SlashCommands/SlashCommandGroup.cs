@@ -4,7 +4,7 @@ using ZirconSound.ApplicationCommands.Interactions;
 
 namespace ZirconSound.ApplicationCommands.SlashCommands
 {
-    public abstract class SlashCommandGroup : SlashCommandGroup<SlashCommandAttribute>, IInteractionGroup
+    public class SlashCommandGroup : SlashCommandGroup<SlashCommandAttribute>, IInteractionGroup
     { }
 
     public class SlashCommandGroup<T> : IInteractionGroup<T> where T : SlashCommandAttribute
