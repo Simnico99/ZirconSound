@@ -4,7 +4,8 @@ using ZirconSound.ApplicationCommands.Interactions;
 
 namespace ZirconSound.ApplicationCommands.MessageComponents
 {
-    public class MessageComponentGroup : MessageComponentGroup<MessageComponentAttribute> {}
+    public abstract class MessageComponentGroup : MessageComponentGroup<MessageComponentAttribute>, IInteractionGroup
+    { }
 
     public class MessageComponentGroup<T> : IInteractionGroup<T> where T : MessageComponentAttribute
     {

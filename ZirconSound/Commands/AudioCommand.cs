@@ -327,14 +327,8 @@ namespace ZirconSound.Commands
             }
         }
 
-        [MessageComponent("pause-button")]
-        public async Task PauseButtonAsync()
-        {
-            Context.ModifyOriginalMessage = true;
-            await PauseAsync();
-        }
-
         [SlashCommand("pause", "Pause the current track.")]
+        [MessageComponent("pause-button")]
         public async Task PauseAsync()
         {
             var embed = EmbedHandler.Create(Context);
@@ -374,15 +368,9 @@ namespace ZirconSound.Commands
                 await Context.ReplyToCommandAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
             }
         }
-
-        [MessageComponent("resume-button")]
-        public async Task ResumeButtonAsync()
-        {
-            Context.ModifyOriginalMessage = true;
-            await ResumeAsync();
-        }
-
+        
         [SlashCommand("resume", "Resume the track if the track is paused.")]
+        [MessageComponent("resume-button")]
         public async Task ResumeAsync()
         {
             var embed = EmbedHandler.Create(Context);
@@ -431,47 +419,8 @@ namespace ZirconSound.Commands
             }
         }
 
-        [MessageComponent("queue-next-button")]
-        public async Task QueueNextAsync(string pageNum)
-        {
-            Context.ModifyOriginalMessage = true;
-
-            await QueueAsync(long.Parse(pageNum));
-        }
-
-        [MessageComponent("queue-back-button")]
-        public async Task QueueBackAsync(string pageNum)
-        {
-            Context.ModifyOriginalMessage = true;
-
-            await QueueAsync(long.Parse(pageNum));
-        }
-
-        [MessageComponent("queue-first-button")]
-        public async Task QueueFirstAsync()
-        {
-            Context.ModifyOriginalMessage = true;
-
-            await QueueAsync(0);
-        }
-
-        [MessageComponent("queue-last-button")]
-        public async Task QueueLastAsync()
-        {
-            Context.ModifyOriginalMessage = true;
-            var player = _audioService.GetPlayer<QueuedLavalinkPlayer>(Context.Guild.Id);
-
-            if (player != null && player.Queue.Tracks.Count > 0)
-            {
-                var tracks = player.Queue.Tracks.ToList();
-                var tracksChunk = tracks.ChunkBy(5);
-
-                await QueueAsync(tracksChunk.Count);
-            }
-        }
-
-
         [SlashCommand("queue", "Get the queue lenght and list of tracks", "page", ApplicationCommandOptionType.Integer, "the page number", false)]
+        [MessageComponent("queue-button")]
         public async Task QueueAsync(long pageNum)
         {
             var embed = EmbedHandler.Create(Context);
@@ -522,7 +471,6 @@ namespace ZirconSound.Commands
                         embed.AddField(new EmbedFieldBuilder().WithName("Pages").WithValue($"{page + 1} of {tracksChunk.Count}").WithIsInline(true));
                     }
 
-
                     var firstDisabled = false;
                     var lastDisabled = false;
 
@@ -536,11 +484,11 @@ namespace ZirconSound.Commands
                         lastDisabled = true;
                     }
 
-                    var button = new ComponentBuilder().WithButton("First", "queue-first-button", ButtonStyle.Secondary, disabled: firstDisabled)
-                        .WithButton("Back", $"queue-back-button,{page}", ButtonStyle.Secondary, disabled: firstDisabled)
+                    var button = new ComponentBuilder().WithButton("First", $"queue-button", ButtonStyle.Secondary, disabled: firstDisabled)
+                        .WithButton("Back", $"queue-button;{page}", ButtonStyle.Secondary, disabled: firstDisabled)
                         .WithButton("Clear", "clear-button")
-                        .WithButton("Next", $"queue-next-button,{page + 2}", ButtonStyle.Secondary, disabled: lastDisabled)
-                        .WithButton("Last", "queue-last-button", ButtonStyle.Secondary, disabled: lastDisabled);
+                        .WithButton("Next", $"queue-button;{page + 2}", ButtonStyle.Secondary, disabled: lastDisabled)
+                        .WithButton("Last", $"queue-button;{tracksChunk.Count}", ButtonStyle.Secondary, disabled: lastDisabled);
 
                     embed.AddField(new EmbedFieldBuilder().WithName("Estimated play time").WithValue(estimatedTime).WithIsInline(true));
                     await Context.ReplyToCommandAsync(embed: embed.BuildSync(), component: button.Build());
@@ -556,14 +504,8 @@ namespace ZirconSound.Commands
             }
         }
 
-        [MessageComponent("clear-button")]
-        public async Task ClearButtonAsync()
-        {
-            Context.ModifyOriginalMessage = true;
-            await ClearAsync();
-        }
-
         [SlashCommand("clear", "Clear the playlist.")]
+        [MessageComponent("clear-button")]
         public async Task ClearAsync()
         {
             var embed = EmbedHandler.Create(Context);
@@ -677,14 +619,8 @@ namespace ZirconSound.Commands
             }
         }
 
-        [MessageComponent("loop-button")]
-        public async Task LoopButtonAsync()
-        {
-            Context.ModifyOriginalMessage = true;
-            await LoopAsync();
-        }
-
         [SlashCommand("loop", "Set or unset the player into loop mode.")]
+        [MessageComponent("loop-button")]
         public async Task LoopAsync()
         {
             var embed = EmbedHandler.Create(Context);
@@ -708,7 +644,7 @@ namespace ZirconSound.Commands
 
                         embed.AddField("Looping", "The player is now looping tracks!");
                         await Context.ReplyToCommandAsync(embed: embed.BuildSync(), component: button.Build());
-                        
+
                     }
                     else
                     {

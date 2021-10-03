@@ -1,12 +1,12 @@
-﻿using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
+using System.Threading.Tasks;
 using ZirconSound.ApplicationCommands.Interactions;
 
 namespace ZirconSound.Extensions
 {
     internal static class SocketInteractionExtensions
     {
-        public static async Task ReplyToCommandAsync(this IInteractionContext interactionContext, string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false, AllowedMentions allowedMentions = null, RequestOptions options = null, MessageComponent component = null, Embed embed = null)
+        public static async Task ReplyToCommandAsync(this IInteractionContext interactionContext, string text = null, Embed[] embeds = null, bool isTts = false, bool ephemeral = false, AllowedMentions allowedMentions = null, RequestOptions options = null, MessageComponent component = null, Embed embed = null)
         {
             if (interactionContext.ModifyOriginalMessage)
             {
@@ -21,7 +21,7 @@ namespace ZirconSound.Extensions
             }
             else
             {
-                await interactionContext.Interaction.FollowupAsync(text, embeds, isTTS, ephemeral, allowedMentions, options, component, embed);
+                await interactionContext.Interaction.FollowupAsync(text, embeds, isTts, ephemeral, allowedMentions, options, component, embed);
             }
         }
     }

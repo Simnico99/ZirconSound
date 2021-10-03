@@ -13,7 +13,7 @@ namespace ZirconSound.Handlers
     {
         public static async Task Invoke(IDiscordClient client, SocketMessageComponent componentInteraction, InteractionsService commandService)
         {
-            var componentContext = new MessageComponentContext(client, componentInteraction);
+            var componentContext = new MessageComponentContext(client, componentInteraction) { ModifyOriginalMessage = true };
             await commandService.Invoke(componentInteraction, componentContext);
         }
 

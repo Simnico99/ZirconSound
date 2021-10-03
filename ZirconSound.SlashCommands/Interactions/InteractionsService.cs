@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -28,7 +29,7 @@ namespace ZirconSound.ApplicationCommands.Interactions
 
         public InteractionsService(InteractionsServiceConfig config) => _config = config;
 
-        public IEnumerable<SlashCommandGroup> SlashCommands { get; set; }
+        public IEnumerable<SlashCommandGroup> SlashCommands { get; private set; }
         private IEnumerable<MessageComponentGroup> MessageComponents { get; set; }
 
         public event Func<Optional<SocketSlashCommand>, IInteractionContext, IResult, Task> CommandExecuted
@@ -97,91 +98,142 @@ namespace ZirconSound.ApplicationCommands.Interactions
             }
         }
 
-        private async Task ExecuteInternalAsync(SocketInteraction interaction, IInteractionContext context)
+        private static void SetSlashCommandParameters(ref object[] parameterArray, InteractionData interactionData, IInteractionGroup commandToExec)
         {
-            var interactionData = new InteractionData();
-            dynamic commandToExec = new List<IInteractionGroup<Attribute>>();
-
-            try
+            var command = commandToExec as SlashCommandGroup;
+            if (interactionData.Data?.GetType().GetProperty("Options") != null)
             {
-                switch (interaction)
+                if (interactionData.Data.Options != null)
                 {
-                    case SocketSlashCommand commandInteraction:
-                        interactionData.Data = commandInteraction.Data;
-                        interactionData.Name = commandInteraction.CommandName;
-                        interactionData.Type = InteractionType.SlashCommand;
-                        commandToExec = SlashCommands.FirstOrDefault(x => x.Interaction.Name == interactionData.Name);
-                        break;
+                    var length = interactionData.Data.Options.Length;
+                    parameterArray = new object[length];
+                    for (var runs = 0; runs < length; runs++)
+                    {
+                        parameterArray[runs] = interactionData.Data.Options[runs].Value.ToString();
+                    }
+                }
+                else if (command != null && command.Interaction.CommandOptionType == ApplicationCommandOptionType.Integer)
+                {
+                    parameterArray = new object[] { 0 };
+                }
+            }
+        }
 
-
-                    case SocketMessageComponent componentInteraction:
-                        var dataArray = Array.Empty<object>();
-                        if (componentInteraction.Data.CustomId.Contains(","))
+        private static void SetMessageComponentParameters(ref object[] parameterArray, InteractionData interactionData, MethodBase method)
+        {
+            var parameters = method.GetParameters();
+            if (parameters.Length > 0)
+            {
+                var i = 0;
+                foreach (var parameter in parameters)
+                {
+                    var paramType = parameter.ParameterType;
+                    if (interactionData.Data.Length == parameters.Length)
+                    {
+                        if (interactionData.Data[i] is not null)
                         {
-                            var splitData = componentInteraction.Data.CustomId.Split(",");
-                            interactionData.Name = splitData[0];
-                            var length = splitData.Length;
-                            dataArray = new object[length - 1];
-                            for (var runs = 1; runs < length; runs++)
-                            {
-                                dataArray[runs - 1] = splitData[runs];
-                            }
+                            var converted = TypeDescriptor.GetConverter(paramType).ConvertFromString(interactionData.Data[i]);
+                            interactionData.Data[i] = converted;
                         }
                         else
                         {
-                            interactionData.Name = componentInteraction.Data.CustomId;
-                        }
-
-                        interactionData.Data = dataArray;
-                        
-                        interactionData.Type = InteractionType.MessageComponent;
-                        commandToExec = MessageComponents.FirstOrDefault(x => x.Interaction.Id == interactionData.Name);
-                        break;
-
-
-                    default:
-                        await interaction.FollowupAsync("Unsupported interaction.");
-                        break;
-                }
-
-                if (commandToExec?.Module != null)
-                {
-                    var commandClass = ActivatorUtilities.CreateInstance(_provider, commandToExec.Module);
-
-                    MethodInfo setContext = commandClass.GetType().GetMethod("SetContext");
-                    var parameterArray = new object[] { context };
-                    setContext.Invoke(commandClass, parameterArray);
-
-                    MethodInfo theMethod = commandClass.GetType().GetMethod(commandToExec.Method.Name);
-                    var secondParameterArray = Array.Empty<object>();
-                    if (interactionData.Type == InteractionType.SlashCommand)
-                    {
-                        if (interactionData.Data?.GetType().GetProperty("Options") != null)
-                        {
-                            if (interactionData.Data.Options != null)
+                            if (paramType == typeof(long) || paramType == typeof(int) || paramType == typeof(double))
                             {
-                                var length = interactionData.Data.Options.Length;
-                                secondParameterArray = new object[length];
-                                for (var runs = 0; runs < length; runs++)
-                                {
-                                    secondParameterArray[runs] = interactionData.Data.Options[runs].Value.ToString();
-                                }
-                            }
-                            else if (commandToExec.Interaction.CommandOptionType == ApplicationCommandOptionType.Integer)
-                            {
-                                secondParameterArray = new object[] { 0 };
+                                interactionData.Data[i] = 0;
                             }
                         }
                     }
                     else
                     {
-                        if (interactionData.Data.Length > 0)
+                        if (i == 0)
                         {
-                            secondParameterArray = interactionData.Data;
+                            interactionData.Data = new object[parameters.Length];
+                        }
+                        if (paramType == typeof(long) || paramType == typeof(int) || paramType == typeof(double))
+                        {
+                            interactionData.Data[i] = 0;
                         }
                     }
 
-                    theMethod.Invoke(commandClass, secondParameterArray);
+                    i++;
+                }
+                parameterArray = interactionData.Data;
+            }
+        }
+
+        private async Task<KeyValuePair<InteractionData, IInteractionGroup>> GetDataFromSocket(SocketInteraction interaction)
+        {
+            IInteractionGroup commandToExec = new InteractionGroup();
+            var interactionData = new InteractionData();
+            switch (interaction)
+            {
+                case SocketSlashCommand commandInteraction:
+                    interactionData.Data = commandInteraction.Data;
+                    interactionData.Name = commandInteraction.CommandName;
+                    interactionData.Type = InteractionType.SlashCommand;
+                    commandToExec = SlashCommands.FirstOrDefault(x => x.Interaction.Name == interactionData.Name);
+                    break;
+
+
+                case SocketMessageComponent componentInteraction:
+                    var dataArray = Array.Empty<object>();
+                    if (componentInteraction.Data.CustomId.Contains(";"))
+                    {
+                        var splitData = componentInteraction.Data.CustomId.Split(";");
+                        interactionData.Name = splitData[0];
+                        var length = splitData.Length;
+                        dataArray = new object[length - 1];
+                        for (var runs = 1; runs < length; runs++)
+                        {
+                            dataArray[runs - 1] = splitData[runs];
+                        }
+                    }
+                    else
+                    {
+                        interactionData.Name = componentInteraction.Data.CustomId;
+                    }
+
+                    interactionData.Data = dataArray;
+
+                    interactionData.Type = InteractionType.MessageComponent;
+                    commandToExec = MessageComponents.FirstOrDefault(x => x.Interaction.Id == interactionData.Name);
+                    break;
+
+
+                default:
+                    await interaction.FollowupAsync("Unsupported interaction.");
+                    break;
+            }
+
+            return new KeyValuePair<InteractionData, IInteractionGroup>(interactionData, commandToExec);
+        }
+
+        private async Task ExecuteInternalAsync(SocketInteraction interaction, IInteractionContext context)
+        {
+            try
+            {
+                var (interactionData, commandToExec) = await GetDataFromSocket(interaction);
+
+                if (commandToExec?.Module != null)
+                {
+                    var commandClass = ActivatorUtilities.CreateInstance(_provider, commandToExec.Module);
+
+                    var setContext = commandClass.GetType().GetMethod("SetContext");
+                    var parameterArray = new object[] { context };
+                    setContext?.Invoke(commandClass, parameterArray);
+
+                    var method = commandClass.GetType().GetMethod(commandToExec.Method.Name);
+                    var secondParameterArray = Array.Empty<object>();
+                    if (interactionData.Type == InteractionType.SlashCommand)
+                    {
+                        SetSlashCommandParameters(ref secondParameterArray, interactionData, commandToExec);
+                    }
+                    else
+                    {
+                        SetMessageComponentParameters(ref secondParameterArray, interactionData, method);
+                    }
+
+                    method?.Invoke(commandClass, secondParameterArray);
                 }
 
                 if (interactionData.Type == InteractionType.SlashCommand)
@@ -218,6 +270,11 @@ namespace ZirconSound.ApplicationCommands.Interactions
                 case RunMode.Async:
                     _ = Task.Run(async () => { await ExecuteInternalAsync(component, context).ConfigureAwait(false); });
                     break;
+                case RunMode.Default:
+                    await ExecuteInternalAsync(component, context).ConfigureAwait(false);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(_config.DefaultRunMode), "This run mode is not supported!");
             }
         }
 

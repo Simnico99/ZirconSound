@@ -30,6 +30,6 @@ namespace ZirconSound.ApplicationCommands.MessageComponents
 
         public SocketInteraction Interaction { get; }
 
-        public bool ModifyOriginalMessage {  get; set; }
+        public bool ModifyOriginalMessage { get; set; }
     }
 }
