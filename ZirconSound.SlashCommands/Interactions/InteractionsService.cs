@@ -174,7 +174,6 @@ namespace ZirconSound.ApplicationCommands.Interactions
                     commandToExec = SlashCommands.FirstOrDefault(x => x.Interaction.Name == interactionData.Name);
                     break;
 
-
                 case SocketMessageComponent componentInteraction:
                     var dataArray = Array.Empty<object>();
                     if (componentInteraction.Data.CustomId.Contains(";"))
@@ -199,12 +198,10 @@ namespace ZirconSound.ApplicationCommands.Interactions
                     commandToExec = MessageComponents.FirstOrDefault(x => x.Interaction.Id == interactionData.Name);
                     break;
 
-
                 default:
                     await interaction.FollowupAsync("Unsupported interaction.");
                     break;
             }
-
             return new KeyValuePair<InteractionData, IInteractionGroup>(interactionData, commandToExec);
         }
 
