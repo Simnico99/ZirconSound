@@ -10,10 +10,7 @@ namespace ZirconSound.Commands
     {
         private readonly InteractionsService _interactionsService;
 
-        public GeneralCommand(InteractionsService slashInteractions) 
-        {
-            _interactionsService = slashInteractions;
-        }
+        public GeneralCommand(InteractionsService slashInteractions) => _interactionsService = slashInteractions;
 
 
         [SlashCommand("ping", "Ping the bot.")]

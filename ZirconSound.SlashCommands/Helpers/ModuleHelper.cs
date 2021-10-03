@@ -7,7 +7,7 @@ namespace ZirconSound.ApplicationCommands.Helpers
 {
     internal static class ModuleHelper
     {
-        public static IEnumerable<T1> GetInteractionModules<T1, T2>(Assembly assembly) where T1 : IInteractionGroup<T2>  where T2 : Attribute
+        public static IEnumerable<T1> GetInteractionModules<T1, T2>(Assembly assembly) where T1 : IInteractionGroup<T2> where T2 : Attribute
         {
             var list = new List<T1>();
             foreach (var type in assembly.GetTypes())

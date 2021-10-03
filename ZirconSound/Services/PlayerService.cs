@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Threading;
-using System.Threading.Tasks;
-using Lavalink4NET;
+﻿using Lavalink4NET;
 using Lavalink4NET.Events;
 using Lavalink4NET.Player;
 using Lavalink4NET.Rest;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Concurrent;
+using System.Threading;
+using System.Threading.Tasks;
 using ZirconSound.Embeds;
 
 namespace ZirconSound.Services
@@ -64,8 +64,8 @@ namespace ZirconSound.Services
             {
                 if (player.CurrentTrack != null)
                 {
-                    var currentSong = player.CurrentTrack.Source;
-                    var track = await _audioService.GetTrackAsync(currentSong ?? string.Empty, SearchMode.YouTube, true);
+                    var currentSong = eventArgs.TrackIdentifier;
+                    var track = await _audioService.GetTrackAsync(currentSong, SearchMode.YouTube, true);
                     if (track != null)
                     {
                         await player.PlayAsync(track);
