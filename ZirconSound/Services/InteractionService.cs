@@ -1,10 +1,10 @@
-﻿using Discord.Addons.Hosting;
-using Discord.WebSocket;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Discord.Addons.Hosting;
+using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
 using ZirconSound.ApplicationCommands.Interactions;
 using ZirconSound.Handlers;
 

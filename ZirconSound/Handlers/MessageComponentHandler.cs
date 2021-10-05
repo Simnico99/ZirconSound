@@ -1,7 +1,7 @@
-﻿using Discord;
+﻿using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using System.Threading.Tasks;
 using ZirconSound.ApplicationCommands.Interactions;
 using ZirconSound.ApplicationCommands.MessageComponents;
 using ZirconSound.Embeds;

@@ -1,25 +1,28 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
+using Microsoft.Extensions.Logging;
 
 namespace ZirconSound.Services
 {
     internal class LavalinkService
     {
-        private static ILogger<LavalinkService> Client { get; set; }
+        private static ILogger<LavalinkService> Logger { get; set; }
 
-        public static void Start(ILogger<LavalinkService> socketClient)
+        public static void Start(ILogger<LavalinkService> logger)
         {
-            Client = socketClient;
+            Logger = logger;
 
             var path = Directory.GetCurrentDirectory();
 
             Process clientProcess = new();
-            clientProcess.StartInfo.FileName = "java";
-            clientProcess.StartInfo.Arguments = $@"-jar {path}\Lavalink\Lavalink.jar ";
-            clientProcess.StartInfo.UseShellExecute = false;
-            clientProcess.StartInfo.RedirectStandardOutput = true;
-            clientProcess.StartInfo.RedirectStandardError = true;
+            clientProcess.StartInfo = new ProcessStartInfo
+            {
+                FileName = "java",
+                Arguments = $@"-jar {path}\Lavalink\Lavalink.jar ",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
             //* Set your output and error (asynchronous) handlers
             clientProcess.OutputDataReceived += OutputHandler;
             clientProcess.ErrorDataReceived += OutputHandler;
@@ -44,15 +47,15 @@ namespace ZirconSound.Services
 
                 if (message.Contains("INFO"))
                 {
-                    Client.LogInformation(cleanMessage);
+                    Logger.LogInformation(cleanMessage);
                 }
                 else if (message.Contains("WARN"))
                 {
-                    Client.LogWarning(cleanMessage);
+                    Logger.LogWarning(cleanMessage);
                 }
                 else if (message.Contains("ERROR"))
                 {
-                    Client.LogError(cleanMessage);
+                    Logger.LogError(cleanMessage);
                 }
             }
         }
