@@ -28,6 +28,14 @@
     <PackageReference Include="Discord.Net.Labs" Version="3.1.1" />
     <PackageReference Include="Lavalink4NET" Version="2.0.1-preview.3.1" />
     <PackageReference Include="Lavalink4NET.Discord.NET" Version="2.0.1-preview.3.1" />
+    <PackageReference Include="Serilog.Enrichers.AssemblyName" Version="1.0.9" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="2.2.0" />
+    <PackageReference Include="Serilog.Enrichers.Process" Version="2.0.2" />
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="4.1.2" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="3.2.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0" />
+    <PackageReference Include="Serilog.Sinks.Seq" Version="5.0.1" />
   </ItemGroup>
 
   <ItemGroup>

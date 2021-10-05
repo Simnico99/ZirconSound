@@ -1,13 +1,13 @@
-﻿using Discord;
-using Discord.Commands;
-using Lavalink4NET;
-using Lavalink4NET.Player;
-using Lavalink4NET.Rest;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using Discord;
+using Discord.Commands;
+using Lavalink4NET;
+using Lavalink4NET.Player;
+using Lavalink4NET.Rest;
 using ZirconSound.ApplicationCommands.Interactions;
 using ZirconSound.ApplicationCommands.MessageComponents;
 using ZirconSound.ApplicationCommands.SlashCommands;
@@ -484,7 +484,7 @@ namespace ZirconSound.Commands
                         lastDisabled = true;
                     }
 
-                    var button = new ComponentBuilder().WithButton("First", $"queue-button", ButtonStyle.Secondary, disabled: firstDisabled)
+                    var button = new ComponentBuilder().WithButton("First", "queue-button", ButtonStyle.Secondary, disabled: firstDisabled)
                         .WithButton("Back", $"queue-button;{page}", ButtonStyle.Secondary, disabled: firstDisabled)
                         .WithButton("Clear", "clear-button")
                         .WithButton("Next", $"queue-button;{page + 2}", ButtonStyle.Secondary, disabled: lastDisabled)

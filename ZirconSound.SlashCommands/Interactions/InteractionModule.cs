@@ -1,6 +1,6 @@
-﻿using Discord.Commands;
+﻿using System;
+using Discord.Commands;
 using Discord.Commands.Builders;
-using System;
 
 namespace ZirconSound.ApplicationCommands.Interactions
 {
