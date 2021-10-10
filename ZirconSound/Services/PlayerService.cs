@@ -8,6 +8,8 @@ using Lavalink4NET.Player;
 using Lavalink4NET.Rest;
 using Microsoft.Extensions.Logging;
 using ZirconSound.Embeds;
+using ZirconSound.Enum;
+using ZirconSound.Extensions;
 
 namespace ZirconSound.Services
 {
@@ -15,16 +17,14 @@ namespace ZirconSound.Services
     {
         private readonly ConcurrentDictionary<ulong?, CancellationTokenSource> _aloneDisconnectTokens;
         private readonly ConcurrentDictionary<ulong?, CancellationTokenSource> _disconnectTokens;
-        private readonly EmbedHandler _embedHandler;
         private readonly IAudioService _audioService;
         private readonly ILogger _logger;
 
-        public PlayerService(EmbedHandler embedHandler, IAudioService audioService, ILogger<PlayerService> logger)
+        public PlayerService(IAudioService audioService, ILogger<PlayerService> logger)
         {
             _disconnectTokens = new ConcurrentDictionary<ulong?, CancellationTokenSource>();
             _aloneDisconnectTokens = new ConcurrentDictionary<ulong?, CancellationTokenSource>();
             _logger = logger;
-            _embedHandler = embedHandler;
             _audioService = audioService;
 
             audioService.TrackEnd += AudioService_TrackEnd;
@@ -35,40 +35,47 @@ namespace ZirconSound.Services
 
         private async Task AudioService_TrackException(object sender, TrackExceptionEventArgs eventArgs)
         {
-            var player = (QueuedLavalinkPlayer)eventArgs.Player;
-
-            _logger.LogWarning($"Track {eventArgs.Player.CurrentTrack?.Title} threw an exception. Please check Lavalink console/logs.");
-            var embed = _embedHandler.Create();
-            embed.AddField("Error:", $"{player.CurrentTrack?.Title} has been skipped after throwing an exception.");
-            embed.AddField("Error Message:", eventArgs.Exception.Message);
-            embed.AddField("Possible causes:", "The video could be age restricted, etc...");
-
-
-            if (player.Queue.Count == 0)
+            if (eventArgs.Player is ZirconPlayer player)
             {
-                await player.StopAsync();
-                await InitiateDisconnectAsync(player, TimeSpan.FromSeconds(40));
-            }
-            else
-            {
-                await player.SkipAsync();
+                _logger.LogWarning($"Track {player.CurrentTrack?.Title} threw an exception. Please check Lavalink console/logs.");
+
+                var embed = EmbedHandler.Create(player.Context);
+                embed.AddField("Error", $"Cannot play:\n{player.CurrentTrack?.Title} because of an error.");
+                await player.Context.ReplyToCommandAsync(embed: embed.BuildSync(ZirconEmbedType.Error));
+
+                if (player.Queue.Count == 0)
+                {
+                    await player.StopAsync();
+                    await InitiateDisconnectAsync(player, TimeSpan.FromSeconds(40));
+                }
+                else
+                {
+                    await player.SkipAsync();
+                }
             }
         }
 
         private async Task AudioService_TrackStuck(object sender, TrackStuckEventArgs eventArgs)
         {
-            _logger.LogWarning($"Track {eventArgs.Player.CurrentTrack?.Title} got stuck. Please check Lavalink console/logs.");
-            var player = (QueuedLavalinkPlayer)eventArgs.Player;
 
-            if (player.IsLooping)
+            if (eventArgs.Player is ZirconPlayer player)
             {
-                if (player.CurrentTrack != null)
+                _logger.LogWarning($"Track {player.CurrentTrack?.Title} got stuck. Please check Lavalink console/logs.");
+                if (player.IsLooping)
                 {
-                    var currentSong = eventArgs.TrackIdentifier;
-                    var track = await _audioService.GetTrackAsync(currentSong, SearchMode.YouTube, true);
-                    if (track != null)
+                    if (player.CurrentTrack != null)
                     {
-                        await player.PlayAsync(track);
+                        var currentSong = eventArgs.TrackIdentifier;
+                        var track = await _audioService.GetTrackAsync(currentSong, SearchMode.YouTube, true);
+                        if (track != null)
+                        {
+                            await player.PlayAsync(track);
+                        }
+                        else
+                        {
+                            await player.StopAsync();
+                            await InitiateDisconnectAsync(player, TimeSpan.FromSeconds(40));
+                        }
                     }
                     else
                     {
@@ -76,22 +83,16 @@ namespace ZirconSound.Services
                         await InitiateDisconnectAsync(player, TimeSpan.FromSeconds(40));
                     }
                 }
-                else
+
+                if (player.Queue.Count == 0 && !player.IsLooping)
                 {
                     await player.StopAsync();
                     await InitiateDisconnectAsync(player, TimeSpan.FromSeconds(40));
                 }
-                return;
-            }
-
-            if (player.Queue.Count == 0)
-            {
-                await player.StopAsync();
-                await InitiateDisconnectAsync(player, TimeSpan.FromSeconds(40));
-            }
-            else
-            {
-                await player.SkipAsync();
+                else
+                {
+                    await player.SkipAsync();
+                }
             }
         }
 
@@ -99,17 +100,41 @@ namespace ZirconSound.Services
 
         private async Task AudioService_TrackEnd(object sender, TrackEndEventArgs eventArgs)
         {
-            var player = (QueuedLavalinkPlayer)eventArgs.Player;
-
-            if (player.IsLooping)
+            _logger.LogDebug("Stop reason: {Reason}", eventArgs.Reason);
+            if (eventArgs.Reason != TrackEndReason.LoadFailed)
             {
-                await player.ReplayAsync();
-                return;
+                if (eventArgs.Player is ZirconPlayer player)
+                {
+                    if (player.IsLooping)
+                    {
+                        await player.ReplayAsync();
+                        return;
+                    }
+
+                    if (player.Queue.IsEmpty && eventArgs.Reason != TrackEndReason.Replaced)
+                    {
+                        await InitiateDisconnectAsync(eventArgs.Player, TimeSpan.FromSeconds(40));
+                    }
+                }
             }
-
-            if (player.Queue.IsEmpty)
+            else
             {
-                await InitiateDisconnectAsync(eventArgs.Player, TimeSpan.FromSeconds(40));
+                if (eventArgs.Player is ZirconPlayer player)
+                {
+                    var embed = EmbedHandler.Create(player.Context);
+                    embed.AddField("Error", $"Cannot play:\n{player.CurrentTrack?.Title} because of an error.");
+                    await player.Context.ReplyToCommandAsync(embed: embed.BuildSync(ZirconEmbedType.Error));
+
+                    if (player.Queue.IsEmpty)
+                    {
+                        await InitiateDisconnectAsync(eventArgs.Player, TimeSpan.FromSeconds(40));
+                        await player.StopAsync();
+                    }
+                    else
+                    {
+                        await player.SkipAsync();
+                    }
+                }
             }
         }
 
@@ -145,7 +170,7 @@ namespace ZirconSound.Services
             _logger.LogDebug("Canceled Alone Disconnect");
         }
 
-        private async Task InitiateDisconnectAsync(LavalinkPlayer player, TimeSpan timeSpan)
+        public async Task InitiateDisconnectAsync(LavalinkPlayer player, TimeSpan timeSpan)
         {
             _logger.LogDebug("Disconnecting");
             if (!_disconnectTokens.TryGetValue(player.VoiceChannelId ?? 0, out var value))

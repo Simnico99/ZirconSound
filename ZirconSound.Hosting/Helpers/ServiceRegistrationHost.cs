@@ -2,17 +2,17 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using ZirconSound.ApplicationCommands.Helpers;
+using ZirconSound.ApplicationCommands.Interactions;
 
-namespace ZirconSound.ApplicationCommands.Interactions
+namespace ZirconSound.Hosting.Helpers
 {
-    internal class InteractionsServiceRegistrationHost : IHostedService
+    internal class ServiceRegistrationHost : IHostedService
     {
         private readonly LogAdapter<InteractionsService> _adapter;
         private readonly InteractionsService _commandService;
-        private readonly ILogger<InteractionsServiceRegistrationHost> _logger;
+        private readonly ILogger<ServiceRegistrationHost> _logger;
 
-        public InteractionsServiceRegistrationHost(InteractionsService commandService, ILogger<InteractionsServiceRegistrationHost> logger, LogAdapter<InteractionsService> adapter)
+        public ServiceRegistrationHost(InteractionsService commandService, ILogger<ServiceRegistrationHost> logger, LogAdapter<InteractionsService> adapter)
         {
             _commandService = commandService;
             _logger = logger;

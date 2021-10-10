@@ -13,9 +13,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using ZirconSound.ApplicationCommands.Interactions;
 using ZirconSound.Embeds;
-using ZirconSound.Lavalink4Net;
+using ZirconSound.Hosting.Extensions;
 
 namespace ZirconSound.Services
 {
@@ -42,6 +41,8 @@ namespace ZirconSound.Services
                 .ReadFrom
                 .Configuration(_configuration)
                 .CreateLogger();
+
+            Log.Information("Starting {SoftwareName} up!", "ZirconSound");
         }
 
         public async Task Start()
@@ -80,18 +81,13 @@ namespace ZirconSound.Services
             {
                 services.AddSingleton<EmbedHandler>();
                 services.AddSingleton<PlayerService>();
-                services.AddSingleton<QueuedLavalinkPlayer>();
+                services.AddSingleton<ZirconPlayer>();
                 services.AddSingleton<IDiscordClientWrapper, DiscordClientWrapper>();
-                services.AddSingleton<IAudioService, HostedLavalinkNode>().AddSingleton(new LavalinkNodeOptions
-                {
-                    RestUri = "http://localhost:2333/",
-                    WebSocketUri = "ws://localhost:2333/",
-                    Password = "youshallnotpass"
-                });
 
                 services.AddHostedService<DiscordSocketService>();
                 services.AddHostedService<InteractionService>();
             })
+            .UseLavalink()
             .UseConsoleLifetime()
             .UseSerilog()
             .Build();
@@ -105,7 +101,7 @@ namespace ZirconSound.Services
                     Host?.Services.GetService<LavalinkNode>()?.Dispose();
                 }
                 Host?.Dispose();
-                
+
                 _disposedValue = true;
             }
         }
