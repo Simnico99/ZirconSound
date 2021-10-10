@@ -100,21 +100,23 @@ namespace ZirconSound.ApplicationCommands.Interactions
 
         private static void SetSlashCommandParameters(ref object[] parameterArray, InteractionData interactionData, IInteractionGroup commandToExec)
         {
-            var command = commandToExec as SlashCommandGroup;
-            if (interactionData.Data?.GetType().GetProperty("Options") != null)
+            if (commandToExec is SlashCommandGroup command)
             {
-                if (interactionData.Data.Options != null)
+                if (interactionData.Data?.GetType().GetProperty("Options") != null)
                 {
-                    var length = interactionData.Data.Options.Length;
-                    parameterArray = new object[length];
-                    for (var runs = 0; runs < length; runs++)
+                    if (interactionData.Data.Options != null)
                     {
-                        parameterArray[runs] = interactionData.Data.Options[runs].Value.ToString();
+                        var length = interactionData.Data.Options.Length;
+                        parameterArray = new object[length];
+                        for (var runs = 0; runs < length; runs++)
+                        {
+                            parameterArray[runs] = interactionData.Data.Options[runs].Value.ToString();
+                        }
                     }
-                }
-                else if (command != null && command.Interaction.CommandOptionType == ApplicationCommandOptionType.Integer)
-                {
-                    parameterArray = new object[] { 0 };
+                    else if (command.Interaction.CommandOptionType == ApplicationCommandOptionType.Integer)
+                    {
+                        parameterArray = new object[] { 0 };
+                    }
                 }
             }
         }

@@ -18,7 +18,6 @@ using ZirconSound.Services;
 
 namespace ZirconSound.Commands
 {
-    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public class AudioCommand : InteractionModule<IInteractionContext>
     {
         private readonly IAudioService _audioService;
@@ -33,7 +32,8 @@ namespace ZirconSound.Commands
 
         private bool CheckState(IEnumerable<AudioState> audioStates, IInteractionContext context)
         {
-            var player = _audioService.GetPlayer<QueuedLavalinkPlayer>(context.Guild.Id);
+            var player = _audioService.GetPlayer<ZirconPlayer>(context.Guild.Id);
+            player?.SetInteraction(Context);
             if (Context.User is IVoiceState voiceState)
             {
                 var voiceChannel = voiceState.VoiceChannel;
@@ -111,7 +111,7 @@ namespace ZirconSound.Commands
             var voiceChannel = voiceState?.VoiceChannel;
             if (voiceChannel != null)
             {
-                await _audioService.JoinAsync<QueuedLavalinkPlayer>(Context.Guild.Id, voiceChannel.Id, true);
+                await _audioService.JoinAsync<ZirconPlayer>(Context.Guild.Id, voiceChannel.Id, true);
             }
         }
 
@@ -144,7 +144,7 @@ namespace ZirconSound.Commands
                 }
             }
 
-            var player = _audioService.GetPlayer<QueuedLavalinkPlayer>(Context.Guild.Id);
+            var player = _audioService.GetPlayer<ZirconPlayer>(Context.Guild.Id);
 
             if (CheckState(new List<AudioState>
             {
@@ -237,7 +237,7 @@ namespace ZirconSound.Commands
                 AudioState.BotAndUserInSameVoiceChannel
             }, Context))
             {
-                var player = _audioService.GetPlayer<QueuedLavalinkPlayer>(Context.Guild.Id);
+                var player = _audioService.GetPlayer<ZirconPlayer>(Context.Guild.Id);
                 if (player is { State: PlayerState.Playing or PlayerState.Paused })
                 {
                     embed.AddField("Stopped", "Stopped current track!");
@@ -269,7 +269,7 @@ namespace ZirconSound.Commands
                 AudioState.BotAndUserInSameVoiceChannel
             }, Context))
             {
-                var player = _audioService.GetPlayer<QueuedLavalinkPlayer>(Context.Guild.Id);
+                var player = _audioService.GetPlayer<ZirconPlayer>(Context.Guild.Id);
 
                 if (player != null && player.Queue.Count > 0)
                 {
@@ -311,7 +311,7 @@ namespace ZirconSound.Commands
                 AudioState.BotAndUserInSameVoiceChannel
             }, Context))
             {
-                var player = _audioService.GetPlayer<QueuedLavalinkPlayer>(Context.Guild.Id);
+                var player = _audioService.GetPlayer<ZirconPlayer>(Context.Guild.Id);
 
                 if (player != null)
                 {
@@ -340,7 +340,7 @@ namespace ZirconSound.Commands
                 AudioState.BotAndUserInSameVoiceChannel
             }, Context))
             {
-                var player = _audioService.GetPlayer<QueuedLavalinkPlayer>(Context.Guild.Id);
+                var player = _audioService.GetPlayer<ZirconPlayer>(Context.Guild.Id);
 
                 if (player is { State: PlayerState.Playing })
                 {
@@ -350,6 +350,7 @@ namespace ZirconSound.Commands
 
                     embed.AddField("Paused", "Paused the current track.");
                     await Context.ReplyToCommandAsync(embed: embed.BuildSync(), component: button.Build());
+                    await _playerService.InitiateDisconnectAsync(player, TimeSpan.FromMinutes(15));
 
                 }
                 else if (player is { State: PlayerState.Paused })
@@ -382,7 +383,7 @@ namespace ZirconSound.Commands
                 AudioState.BotAndUserInSameVoiceChannel
             }, Context))
             {
-                var player = _audioService.GetPlayer<QueuedLavalinkPlayer>(Context.Guild.Id);
+                var player = _audioService.GetPlayer<ZirconPlayer>(Context.Guild.Id);
 
                 if (player != null)
                 {
@@ -395,6 +396,7 @@ namespace ZirconSound.Commands
 
                             embed.AddField("Resumed", "Resumed the current track.");
                             await Context.ReplyToCommandAsync(embed: embed.BuildSync(), component: button.Build());
+                            await _playerService.CancelDisconnectAsync(player);
                             break;
                         case PlayerState.Playing:
                             embed.AddField("Playing", "Track is already playing.");
@@ -441,7 +443,7 @@ namespace ZirconSound.Commands
                 AudioState.BotAndUserInSameVoiceChannel
             }, Context))
             {
-                var player = _audioService.GetPlayer<QueuedLavalinkPlayer>(Context.Guild.Id);
+                var player = _audioService.GetPlayer<ZirconPlayer>(Context.Guild.Id);
 
                 if (player != null && player.Queue.Tracks.Count > 0)
                 {
@@ -517,7 +519,7 @@ namespace ZirconSound.Commands
                 AudioState.BotAndUserInSameVoiceChannel
             }, Context))
             {
-                var player = _audioService.GetPlayer<QueuedLavalinkPlayer>(Context.Guild.Id);
+                var player = _audioService.GetPlayer<ZirconPlayer>(Context.Guild.Id);
 
                 if (player != null && player.Queue.Tracks.Count > 0)
                 {
@@ -550,7 +552,7 @@ namespace ZirconSound.Commands
                 AudioState.BotAndUserInSameVoiceChannel
             }, Context))
             {
-                var player = _audioService.GetPlayer<QueuedLavalinkPlayer>(Context.Guild.Id);
+                var player = _audioService.GetPlayer<ZirconPlayer>(Context.Guild.Id);
 
                 if (player is { State: PlayerState.Playing })
                 {
@@ -598,7 +600,7 @@ namespace ZirconSound.Commands
                 AudioState.BotAndUserInSameVoiceChannel
             }, Context))
             {
-                var player = _audioService.GetPlayer<QueuedLavalinkPlayer>(Context.Guild.Id);
+                var player = _audioService.GetPlayer<ZirconPlayer>(Context.Guild.Id);
 
                 if (player != null && player.State != PlayerState.NotConnected)
                 {
@@ -632,7 +634,7 @@ namespace ZirconSound.Commands
                 AudioState.BotAndUserInSameVoiceChannel
             }, Context))
             {
-                var player = _audioService.GetPlayer<QueuedLavalinkPlayer>(Context.Guild.Id);
+                var player = _audioService.GetPlayer<ZirconPlayer>(Context.Guild.Id);
 
                 if (player != null && player.State != PlayerState.NotConnected)
                 {

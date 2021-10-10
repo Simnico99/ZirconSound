@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Linq;
+using Lavalink4NET;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using ZirconSound.ApplicationCommands.Helpers;
+using ZirconSound.ApplicationCommands.Interactions;
+using ZirconSound.Hosting.Helpers;
+using ZirconSound.Hosting.Lavalink;
 
-namespace ZirconSound.ApplicationCommands.Interactions
+namespace ZirconSound.Hosting.Extensions
 {
-    public static class InteractionsExtension
+    public static class HostBuilderExtension
     {
         public static IHostBuilder UseInteractionService(this IHostBuilder builder, Action<HostBuilderContext, InteractionsServiceConfig> config)
         {
@@ -27,7 +30,25 @@ namespace ZirconSound.ApplicationCommands.Interactions
                 collection.Configure<InteractionsServiceConfig>(x => config(context, x));
 
                 collection.AddSingleton(x => new InteractionsService(x.GetRequiredService<IOptions<InteractionsServiceConfig>>().Value));
-                collection.AddHostedService<InteractionsServiceRegistrationHost>();
+                collection.AddHostedService<ServiceRegistrationHost>();
+            });
+
+            return builder;
+        }
+
+        public static IHostBuilder UseLavalink(this IHostBuilder builder, LavalinkNodeOptions config = null)
+        {
+            config ??= new LavalinkNodeOptions
+            {
+                RestUri = "http://localhost:2333/",
+                WebSocketUri = "ws://localhost:2333/",
+                Password = "youshallnotpass"
+            };
+
+            builder.ConfigureServices((_, collection) =>
+            {
+                collection.AddSingleton<IAudioService, HostingLavalinkNode>();
+                collection.AddSingleton(config);
             });
 
             return builder;

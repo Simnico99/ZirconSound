@@ -1,18 +1,16 @@
-﻿#nullable enable
-using System.Collections.Generic;
+﻿using System;
 using Lavalink4NET;
 using Lavalink4NET.Logging;
-using Lavalink4NET.Player;
 
-namespace ZirconSound.Lavalink4Net
+namespace ZirconSound.Hosting.Lavalink
 {
-    internal class HostedLavalinkNode : LavalinkNode
+    public class HostingLavalinkNode : LavalinkNode
     {
         private readonly IDiscordClientWrapper _discordClient;
 
         private bool _disposed;
 
-        public HostedLavalinkNode(LavalinkNodeOptions options, IDiscordClientWrapper client, IDiscordClientWrapper discordClient, ILogger? logger = null, ILavalinkCache? cache = null) : base(options, client, logger, cache)
+        public HostingLavalinkNode(LavalinkNodeOptions options, IDiscordClientWrapper client, IDiscordClientWrapper discordClient, ILogger logger = null, ILavalinkCache cache = null) : base(options, client, logger, cache)
         {
             _discordClient = discordClient;
         }
@@ -34,6 +32,7 @@ namespace ZirconSound.Lavalink4Net
 
             Players?.Clear();
             base.Dispose();
+            GC.SuppressFinalize(this);
         }
 
 
