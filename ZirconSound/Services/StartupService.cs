@@ -26,11 +26,7 @@ namespace ZirconSound.Services
 
         public StartupService()
         {
-            _configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", true, true)
-                .Build();
-
+            _configuration = BuildConfig(new ConfigurationBuilder());
             SetLog();
             Host = CreateHost();
         }
@@ -43,6 +39,7 @@ namespace ZirconSound.Services
                 .CreateLogger();
 
             Log.Information("Starting {SoftwareName} up!", "ZirconSound");
+            Log.Information("Environment: {Environment}", Environment.GetEnvironmentVariable("DOTNET_"));
         }
 
         public async Task Start()
@@ -52,15 +49,16 @@ namespace ZirconSound.Services
             await Host.RunAsync();
         }
 
+        public static IConfiguration BuildConfig(IConfigurationBuilder builder) => builder.SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("DOTNET_")}.json", optional: true)
+        .AddEnvironmentVariables()
+        .Build();
+
         private static IHost CreateHost() => new HostBuilder()
             .ConfigureAppConfiguration(x =>
             {
-                var configuration = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json", false, true)
-                    .Build();
-
-                x.AddConfiguration(configuration);
+                x.AddConfiguration(BuildConfig(new ConfigurationBuilder()));
             })
             .ConfigureDiscordHost((context, config) =>
             {

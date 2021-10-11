@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -10,8 +10,11 @@
     <None Update="application.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
@@ -42,5 +45,4 @@
     <ProjectReference Include="..\ZirconSound.Hosting\ZirconSound.Hosting.csproj" />
     <ProjectReference Include="..\ZirconSound.SlashCommands\ZirconSound.ApplicationCommands.csproj" />
   </ItemGroup>
-
 </Project>

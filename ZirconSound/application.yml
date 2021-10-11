@@ -39,10 +39,10 @@ sentry:
 
 logging:
   file:
-    max-history: 30
-    max-size: 1GB
+    max-history: 0
+    max-size: 0GB
   path: ./logs/
 
   level:
-    root: INFO
-    lavalink: INFO
+    root: WARN
+    lavalink: WARN
