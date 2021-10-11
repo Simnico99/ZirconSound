@@ -34,7 +34,5 @@ namespace ZirconSound.Hosting.Lavalink
             base.Dispose();
             GC.SuppressFinalize(this);
         }
-
-
     }
 }

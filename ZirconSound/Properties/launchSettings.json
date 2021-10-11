@@ -3,14 +3,14 @@
     "ZirconSound (dev)": {
       "commandName": "Project",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "DOTNET_": "Development"
       }
     },
     "ZirconSound (prod)": {
       "commandName": "Project",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Production"
+        "DOTNET_": "Production"
       }
     }
   }
-}
+} 
