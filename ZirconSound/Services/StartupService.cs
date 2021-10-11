@@ -39,7 +39,7 @@ namespace ZirconSound.Services
                 .CreateLogger();
 
             Log.Information("Starting {SoftwareName} up!", "ZirconSound");
-            Log.Information("Environment: {Environment}", Environment.GetEnvironmentVariable("DOTNET_"));
+            Log.Information("Environment: {Environment}", Environment.GetEnvironmentVariable("DOTNET_") ?? "Production" );
         }
 
         public async Task Start()
@@ -51,7 +51,7 @@ namespace ZirconSound.Services
 
         public static IConfiguration BuildConfig(IConfigurationBuilder builder) => builder.SetBasePath(Directory.GetCurrentDirectory())
         .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-        .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("DOTNET_")}.json", optional: true)
+        .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("DOTNET_") ?? "Production" }.json", optional: true)
         .AddEnvironmentVariables()
         .Build();
 
