@@ -5,7 +5,7 @@ steps:
     packageType: 'sdk'
     version: '6.0.x'
     vsVersion: '17.0.0'
-    includePreviewVersions: true
+    includePreviewVersions: false
     performMultiLevelLookup: true
 
 - task: NuGetToolInstaller@1
