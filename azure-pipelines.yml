@@ -15,6 +15,6 @@ variables:
 jobs:
 - job: "Build_Windows"
   pool:
-    vmImage: 'windows-latest'
+    vmImage: 'windows-2022'
   steps:
   - template: azure/build.yml
