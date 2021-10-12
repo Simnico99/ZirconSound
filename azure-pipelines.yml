@@ -3,10 +3,11 @@
 # Add steps that publish symbols, save build artifacts, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
+variables:
+    MSBuildSDKsPath: 'C:\\Program Files\\dotnet\\sdk\\6.0.100-rc.1.21463.6'
+
 trigger:
 - master
-
-
 
 variables:
   solution: '**/*.sln'
