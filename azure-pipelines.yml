@@ -19,10 +19,3 @@ jobs:
     vmImage: 'windows-latest'
   steps:
   - template: azure/build.yml
-
-- job: "Send_Notification"
-  condition: succeededOrFailed()
-  pool:
-    vmImage: 'windows-latest'
-  steps:
-  - template: azure/discordhook.yml
