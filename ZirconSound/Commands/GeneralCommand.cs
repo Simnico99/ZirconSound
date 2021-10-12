@@ -1,32 +1,25 @@
-﻿using System.Threading.Tasks;
-using ZirconSound.ApplicationCommands.Interactions;
-using ZirconSound.ApplicationCommands.SlashCommands;
-using ZirconSound.Embeds;
-using ZirconSound.Extensions;
+﻿namespace ZirconSound.Commands;
 
-namespace ZirconSound.Commands
+public class GeneralCommand : InteractionModule<IInteractionContext>
 {
-    public class GeneralCommand : InteractionModule<IInteractionContext>
+    private readonly IInteractionsService _interactionsService;
+
+    public GeneralCommand(IInteractionsService slashInteractions) => _interactionsService = slashInteractions;
+
+
+    [SlashCommand("ping", "Ping the bot.")]
+    public async Task Ping() => await Context.ReplyToCommandAsync("PONG!");
+
+    [SlashCommand("help", "Show the commands you can execute.")]
+    public async Task Help()
     {
-        private readonly InteractionsService _interactionsService;
+        var embed = EmbedHandler.Create(Context);
 
-        public GeneralCommand(InteractionsService slashInteractions) => _interactionsService = slashInteractions;
-
-
-        [SlashCommand("ping", "Ping the bot.")]
-        public async Task Ping() => await Context.ReplyToCommandAsync("PONG!");
-
-        [SlashCommand("help", "Show the commands you can execute.")]
-        public async Task Help()
+        foreach (var commands in _interactionsService.SlashCommands)
         {
-            var embed = EmbedHandler.Create(Context);
-
-            foreach (var commands in _interactionsService.SlashCommands)
-            {
-                embed.AddField(commands.Interaction.Name.FirstCharToUpper(), commands.Interaction.Description);
-            }
-
-            await Context.ReplyToCommandAsync(embed: embed.BuildSync());
+            embed.AddField(commands.Interaction.Name.FirstCharToUpper(), commands.Interaction.Description);
         }
+
+        await Context.ReplyToCommandAsync(embed: embed.BuildSync());
     }
 }

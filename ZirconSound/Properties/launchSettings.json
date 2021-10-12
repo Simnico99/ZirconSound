@@ -1,16 +1,10 @@
 {
   "profiles": {
-    "ZirconSound (dev)": {
+    "ZirconSound": {
       "commandName": "Project",
       "environmentVariables": {
         "DOTNET_": "Development"
       }
-    },
-    "ZirconSound (prod)": {
-      "commandName": "Project",
-      "environmentVariables": {
-        "DOTNET_": "Production"
-      }
     }
   }
-} 
+}

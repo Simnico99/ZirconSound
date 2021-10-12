@@ -1,11 +1,7 @@
-﻿using Discord;
-using Discord.Commands;
+﻿namespace ZirconSound.ApplicationCommands.Interactions;
 
-namespace ZirconSound.ApplicationCommands.Interactions
+public class InteractionsServiceConfig
 {
-    public class InteractionsServiceConfig
-    {
-        public RunMode DefaultRunMode = RunMode.Sync;
-        public LogSeverity LogLevel = LogSeverity.Info;
-    }
+    public RunMode DefaultRunMode { get; set; } = RunMode.Sync;
+    public LogSeverity LogLevel { get; set; } = LogSeverity.Info;
 }

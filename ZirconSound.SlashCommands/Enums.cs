@@ -1,8 +1,7 @@
-﻿namespace ZirconSound.ApplicationCommands
+﻿namespace ZirconSound.ApplicationCommands;
+
+public enum InteractionType
 {
-    public enum InteractionType
-    {
-        SlashCommand,
-        MessageComponent
-    }
+    SlashCommand,
+    MessageComponent
 }
