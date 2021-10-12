@@ -1,26 +1,22 @@
-﻿using Discord.WebSocket;
-using ZirconSound.ApplicationCommands.Interactions;
+﻿namespace ZirconSound.Embeds;
 
-namespace ZirconSound.Embeds
+public class EmbedHandler
 {
-    public class EmbedHandler
+    private readonly DiscordSocketClient _client;
+
+    public EmbedHandler(DiscordSocketClient client) => _client = client;
+
+    public ZirconEmbed Create()
     {
-        private readonly DiscordSocketClient _client;
+        var embed = new ZirconEmbed(_client);
 
-        public EmbedHandler(DiscordSocketClient client) => _client = client;
+        return embed;
+    }
 
-        public ZirconEmbed Create()
-        {
-            var embed = new ZirconEmbed(_client);
+    public static ZirconEmbed Create(IInteractionContext socketCommand)
+    {
+        var embed = new ZirconEmbed(socketCommand.User);
 
-            return embed;
-        }
-
-        public static ZirconEmbed Create(IInteractionContext socketCommand)
-        {
-            var embed = new ZirconEmbed(socketCommand.User);
-
-            return embed;
-        }
+        return embed;
     }
 }

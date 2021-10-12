@@ -1,28 +1,23 @@
-﻿using System.Threading.Tasks;
-using Discord;
-using ZirconSound.ApplicationCommands.Interactions;
+﻿namespace ZirconSound.Extensions;
 
-namespace ZirconSound.Extensions
+internal static class SocketInteractionExtensions
 {
-    internal static class SocketInteractionExtensions
+    public static async Task ReplyToCommandAsync(this IInteractionContext interactionContext, string text = null, Embed[] embeds = null, bool isTts = false, bool ephemeral = false, AllowedMentions allowedMentions = null, RequestOptions options = null, MessageComponent component = null, Embed embed = null)
     {
-        public static async Task ReplyToCommandAsync(this IInteractionContext interactionContext, string text = null, Embed[] embeds = null, bool isTts = false, bool ephemeral = false, AllowedMentions allowedMentions = null, RequestOptions options = null, MessageComponent component = null, Embed embed = null)
+        if (interactionContext.ModifyOriginalMessage)
         {
-            if (interactionContext.ModifyOriginalMessage)
+            await interactionContext.Interaction.ModifyOriginalResponseAsync(msg =>
             {
-                await interactionContext.Interaction.ModifyOriginalResponseAsync(msg =>
-                {
-                    msg.Content = text;
-                    msg.Embeds = embeds;
-                    msg.AllowedMentions = allowedMentions;
-                    msg.Embed = embed;
-                    msg.Components = component;
-                });
-            }
-            else
-            {
-                await interactionContext.Interaction.FollowupAsync(text, embeds, isTts, ephemeral, allowedMentions, options, component, embed);
-            }
+                msg.Content = text;
+                msg.Embeds = embeds;
+                msg.AllowedMentions = allowedMentions;
+                msg.Embed = embed;
+                msg.Components = component;
+            });
+        }
+        else
+        {
+            await interactionContext.Interaction.FollowupAsync(text, embeds, isTts, ephemeral, allowedMentions, options, component, embed);
         }
     }
 }

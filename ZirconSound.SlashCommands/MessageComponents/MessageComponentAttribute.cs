@@ -1,12 +1,9 @@
-﻿using System;
+﻿namespace ZirconSound.ApplicationCommands.MessageComponents;
 
-namespace ZirconSound.ApplicationCommands.MessageComponents
+[AttributeUsage(AttributeTargets.Method)]
+public class MessageComponentAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Method)]
-    public class MessageComponentAttribute : Attribute
-    {
-        public MessageComponentAttribute(string id) => Id = id;
+    public MessageComponentAttribute(string id) => Id = id;
 
-        public string Id { get; }
-    }
+    public string Id { get; }
 }

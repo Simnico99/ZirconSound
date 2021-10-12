@@ -1,9 +1,6 @@
-﻿using System;
+﻿namespace ZirconSound.Extensions;
 
-namespace ZirconSound.Extensions
+internal static class TimeSpanExtension
 {
-    internal static class TimeSpanExtension
-    {
-        public static TimeSpan StripMilliseconds(this TimeSpan time) => new(time.Days, time.Hours, time.Minutes, time.Seconds);
-    }
+    public static TimeSpan StripMilliseconds(this TimeSpan time) => new(time.Days, time.Hours, time.Minutes, time.Seconds);
 }

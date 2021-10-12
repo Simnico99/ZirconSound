@@ -1,15 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Lavalink4NET" Version="2.0.1-preview.3.1" />
-    <PackageReference Include="Lavalink4NET.Discord.NET" Version="2.0.1-preview.3.1" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\ZirconSound.Common\ZirconSound.Common.csproj" />
     <ProjectReference Include="..\ZirconSound.SlashCommands\ZirconSound.ApplicationCommands.csproj" />
   </ItemGroup>
 

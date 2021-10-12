@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Discord.Addons.Hosting" Version="4.0.2-labs" />
-    <PackageReference Include="Discord.Net.Labs" Version="3.1.1" />
+    <ProjectReference Include="..\ZirconSound.Common\ZirconSound.Common.csproj" />
   </ItemGroup>
 
 </Project>
