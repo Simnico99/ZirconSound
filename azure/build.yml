@@ -11,12 +11,6 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Testing'
-  inputs:
-    command: 'test'
-    projects: '*.sln'
-
 - task: ado-discord-webhook@1
   displayName: Publish test results
   condition: succeededOrFailed()
