@@ -11,15 +11,11 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: VSTest@2
+- task: DotNetCoreCLI@2
+  displayName: 'Testing'
   inputs:
-    testSelector: 'testAssemblies'
-    testAssemblyVer2: |
-      **\$(buildConfiguration)\*\*ZirconSound*.dll
-      **\$(buildConfiguration)\*\*ZirconSound.exe
-      !**\obj\**
-    searchFolder: 'C:\\Program Files\\Microsoft Visual Studio\\2022\\Preview'
-    vsTestVersion: 'toolsInstaller'
+    command: 'test'
+    projects: '*.sln'
 
 - task: ado-discord-webhook@1
   displayName: Publish test results
