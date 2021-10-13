@@ -19,6 +19,7 @@ steps:
       **\$(buildConfiguration)\*\*ZirconSound.exe
       !**\obj\**
     searchFolder: '$(System.DefaultWorkingDirectory)'
+    vsTestVersion: 'toolsInstaller'
 
 - task: ado-discord-webhook@1
   displayName: Publish test results
