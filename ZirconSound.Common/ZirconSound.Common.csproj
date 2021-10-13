@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Discord.Addons.Hosting" Version="4.0.2-labs" />
-    <PackageReference Include="Discord.Net.Labs" Version="3.1.1" />
+    <PackageReference Include="Discord.Net.Labs" Version="3.1.4" />
     <PackageReference Include="Lavalink4NET" Version="2.1.0-preview.1" />
     <PackageReference Include="Lavalink4NET.Discord.NET" Version="2.1.0-preview.1" />
   </ItemGroup>
