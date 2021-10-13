@@ -18,7 +18,7 @@ steps:
       **\$(buildConfiguration)\*\*ZirconSound*.dll
       **\$(buildConfiguration)\*\*ZirconSound.exe
       !**\obj\**
-    searchFolder: '$(System.DefaultWorkingDirectory)'
+    searchFolder: 'C:\\Program Files\\Microsoft Visual Studio\\2022\\Preview'
     vsTestVersion: 'toolsInstaller'
 
 - task: ado-discord-webhook@1
