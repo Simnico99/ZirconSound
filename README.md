@@ -2,4 +2,4 @@
 [![Build Status](https://dev.azure.com/ZirconCloud/ZirconSound/_apis/build/status/Simnico99.ZirconSound?branchName=master)](https://dev.azure.com/ZirconCloud/ZirconSound/_build/latest?definitionId=4&branchName=master)
 
 # ZirconSound
-A plugin for discord that play music from youtube.
+A bot for discord that play music from youtube..
