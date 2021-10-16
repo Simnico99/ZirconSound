@@ -2,9 +2,9 @@
 
 public class GeneralCommand : InteractionModule<IInteractionContext>
 {
-    private readonly IInteractionsService _interactionsService;
+    private readonly InteractionsService _interactionsService;
 
-    public GeneralCommand(IInteractionsService slashInteractions) => _interactionsService = slashInteractions;
+    public GeneralCommand(InteractionsService slashInteractions) => _interactionsService = slashInteractions;
 
 
     [SlashCommand("ping", "Ping the bot.")]
