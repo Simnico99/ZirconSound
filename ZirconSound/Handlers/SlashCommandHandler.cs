@@ -2,7 +2,7 @@
 
 public static class SlashCommandHandler
 {
-    public static async Task Invoke(IDiscordClient client, SocketSlashCommand commandInteraction, InteractionsService commandService)
+    public static async Task Invoke(IDiscordClient client, SocketSlashCommand commandInteraction, IInteractionsService commandService)
     {
         var commandContext = new SlashCommandContext(client, commandInteraction);
         await commandService.Invoke(commandInteraction, commandContext);

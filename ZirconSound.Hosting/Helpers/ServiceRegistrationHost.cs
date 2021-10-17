@@ -3,10 +3,10 @@
 internal class ServiceRegistrationHost : IHostedService
 {
     private readonly LogAdapter<InteractionsService> _adapter;
-    private readonly InteractionsService _commandService;
+    private readonly IInteractionsService _commandService;
     private readonly ILogger<ServiceRegistrationHost> _logger;
 
-    public ServiceRegistrationHost(InteractionsService commandService, ILogger<ServiceRegistrationHost> logger, LogAdapter<InteractionsService> adapter)
+    public ServiceRegistrationHost(IInteractionsService commandService, ILogger<ServiceRegistrationHost> logger, LogAdapter<InteractionsService> adapter)
     {
         _commandService = commandService;
         _logger = logger;
@@ -15,7 +15,7 @@ internal class ServiceRegistrationHost : IHostedService
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        _commandService.Log += _adapter.Log;
+        ((InteractionsService)_commandService).Log += _adapter.Log;
         _logger.LogDebug("Registered logger for Interaction Services");
         return Task.CompletedTask;
     }

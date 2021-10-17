@@ -2,7 +2,7 @@
 
 internal static class MessageComponentHandler
 {
-    public static async Task Invoke(IDiscordClient client, SocketMessageComponent componentInteraction, InteractionsService commandService)
+    public static async Task Invoke(IDiscordClient client, SocketMessageComponent componentInteraction, IInteractionsService commandService)
     {
         var componentContext = new MessageComponentContext(client, componentInteraction) { ModifyOriginalMessage = true };
         await commandService.Invoke(componentInteraction, componentContext);

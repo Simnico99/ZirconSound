@@ -19,7 +19,7 @@ public static class HostBuilderExtension
             collection.AddSingleton(typeof(LogAdapter<>));
             collection.Configure<InteractionsServiceConfig>(x => config(context, x));
 
-            collection.AddSingleton(x => new InteractionsService(x.GetRequiredService<IOptions<InteractionsServiceConfig>>().Value));
+            collection.AddSingleton<IInteractionsService>(x => new InteractionsService(x.GetRequiredService<IOptions<InteractionsServiceConfig>>().Value));
             collection.AddHostedService<ServiceRegistrationHost>();
         });
 

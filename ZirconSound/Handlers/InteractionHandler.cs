@@ -5,10 +5,10 @@ namespace ZirconSound.Handlers;
 internal class InteractionHandler : DiscordClientService
 {
     private readonly DiscordSocketClient _client;
-    private readonly InteractionsService _interactionsService;
+    private readonly IInteractionsService _interactionsService;
     private readonly IServiceProvider _provider;
 
-    public InteractionHandler(DiscordSocketClient client, InteractionsService slashInteractions, ILogger<InteractionHandler> logger, IServiceProvider provider) : base(client, logger)
+    public InteractionHandler(DiscordSocketClient client, IInteractionsService slashInteractions, ILogger<InteractionHandler> logger, IServiceProvider provider) : base(client, logger)
     {
         _provider = provider;
         _client = client;
