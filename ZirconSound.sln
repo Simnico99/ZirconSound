@@ -3,16 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31606.5
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconSound", "ZirconSound\ZirconSound.csproj", "{D3CED07D-9272-4A71-979F-62A7AB3F1969}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconSound", "src\ZirconSound\ZirconSound.csproj", "{D3CED07D-9272-4A71-979F-62A7AB3F1969}"
 	ProjectSection(ProjectDependencies) = postProject
 		{582BA1C3-4D21-4295-B751-010BDB5F9AEA} = {582BA1C3-4D21-4295-B751-010BDB5F9AEA}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconSound.ApplicationCommands", "ZirconSound.SlashCommands\ZirconSound.ApplicationCommands.csproj", "{582BA1C3-4D21-4295-B751-010BDB5F9AEA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconSound.ApplicationCommands", "src\ZirconSound.SlashCommands\ZirconSound.ApplicationCommands.csproj", "{582BA1C3-4D21-4295-B751-010BDB5F9AEA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconSound.Hosting", "ZirconSound.Hosting\ZirconSound.Hosting.csproj", "{8F4FA13D-6EF4-4C95-A347-8E7B3DF6A467}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconSound.Hosting", "src\ZirconSound.Hosting\ZirconSound.Hosting.csproj", "{8F4FA13D-6EF4-4C95-A347-8E7B3DF6A467}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZirconSound.Common", "ZirconSound.Common\ZirconSound.Common.csproj", "{0D1C9395-8708-490F-91DD-422C96B0E494}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZirconSound.Common", "src\ZirconSound.Common\ZirconSound.Common.csproj", "{0D1C9395-8708-490F-91DD-422C96B0E494}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
