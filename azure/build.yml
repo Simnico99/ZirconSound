@@ -1,5 +1,12 @@
 steps:
+- task: petersendev.dotnet-global-tool-installer.DotnetGlobalToolInstaller.DotnetGlobalToolInstaller@0
+  displayName: 'Install Cake'
+  inputs:
+    name: cake.tool
+    versionSpec: 0.30.0
+
 - task: Cake@2
+  displayName: 'Build Cake'
   inputs:
     script: 'build.cake'
     target: 'Publish'

@@ -3,7 +3,7 @@
 namespace ZirconSound;
 
 /// <summary>
-///     The entry point of the bot.
+///     The entry point of the bot..
 /// </summary>
 internal static class Program
 {
