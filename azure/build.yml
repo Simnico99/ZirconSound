@@ -1,17 +1,56 @@
 steps:
 - task: UseDotNet@2
+  displayname: 'Use .Net 6.0'
   inputs:
     packageType: 'sdk'
     version: '6.0.x'
     includePreviewVersions: true
 
 - task: DotnetGlobalToolInstaller@0
+  displayname: 'Installing Cake'
   inputs:
     name: 'cake.tool'
     versionSpec: '1.0.0'
     checkLatest: true
 
 - task: Cake@2
+  displayname: 'Running Cake Build'
   inputs:
     script: 'build.cake'
     target: 'Publish'
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.BinariesDirectory)'
+    includeRootFolder: true
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    replaceExistingArchive: true
+    verbose: true
+
+- task: ado-discord-webhook@1
+  displayName: Publish test results
+  condition: succeededOrFailed()
+  inputs:
+    channelId: '892075724847079494'
+    webhookKey: 'S3CPGp0vqpF-azkSH-LSxjUf47h3LrTliK7M7QZlJV2GacMn1sQe4OVvpqrItEVd1sBf'
+    name: 'Azure DevOps'
+    avatar: 'https://cdn.iconscout.com/icon/free/png-256/azure-devops-3628645-3029870.png'
+    messageType: 'embeds'
+    embeds: |
+      [{
+            "title": "Azure Build Pipeline",
+            "description": "Build [$(Build.BuildNumber)](https://dev.azure.com/ZirconCloud/web/build.aspx?builduri=$(Build.BuildUri)) $(Agent.JobStatus)\n",
+            "fields": [
+              {
+                "name": "Project",
+                "value": "ZirconSound",
+                "inline": true
+              },
+              {
+                "name": "Id",
+                "value": "$(Build.BuildId)",
+                "inline": true
+              }
+            ]
+          }]
