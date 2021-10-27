@@ -1,4 +1,10 @@
 steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '6.0'
+    includePreviewVersions: true
+
 - task: DotnetGlobalToolInstaller@0
   inputs:
     name: 'cake'

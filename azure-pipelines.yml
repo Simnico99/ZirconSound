@@ -10,7 +10,6 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  MSBuildSDKsPath: 'C:\\Program Files\\dotnet\\sdk\\6.0.100-preview.3.21202.5'
 
 jobs:
 - job: "Build_Windows"
