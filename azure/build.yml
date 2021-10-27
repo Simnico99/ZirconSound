@@ -1,20 +1,20 @@
 steps:
 - task: UseDotNet@2
-  displayname: 'Use .Net 6.0'
+  displayName: 'Use .Net 6.0'
   inputs:
     packageType: 'sdk'
     version: '6.0.x'
     includePreviewVersions: true
 
 - task: DotnetGlobalToolInstaller@0
-  displayname: 'Installing Cake'
+  displayName: 'Installing Cake'
   inputs:
     name: 'cake.tool'
     versionSpec: '1.0.0'
     checkLatest: true
 
 - task: Cake@2
-  displayname: 'Running Cake Build'
+  displayName: 'Running Cake Build'
   inputs:
     script: 'build.cake'
     target: 'Publish'
