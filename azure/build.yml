@@ -1,7 +1,11 @@
 steps:
+- task: DotnetGlobalToolInstaller@0
+  inputs:
+    name: 'cake.tool'
+    versionSpec: '1.0.0'
+    checkLatest: true
+
 - task: Cake@2
   inputs:
     script: 'build.cake'
     target: 'Default'
-    verbosity: 'Verbose'
-    useBuildAgentNuGetExe: true
