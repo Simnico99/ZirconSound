@@ -12,7 +12,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconSound.ApplicationComm
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconSound.Hosting", "src\ZirconSound.Hosting\ZirconSound.Hosting.csproj", "{8F4FA13D-6EF4-4C95-A347-8E7B3DF6A467}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZirconSound.Common", "src\ZirconSound.Common\ZirconSound.Common.csproj", "{0D1C9395-8708-490F-91DD-422C96B0E494}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconSound.Common", "src\ZirconSound.Common\ZirconSound.Common.csproj", "{0D1C9395-8708-490F-91DD-422C96B0E494}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AAAA91BE-23A3-415D-B4E5-E21093264678}"
+	ProjectSection(SolutionItems) = preProject
+		build.cake = build.cake
+		azure\build.yml = azure\build.yml
+		.config\dotnet-tools.json = .config\dotnet-tools.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
