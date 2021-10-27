@@ -7,7 +7,7 @@ steps:
 
 - task: DotnetGlobalToolInstaller@0
   inputs:
-    name: 'cake'
+    name: 'cake.tool'
     versionSpec: '1.0.0'
     checkLatest: true
 
