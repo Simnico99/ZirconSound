@@ -1,1 +1,0 @@
-echo "This is a work-in-progress bootstrapper for using the Cake Runner for .Net Core."
