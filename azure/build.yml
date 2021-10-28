@@ -17,14 +17,14 @@ steps:
     rootFolderOrFile: '$(Build.BinariesDirectory)'
     includeRootFolder: true
     archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/ZirconSound-$(Build.BuildId).zip'
     replaceExistingArchive: true
     verbose: true
 
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-    ArtifactName: 'ZirconSound--$(Date:yyyyMMdd)'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: '$(Build.ArtifactStagingDirectory)/ZirconSound-$(Build.BuildId).zip'
     publishLocation: 'Container'
 
 - task: ado-discord-webhook@1
