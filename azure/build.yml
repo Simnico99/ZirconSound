@@ -6,13 +6,6 @@ steps:
     version: '6.0.x'
     includePreviewVersions: true
 
-- task: DotnetGlobalToolInstaller@0
-  displayName: 'Installing Cake'
-  inputs:
-    name: 'cake.tool'
-    versionSpec: '1.0.0'
-    checkLatest: true
-
 - task: Cake@2
   displayName: 'Running Cake Build'
   inputs:
