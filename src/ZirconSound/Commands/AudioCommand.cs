@@ -405,7 +405,7 @@ public class AudioCommand : InteractionModule<IInteractionContext>
 
     [SlashCommand("queue", "Get the queue lenght and list of tracks", "page", ApplicationCommandOptionType.Integer, "the page number", false)]
     [MessageComponent("queue-button")]
-    public async Task QueueAsync(long pageNum)
+    public async Task QueueAsync(ulong? pageNum)
     {
         var embed = EmbedHandler.Create(Context);
         var page = (int)pageNum;
