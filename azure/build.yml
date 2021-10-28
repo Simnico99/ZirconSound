@@ -24,7 +24,7 @@ steps:
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: '$(Build.ArtifactStagingDirectory)/ZirconSound-$(Build.BuildId).zip'
+    ArtifactName: 'ZirconCloud'
     publishLocation: 'Container'
 
 - task: ado-discord-webhook@1
