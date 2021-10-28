@@ -21,6 +21,12 @@ steps:
     replaceExistingArchive: true
     verbose: true
 
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    ArtifactName: 'ZirconSound--$(Date:yyyyMMdd)'
+    publishLocation: 'Container'
+
 - task: ado-discord-webhook@1
   displayName: Publish test results
   condition: succeededOrFailed()
