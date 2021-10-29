@@ -16,3 +16,4 @@ global using ZirconSound.ApplicationCommands.Helpers;
 global using ZirconSound.ApplicationCommands.Interactions;
 global using ZirconSound.ApplicationCommands.MessageComponents;
 global using ZirconSound.ApplicationCommands.SlashCommands;
+global using ZirconSound.Common.Enum;

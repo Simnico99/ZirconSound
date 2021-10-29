@@ -153,7 +153,7 @@ public class InteractionsService : IInteractionsService
             case SocketSlashCommand commandInteraction:
                 interactionData.Data = commandInteraction.Data;
                 interactionData.Name = commandInteraction.CommandName;
-                interactionData.Type = InteractionType.SlashCommand;
+                interactionData.Type = InteractionsType.SlashCommand;
                 commandToExec = SlashCommands.FirstOrDefault(x => x.Interaction.Name == interactionData.Name);
                 break;
 
@@ -177,7 +177,7 @@ public class InteractionsService : IInteractionsService
 
                 interactionData.Data = dataArray;
 
-                interactionData.Type = InteractionType.MessageComponent;
+                interactionData.Type = InteractionsType.MessageComponent;
                 commandToExec = MessageComponents.FirstOrDefault(x => x.Interaction.Id == interactionData.Name);
                 break;
 
@@ -204,7 +204,7 @@ public class InteractionsService : IInteractionsService
 
                 var method = commandClass.GetType().GetMethod(commandToExec.Method.Name);
                 var secondParameterArray = Array.Empty<object>();
-                if (interactionData.Type == InteractionType.SlashCommand)
+                if (interactionData.Type == InteractionsType.SlashCommand)
                 {
                     SetSlashCommandParameters(ref secondParameterArray, interactionData, commandToExec);
                 }
@@ -216,7 +216,7 @@ public class InteractionsService : IInteractionsService
                 method?.Invoke(commandClass, secondParameterArray);
             }
 
-            if (interactionData.Type == InteractionType.SlashCommand)
+            if (interactionData.Type == InteractionsType.SlashCommand)
             {
                 await _commandExecutedEvent.InvokeAsync(interaction as SocketSlashCommand, context, new InteractionsResult("Success", true)).ConfigureAwait(false);
             }

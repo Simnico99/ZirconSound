@@ -6,5 +6,5 @@ internal class InteractionsData
 
     public dynamic Data { get; set; }
 
-    public InteractionType Type { get; set; }
+    public InteractionsType Type { get; set; }
 }
