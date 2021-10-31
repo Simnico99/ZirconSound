@@ -81,22 +81,25 @@ public class InteractionsService : IInteractionsService
 
     private static void SetSlashCommandParameters(ref object[] parameterArray, InteractionsData interactionData, IInteractionGroup commandToExec)
     {
+
+        var data = (SocketSlashCommandData)interactionData.Data;
+
         if (commandToExec is SlashCommandGroup command)
         {
-            if (interactionData.Data?.GetType().GetProperty("Options") != null)
+            if (data.Options != null)
             {
-                if (interactionData.Data.Options != null)
+                if (data.Options.Count > 0)
                 {
-                    var length = interactionData.Data.Options.Length;
+                    var length = data.Options.Count;
                     parameterArray = new object[length];
                     for (var runs = 0; runs < length; runs++)
                     {
-                        parameterArray[runs] = interactionData.Data.Options[runs].Value.ToString();
+                        parameterArray[runs] = interactionData.Data.Options[runs].Value;
                     }
                 }
-                else if (command.Interaction.CommandOptionType == ApplicationCommandOptionType.Integer)
+                else if (command.Interaction.CommandOptionType is ApplicationCommandOptionType.Integer or ApplicationCommandOptionType.Number)
                 {
-                    parameterArray = new object[] { 0 };
+                    parameterArray = new object[] { (long)0 };
                 }
             }
         }
