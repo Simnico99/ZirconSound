@@ -1,6 +1,6 @@
-[![CodeFactor](https://www.codefactor.io/repository/github/simnico99/zirconsound/badge?s=9db312f012e5b701d5d0347de46d975baffe25f9)](https://www.codefactor.io/repository/github/simnico99/zirconsound)
-[![Build Status](https://dev.azure.com/ZirconCloud/ZirconSound/_apis/build/status/Simnico99.ZirconSound?branchName=master)](https://dev.azure.com/ZirconCloud/ZirconSound/_build/latest?definitionId=4&branchName=master)
-[![License](https://img.shields.io/github/license/Simnico99/ZirconSound)](https://github.com/Simnico99/ZirconSound/blob/main/LICENSE)
+[![CodeFactor](https://img.shields.io/codefactor/grade/github/Simnico99/ZirconSound/main?logo=codefactor&logoColor=%23ffff)](https://www.codefactor.io/repository/github/simnico99/zirconsound)
+[![Build Status](https://img.shields.io/azure-devops/build/ZirconCloud/cafdcdd9-671a-4417-aba8-7b5e350b9261/4/main?label=Azure%20Pipelines&logo=Azure%20Pipelines)](https://dev.azure.com/ZirconCloud/ZirconSound/_build/latest?definitionId=4&branchName=master)
+[![License](https://img.shields.io/github/license/Simnico99/ZirconSound?style=flat)](https://github.com/Simnico99/ZirconSound/blob/main/LICENSE)
 
 # ZirconSound
 A bot for discord that play music from youtube..
