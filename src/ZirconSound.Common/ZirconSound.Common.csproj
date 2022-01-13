@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Discord.Addons.Hosting" Version="4.0.2-labs" />
-    <PackageReference Include="Discord.Net.Labs" Version="3.3.2" />
+    <PackageReference Include="Discord.Addons.Hosting" Version="5.0.0" />
+    <PackageReference Include="Discord.Net" Version="3.1.0" />
     <PackageReference Include="Lavalink4NET" Version="2.1.0" />
     <PackageReference Include="Lavalink4NET.Discord.NET" Version="2.1.0" />
   </ItemGroup>

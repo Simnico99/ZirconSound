@@ -1,11 +1,15 @@
-﻿namespace ZirconSound.Commands;
+﻿using Discord.Interactions;
 
-public class GeneralCommand : InteractionModule<IInteractionContext>
+namespace ZirconSound.Commands;
+
+public class GeneralCommand : InteractionModuleBase<IInteractionContext>
 {
-    private readonly IInteractionsService _interactionsService;
+    private readonly DiscordSocketClient _client;
 
-    public GeneralCommand(IInteractionsService slashInteractions) => _interactionsService = slashInteractions;
-
+    public GeneralCommand(DiscordSocketClient client)
+    {
+        _client = client;
+    }
 
     [SlashCommand("ping", "Ping the bot.")]
     public async Task Ping() => await Context.ReplyToCommandAsync("PONG!");
@@ -14,10 +18,11 @@ public class GeneralCommand : InteractionModule<IInteractionContext>
     public async Task Help()
     {
         var embed = EmbedHandler.Create(Context);
+        var actualCommands = await _client.GetGlobalApplicationCommandsAsync();
 
-        foreach (var commands in _interactionsService.SlashCommands)
+        foreach (var commands in actualCommands)
         {
-            embed.AddField(commands.Interaction.Name.FirstCharToUpper(), commands.Interaction.Description);
+            embed.AddField(commands.Name.FirstCharToUpper(), commands.Description);
         }
 
         await Context.ReplyToCommandAsync(embed: embed.BuildSync());

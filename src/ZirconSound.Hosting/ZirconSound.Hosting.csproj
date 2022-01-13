@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ZirconSound.Common\ZirconSound.Common.csproj" />
-    <ProjectReference Include="..\ZirconSound.SlashCommands\ZirconSound.ApplicationCommands.csproj" />
   </ItemGroup>
 
 </Project>

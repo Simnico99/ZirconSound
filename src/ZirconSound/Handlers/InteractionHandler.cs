@@ -1,48 +1,173 @@
-﻿using System.Reflection;
+﻿using Discord.Addons.Hosting.Util;
+using Discord.Interactions;
+using System.Reflection;
 
 namespace ZirconSound.Handlers;
 
 internal class InteractionHandler : DiscordClientService
 {
-    private readonly DiscordSocketClient _client;
-    private readonly IInteractionsService _interactionsService;
     private readonly IServiceProvider _provider;
+    private readonly InteractionService _interactionService;
+    private readonly IConfiguration _configuration;
 
-    public InteractionHandler(DiscordSocketClient client, IInteractionsService slashInteractions, ILogger<InteractionHandler> logger, IServiceProvider provider) : base(client, logger)
+    public InteractionHandler(DiscordSocketClient client, ILogger<DiscordClientService> logger, IServiceProvider provider, InteractionService interactionService, IConfiguration configuration) : base(client, logger)
     {
         _provider = provider;
-        _client = client;
-        _interactionsService = slashInteractions;
+        _interactionService = interactionService;
+        _configuration = configuration;
     }
+
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        Client.InteractionCreated += Client_InteractionCreated;
-        _interactionsService.CommandExecuted += SlashCommandHandler.Executed;
-        _interactionsService.MessageComponentExecuted += MessageComponentHandler.Executed;
+        Client.InteractionCreated += HandleInteraction;
 
-        await _interactionsService.AddModuleAsync(Assembly.GetExecutingAssembly(), _provider, _client, stoppingToken);
+        // Process the command execution results 
+        _interactionService.SlashCommandExecuted += SlashCommandExecuted;
+        _interactionService.ContextCommandExecuted += ContextCommandExecuted;
+        _interactionService.ComponentCommandExecuted += ComponentCommandExecuted;
+
+        await _interactionService.AddModulesAsync(Assembly.GetEntryAssembly(), _provider);
+        await Client.WaitForReadyAsync(stoppingToken);
+
+
+        // If DOTNET_ENVIRONMENT is set to development, only register the commands to a single guild
+        if (Environment.GetEnvironmentVariable("DOTNET_") == "Development")
+        {
+            var devGuild = _configuration.GetValue<ulong>("devguild");
+            Logger.LogWarning("Registering commands to GUILD: {guild}", devGuild);
+            await _interactionService.RegisterCommandsToGuildAsync(devGuild);
+            Logger.LogWarning("Registered commands.");
+        }
+        else
+        {
+            await _interactionService.RegisterCommandsGloballyAsync();
+        }
     }
 
-    private async Task Client_InteractionCreated(SocketInteraction interaction)
+    private async Task ComponentCommandExecuted(ComponentCommandInfo componentCommandInfo, IInteractionContext context, Discord.Interactions.IResult result)
     {
-        await interaction.DeferAsync();
-        switch (interaction)
+        if (!result.IsSuccess)
         {
-            // Slash commands/
-            case SocketSlashCommand commandInteraction:
-                await SlashCommandHandler.Invoke(_client, commandInteraction, _interactionsService);
-                break;
+            var embeds = EmbedHandler.Create(context);
+            embeds.WithDescription(result.ErrorReason);
+            switch (result.Error)
+            {
+                case InteractionCommandError.UnmetPrecondition:
+                    embeds.WithTitle("Unmet Precondition");
+                    await context.ReplyToCommandAsync(embed: embeds.BuildSync(ZirconEmbedType.Warning));
+                    break;
+                case InteractionCommandError.UnknownCommand:
+                    embeds.WithTitle("Unkown Command");
+                    await context.ReplyToCommandAsync(embed: embeds.BuildSync(ZirconEmbedType.Warning));
+                    break;
+                case InteractionCommandError.BadArgs:
+                    embeds.WithTitle("Bad Argument(s)");
+                    await context.ReplyToCommandAsync(embed: embeds.BuildSync(ZirconEmbedType.Warning));
+                    break;
+                case InteractionCommandError.Exception:
+                    embeds.WithTitle("Error");
+                    await context.ReplyToCommandAsync(embed: embeds.BuildSync(ZirconEmbedType.Error));
+                    break;
+                case InteractionCommandError.Unsuccessful:
+                    embeds.WithTitle("Unsuccessful");
+                    await context.ReplyToCommandAsync(embed: embeds.BuildSync(ZirconEmbedType.Warning));
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 
-            // Button clicks/selection dropdowns
-            case SocketMessageComponent componentInteraction:
-                await MessageComponentHandler.Invoke(_client, componentInteraction, _interactionsService);
-                break;
+    private async Task ContextCommandExecuted(ContextCommandInfo contextCommandInfo, IInteractionContext context, Discord.Interactions.IResult result)
+    {
+        if (!result.IsSuccess)
+        {
+            var embeds = EmbedHandler.Create(context);
+            embeds.WithDescription(result.ErrorReason);
+            switch (result.Error)
+            {
+                case InteractionCommandError.UnmetPrecondition:
+                    embeds.WithTitle("Unmet Precondition");
+                    await context.ReplyToCommandAsync(embed: embeds.BuildSync(ZirconEmbedType.Warning));
+                    break;
+                case InteractionCommandError.UnknownCommand:
+                    embeds.WithTitle("Unkown Command");
+                    await context.ReplyToCommandAsync(embed: embeds.BuildSync(ZirconEmbedType.Warning));
+                    break;
+                case InteractionCommandError.BadArgs:
+                    embeds.WithTitle("Bad Argument(s)");
+                    await context.ReplyToCommandAsync(embed: embeds.BuildSync(ZirconEmbedType.Warning));
+                    break;
+                case InteractionCommandError.Exception:
+                    embeds.WithTitle("Error");
+                    await context.ReplyToCommandAsync(embed: embeds.BuildSync(ZirconEmbedType.Error));
+                    break;
+                case InteractionCommandError.Unsuccessful:
+                    embeds.WithTitle("Unsuccessful");
+                    await context.ReplyToCommandAsync(embed: embeds.BuildSync(ZirconEmbedType.Warning));
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 
-            // Unused or Unknown/Unsupported
-            default:
-                await interaction.FollowupAsync("Unsupported interaction.");
-                break;
+    private async Task SlashCommandExecuted(SlashCommandInfo arg1, IInteractionContext context, Discord.Interactions.IResult result)
+    {
+        if (!result.IsSuccess)
+        {
+            var embeds = EmbedHandler.Create(context);
+            embeds.WithDescription(result.ErrorReason);
+            switch (result.Error)
+            {
+                case InteractionCommandError.UnmetPrecondition:
+                    embeds.WithTitle("Unmet Precondition");
+                    await context.ReplyToCommandAsync(embed: embeds.BuildSync(ZirconEmbedType.Warning));
+                    break;
+                case InteractionCommandError.UnknownCommand:
+                    embeds.WithTitle("Unkown Command");
+                    await context.ReplyToCommandAsync(embed: embeds.BuildSync(ZirconEmbedType.Warning));
+                    break;
+                case InteractionCommandError.BadArgs:
+                    embeds.WithTitle("Bad Argument(s)");
+                    await context.ReplyToCommandAsync(embed: embeds.BuildSync(ZirconEmbedType.Warning));
+                    break;
+                case InteractionCommandError.Exception:
+                    embeds.WithTitle("Error");
+                    await context.ReplyToCommandAsync(embed: embeds.BuildSync(ZirconEmbedType.Error));
+                    break;
+                case InteractionCommandError.Unsuccessful:
+                    embeds.WithTitle("Unsuccessful");
+                    await context.ReplyToCommandAsync(embed: embeds.BuildSync(ZirconEmbedType.Warning));
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+
+    private async Task HandleInteraction(SocketInteraction arg)
+    {
+        Logger.LogInformation("{UserName} executed: {Command}", arg.User.Username, arg.Data.ToString() ?? null);
+        await arg.DeferAsync();
+
+        try
+        {
+            var ctx = new SocketInteractionContext(Client, arg);
+            await _interactionService.ExecuteCommandAsync(ctx, _provider);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Exception occurred whilst attempting to handle interaction.");
+
+            if (arg.Type == InteractionType.ApplicationCommand)
+            {
+                var msg = await arg.GetOriginalResponseAsync();
+                await msg.DeleteAsync();
+            }
+
         }
     }
 }

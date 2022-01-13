@@ -8,14 +8,10 @@ public class DiscordSocketService : DiscordClientService
 
     public DiscordSocketService(DiscordSocketClient client, ILogger<DiscordSocketService> logger, IAudioService audioService, IPlayerService playerService) : base(client, logger)
     {
-        Client = client;
-        Logger = logger;
         AudioService = audioService;
         _playerService = playerService;
     }
 
-    private new DiscordSocketClient Client { get; }
-    private new ILogger Logger { get; }
     private IAudioService AudioService { get; }
 
 

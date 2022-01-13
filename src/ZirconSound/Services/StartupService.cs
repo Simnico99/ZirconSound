@@ -52,14 +52,22 @@ internal sealed class StartupService : IDisposable
             {
                 LogLevel = LogSeverity.Info,
                 AlwaysDownloadUsers = false,
+                GatewayIntents = GatewayIntents.AllUnprivileged,
                 MessageCacheSize = 200
             };
             config.Token = context.Configuration["Token"];
+            config.LogFormat = (message, exception) => $"{message.Source}: {message.Message}";
         })
-        .UseInteractionService((_, config) =>
+        .UseCommandService((context, config) =>
         {
             config.LogLevel = LogSeverity.Info;
             config.DefaultRunMode = RunMode.Async;
+        })
+        .UseInteractionService((context, config) =>
+        {
+            config.LogLevel = LogSeverity.Info;
+            config.DefaultRunMode = Discord.Interactions.RunMode.Async;
+            config.UseCompiledLambda = true;
         })
         .ConfigureServices((_, services) =>
         {
@@ -71,8 +79,8 @@ internal sealed class StartupService : IDisposable
             services.AddSingleton<IDiscordClientWrapper, DiscordClientWrapper>();
 
             //Hosted Services
-            services.AddHostedService<DiscordSocketService>();
             services.AddHostedService<InteractionHandler>();
+            services.AddHostedService<DiscordSocketService>();
         })
         .UseLavalink()
         .UseConsoleLifetime()

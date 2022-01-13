@@ -1,6 +1,8 @@
-﻿namespace ZirconSound.Commands;
+﻿using Discord.Interactions;
 
-public class AudioCommand : InteractionModule<IInteractionContext>
+namespace ZirconSound.Commands;
+
+public class AudioCommand : InteractionModuleBase<IInteractionContext>
 {
     private readonly IAudioService _audioService;
     private readonly IPlayerService _playerService;
@@ -108,8 +110,8 @@ public class AudioCommand : InteractionModule<IInteractionContext>
         embedBuilder.AddField(duration);
     }
 
-    [SlashCommand("play", "Play a track.", "id", ApplicationCommandOptionType.String, "Id/Name/Link/Playlist", true)]
-    public async Task PlayAsync([Remainder] string id)
+    [SlashCommand("play", "Play a track.")]
+    public async Task PlayAsync(string id)
     {
         var embed = EmbedHandler.Create(Context);
 
@@ -310,7 +312,7 @@ public class AudioCommand : InteractionModule<IInteractionContext>
     }
 
     [SlashCommand("pause", "Pause the current track.")]
-    [MessageComponent("pause-button")]
+    [ComponentInteraction("pause-button")]
     public async Task PauseAsync()
     {
         var embed = EmbedHandler.Create(Context);
@@ -353,7 +355,7 @@ public class AudioCommand : InteractionModule<IInteractionContext>
     }
 
     [SlashCommand("resume", "Resume the track if the track is paused.")]
-    [MessageComponent("resume-button")]
+    [ComponentInteraction("resume-button")]
     public async Task ResumeAsync()
     {
         var embed = EmbedHandler.Create(Context);
@@ -403,12 +405,17 @@ public class AudioCommand : InteractionModule<IInteractionContext>
         }
     }
 
-    [SlashCommand("queue", "Get the queue lenght and list of queued tracks", "page", ApplicationCommandOptionType.Integer, "the page number", false)]
-    [MessageComponent("queue-button")]
-    public async Task QueueAsync(long pageNum)
+    [ComponentInteraction("queue-button")]
+    public async Task QueueButton(string pageNum) 
+    {
+        await QueueAsync(int.Parse(pageNum));
+    }
+
+    [SlashCommand("queue", "Get the queue lenght and list of queued tracks")]
+    public async Task QueueAsync(int pageNum)
     {
         var embed = EmbedHandler.Create(Context);
-        var page = (int)pageNum;
+        var page = pageNum;
         if (page - 1 < 0)
         {
             page = 0;
@@ -489,7 +496,7 @@ public class AudioCommand : InteractionModule<IInteractionContext>
     }
 
     [SlashCommand("clear", "Clear the playlist.")]
-    [MessageComponent("clear-button")]
+    [ComponentInteraction("clear-button")]
     public async Task ClearAsync()
     {
         var embed = EmbedHandler.Create(Context);
@@ -522,8 +529,8 @@ public class AudioCommand : InteractionModule<IInteractionContext>
         }
     }
 
-    [SlashCommand("seek", "Seek the current track to the specified value. (00:00:00) (Hours:Minutes:Seconds)", "time", ApplicationCommandOptionType.String, "(00:00:00) (Hours:Minutes:Seconds)", true)]
-    public async Task SeekAsync(string seekTime)
+    [SlashCommand("seek", "Seek the current track to the specified value. (00:00:00) (Hours:Minutes:Seconds)")]
+    public async Task SeekAsync(TimeSpan seekTime)
     {
         var embed = EmbedHandler.Create(Context);
 
@@ -538,15 +545,13 @@ public class AudioCommand : InteractionModule<IInteractionContext>
 
             if (player is { State: PlayerState.Playing })
             {
-                _ = TimeSpan.TryParse(seekTime, out var timeSeek);
-
-                if (timeSeek >= TimeSpan.Zero)
+                if (seekTime >= TimeSpan.Zero)
                 {
-                    if (player.CurrentTrack != null && timeSeek <= player.CurrentTrack.Duration)
+                    if (player.CurrentTrack != null && seekTime <= player.CurrentTrack.Duration)
                     {
-                        await player.SeekPositionAsync(timeSeek);
+                        await player.SeekPositionAsync(seekTime);
 
-                        embed.AddField("Seeked", $"Seeked to: {timeSeek}");
+                        embed.AddField("Seeked", $"Seeked to: {seekTime}");
                         await Context.ReplyToCommandAsync(embed: embed.BuildSync());
                         return;
                     }
@@ -604,7 +609,7 @@ public class AudioCommand : InteractionModule<IInteractionContext>
     }
 
     [SlashCommand("loop", "Set or unset the player into loop mode.")]
-    [MessageComponent("loop-button")]
+    [ComponentInteraction("loop-button")]
     public async Task LoopAsync()
     {
         var embed = EmbedHandler.Create(Context);

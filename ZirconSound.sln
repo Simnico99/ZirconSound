@@ -4,11 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.0.31606.5
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconSound", "src\ZirconSound\ZirconSound.csproj", "{D3CED07D-9272-4A71-979F-62A7AB3F1969}"
-	ProjectSection(ProjectDependencies) = postProject
-		{582BA1C3-4D21-4295-B751-010BDB5F9AEA} = {582BA1C3-4D21-4295-B751-010BDB5F9AEA}
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconSound.ApplicationCommands", "src\ZirconSound.SlashCommands\ZirconSound.ApplicationCommands.csproj", "{582BA1C3-4D21-4295-B751-010BDB5F9AEA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconSound.Hosting", "src\ZirconSound.Hosting\ZirconSound.Hosting.csproj", "{8F4FA13D-6EF4-4C95-A347-8E7B3DF6A467}"
 EndProject
@@ -37,14 +32,6 @@ Global
 		{D3CED07D-9272-4A71-979F-62A7AB3F1969}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D3CED07D-9272-4A71-979F-62A7AB3F1969}.Release|x64.ActiveCfg = Release|x64
 		{D3CED07D-9272-4A71-979F-62A7AB3F1969}.Release|x64.Build.0 = Release|x64
-		{582BA1C3-4D21-4295-B751-010BDB5F9AEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{582BA1C3-4D21-4295-B751-010BDB5F9AEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{582BA1C3-4D21-4295-B751-010BDB5F9AEA}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{582BA1C3-4D21-4295-B751-010BDB5F9AEA}.Debug|x64.Build.0 = Debug|Any CPU
-		{582BA1C3-4D21-4295-B751-010BDB5F9AEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{582BA1C3-4D21-4295-B751-010BDB5F9AEA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{582BA1C3-4D21-4295-B751-010BDB5F9AEA}.Release|x64.ActiveCfg = Release|Any CPU
-		{582BA1C3-4D21-4295-B751-010BDB5F9AEA}.Release|x64.Build.0 = Release|Any CPU
 		{8F4FA13D-6EF4-4C95-A347-8E7B3DF6A467}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8F4FA13D-6EF4-4C95-A347-8E7B3DF6A467}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F4FA13D-6EF4-4C95-A347-8E7B3DF6A467}.Debug|x64.ActiveCfg = Debug|Any CPU

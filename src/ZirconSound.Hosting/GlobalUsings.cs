@@ -1,9 +1,3 @@
-﻿global using Discord;
-global using Discord.Addons.Hosting;
-global using Lavalink4NET;
+﻿global using Lavalink4NET;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Hosting;
-global using Microsoft.Extensions.Logging;
-global using Microsoft.Extensions.Options;
-global using ZirconSound.ApplicationCommands.Interactions;
-global using ZirconSound.Hosting.Helpers;

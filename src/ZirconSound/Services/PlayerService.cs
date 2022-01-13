@@ -111,18 +111,27 @@ public class PlayerService : IPlayerService
         {
             if (eventArgs.Player is ZirconPlayer player)
             {
-                var embed = EmbedHandler.Create(player.Context);
-                embed.AddField("Error", $"Cannot play:\n{player.CurrentTrack?.Title} because of an error.");
-                await player.Context.ReplyToCommandAsync(embed: embed.BuildSync(ZirconEmbedType.Error));
 
-                if (player.Queue.IsEmpty)
+
+                if (player.ErrorRetry >= 5 && player.LastErrorTrack == player.CurrentTrack)
                 {
+                    var embed = EmbedHandler.Create(player.Context);
+                    embed.AddField("Error", $"Cannot play:\n{player.CurrentTrack?.Title} because of an error.");
+                    await player.Context.ReplyToCommandAsync(embed: embed.BuildSync(ZirconEmbedType.Error));
+
                     await InitiateDisconnectAsync(eventArgs.Player, TimeSpan.FromSeconds(40));
-                    await player.StopAsync();
+                    await player.SkipAsync();
                 }
                 else
                 {
-                    await player.SkipAsync();
+                    if (player.LastErrorTrack != player.CurrentTrack)
+                    {
+                        player.LastErrorTrack = player.CurrentTrack;
+                        player.ErrorRetry = 0;
+                    }
+
+                    player.ErrorRetry++;
+                    await player.ReplayAsync();
                 }
             }
         }
