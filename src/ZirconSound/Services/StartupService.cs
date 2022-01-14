@@ -52,7 +52,19 @@ internal sealed class StartupService : IDisposable
             {
                 LogLevel = LogSeverity.Info,
                 AlwaysDownloadUsers = false,
-                GatewayIntents = GatewayIntents.AllUnprivileged,
+                GatewayIntents = 
+                GatewayIntents.Guilds |
+                GatewayIntents.GuildBans |
+                GatewayIntents.GuildEmojis |
+                GatewayIntents.GuildIntegrations |
+                GatewayIntents.GuildWebhooks |
+                GatewayIntents.GuildVoiceStates |
+                GatewayIntents.GuildMessages |
+                GatewayIntents.GuildMessageReactions |
+                GatewayIntents.GuildMessageTyping |
+                GatewayIntents.DirectMessages |
+                GatewayIntents.DirectMessageReactions |
+                GatewayIntents.DirectMessageTyping,
                 MessageCacheSize = 200
             };
             config.Token = context.Configuration["Token"];
