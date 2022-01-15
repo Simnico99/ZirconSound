@@ -64,23 +64,24 @@ public class PlayerService : IPlayerService
     private async Task AudioService_TrackEnd(object sender, TrackEndEventArgs eventArgs)
     {
         _logger.LogDebug("Stop reason: {Reason}", eventArgs.Reason);
-
-        if (eventArgs.Player is ZirconPlayer player)
+        if (eventArgs.Reason is not TrackEndReason.LoadFailed)
         {
-            if (player.IsLooping)
+            if (eventArgs.Player is ZirconPlayer player)
             {
-                await player.ReplayAsync();
-                return;
-            }
+                if (player.IsLooping)
+                {
+                    await player.ReplayAsync();
+                    return;
+                }
 
-            if (player.Queue.IsEmpty && eventArgs.Reason != TrackEndReason.Replaced)
-            {
-                player.Queue.Clear();
-                await player.StopAsync();
-                await InitiateDisconnectAsync(eventArgs.Player, TimeSpan.FromSeconds(40));
+                if (player.Queue.IsEmpty && eventArgs.Reason is not TrackEndReason.Replaced)
+                {
+                    player.Queue.Clear();
+                    await player.StopAsync();
+                    await InitiateDisconnectAsync(eventArgs.Player, TimeSpan.FromSeconds(40));
+                }
             }
         }
-
     }
 
     public async Task CancelDisconnectAsync(LavalinkPlayer player)
