@@ -1,4 +1,5 @@
-﻿using Lavalink4NET.Events;
+﻿using Asyncronizer.Tasks;
+using Lavalink4NET.Events;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics.Tracing;
@@ -55,24 +56,17 @@ public class PlayerService : IPlayerService
 
         if (eventArgs.Player is ZirconPlayer player)
         {
-            await player.Locker.LockAsync(async () =>
+
+            _logger.LogWarning("Track {TrackTitle} got stuck. Please check Lavalink console/logs.", player.CurrentTrack?.Title);
+            if (player.IsLooping)
             {
-                _logger.LogWarning("Track {TrackTitle} got stuck. Please check Lavalink console/logs.", player.CurrentTrack?.Title);
-                if (player.IsLooping)
+                if (player.CurrentTrack != null)
                 {
-                    if (player.CurrentTrack != null)
+                    var currentSong = eventArgs.TrackIdentifier;
+                    var track = await _audioService.GetTrackAsync(currentSong, SearchMode.YouTube, true);
+                    if (track != null)
                     {
-                        var currentSong = eventArgs.TrackIdentifier;
-                        var track = await _audioService.GetTrackAsync(currentSong, SearchMode.YouTube, true);
-                        if (track != null)
-                        {
-                            await player.PlayAsync(track);
-                        }
-                        else
-                        {
-                            await player.StopAsync();
-                            await InitiateDisconnectAsync(player, TimeSpan.FromSeconds(40));
-                        }
+                        await player.PlayAsync(track);
                     }
                     else
                     {
@@ -80,17 +74,22 @@ public class PlayerService : IPlayerService
                         await InitiateDisconnectAsync(player, TimeSpan.FromSeconds(40));
                     }
                 }
-
-                if (player.Queue.Count == 0 && !player.IsLooping)
+                else
                 {
                     await player.StopAsync();
                     await InitiateDisconnectAsync(player, TimeSpan.FromSeconds(40));
                 }
-                else
-                {
-                    await player.SkipAsync();
-                }
-            });
+            }
+
+            if (player.Queue.Count == 0 && !player.IsLooping)
+            {
+                await player.StopAsync();
+                await InitiateDisconnectAsync(player, TimeSpan.FromSeconds(40));
+            }
+            else
+            {
+                await player.SkipAsync();
+            }
         }
     }
 
@@ -231,13 +230,16 @@ public class PlayerService : IPlayerService
             value = _aloneDisconnectTokens[player.VoiceChannelId ?? 0];
         }
 
-        var isCancelled = SpinWait.SpinUntil(() => value.IsCancellationRequested, timeSpan);
-        if (isCancelled)
+        await TaskAsync.Run(async () =>
         {
-            return;
-        }
+            var isCancelled = SpinWait.SpinUntil(() => value.IsCancellationRequested, timeSpan);
+            if (isCancelled)
+            {
+                return;
+            }
 
-        await player.DisconnectAsync();
-        _logger.LogDebug("Alone Disconnected");
+            await player.DisconnectAsync();
+            _logger.LogDebug("Alone Disconnected");
+        });
     }
 }

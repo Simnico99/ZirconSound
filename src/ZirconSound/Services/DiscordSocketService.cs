@@ -1,4 +1,5 @@
-﻿using Discord.Addons.Hosting.Util;
+﻿using Asyncronizer.Tasks;
+using Discord.Addons.Hosting.Util;
 
 namespace ZirconSound.Services;
 
@@ -66,7 +67,6 @@ public class DiscordSocketService : DiscordClientService
         await TaskAsync.Run(async () =>
         {
             await StatusLoop();
-            return Task.CompletedTask;
         }, stoppingToken);
     }
 
@@ -94,7 +94,6 @@ public class DiscordSocketService : DiscordClientService
         {
             Logger.LogDebug("Bot is alone initiating disconnect. Id:{VoiceId} / Name:{VoiceName}", voiceState.Id, voiceState.Name);
             await _playerService.BotIsAloneAsync(player, TimeSpan.FromSeconds(30));
-            return Task.CompletedTask;
         });
     }
 
