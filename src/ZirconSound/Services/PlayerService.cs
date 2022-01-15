@@ -24,7 +24,6 @@ public class PlayerService : IPlayerService
         _lockHelper = lockHelper;
 
         audioService.TrackEnd += AudioService_TrackEnd;
-        audioService.TrackStuck += AudioService_TrackStuck;
         audioService.TrackStarted += AudioService_TrackStarted;
         audioService.TrackException += AudioService_TrackException;
     }
@@ -33,62 +32,29 @@ public class PlayerService : IPlayerService
     {
         if (eventArgs.Player is ZirconPlayer player)
         {
-            _logger.LogWarning("Track {TackTitle} threw an exception. Please check Lavalink console/logs.", player.CurrentTrack?.Title);
 
-            var embed = EmbedHandler.Create(player.Context);
-            embed.AddField("Error", $"Cannot play:\n{player.CurrentTrack?.Title} because of an error.");
-            await player.Context.ReplyToCommandAsync(embed: embed.BuildSync(ZirconEmbedType.Error));
 
-            if (player.Queue.Count == 0)
+            if (player.ErrorRetry >= 3 && player.LastErrorTrack == player.CurrentTrack)
             {
-                await player.StopAsync();
-                await InitiateDisconnectAsync(player, TimeSpan.FromSeconds(40));
+                _logger.LogWarning("Track {TackTitle} threw an exception. Please check Lavalink console/logs.", player.CurrentTrack?.Title);
+
+                var embed = EmbedHandler.Create(player.Context);
+                embed.AddField("Error", $"Cannot play:\n{player.CurrentTrack?.Title}:\n{eventArgs.ErrorMessage}.");
+                await player.Context.ReplyToCommandAsync(embed: embed.BuildSync(ZirconEmbedType.Error));
+                await player.SkipAsync();
             }
             else
             {
-                await player.SkipAsync();
-            }
-        }
-    }
-
-    private async Task AudioService_TrackStuck(object sender, TrackStuckEventArgs eventArgs)
-    {
-
-        if (eventArgs.Player is ZirconPlayer player)
-        {
-
-            _logger.LogWarning("Track {TrackTitle} got stuck. Please check Lavalink console/logs.", player.CurrentTrack?.Title);
-            if (player.IsLooping)
-            {
-                if (player.CurrentTrack != null)
+                if (player.LastErrorTrack != player.CurrentTrack)
                 {
-                    var currentSong = eventArgs.TrackIdentifier;
-                    var track = await _audioService.GetTrackAsync(currentSong, SearchMode.YouTube, true);
-                    if (track != null)
-                    {
-                        await player.PlayAsync(track);
-                    }
-                    else
-                    {
-                        await player.StopAsync();
-                        await InitiateDisconnectAsync(player, TimeSpan.FromSeconds(40));
-                    }
+                    player.LastErrorTrack = player.CurrentTrack;
+                    player.ErrorRetry = 0;
                 }
-                else
-                {
-                    await player.StopAsync();
-                    await InitiateDisconnectAsync(player, TimeSpan.FromSeconds(40));
-                }
-            }
 
-            if (player.Queue.Count == 0 && !player.IsLooping)
-            {
-                await player.StopAsync();
-                await InitiateDisconnectAsync(player, TimeSpan.FromSeconds(40));
-            }
-            else
-            {
-                await player.SkipAsync();
+                player.ErrorRetry++;
+
+                await player.PlayAsync(player.CurrentTrack);
+                await Task.Delay(TimeSpan.FromSeconds(2));
             }
         }
     }
@@ -98,52 +64,23 @@ public class PlayerService : IPlayerService
     private async Task AudioService_TrackEnd(object sender, TrackEndEventArgs eventArgs)
     {
         _logger.LogDebug("Stop reason: {Reason}", eventArgs.Reason);
-        if (eventArgs.Reason != TrackEndReason.LoadFailed)
-        {
-            if (eventArgs.Player is ZirconPlayer player)
-            {
-                if (player.IsLooping)
-                {
-                    await player.ReplayAsync();
-                    return;
-                }
 
-                if (player.Queue.IsEmpty && eventArgs.Reason != TrackEndReason.Replaced)
-                {
-                    player.Queue.Clear();
-                    await player.StopAsync();
-                    await InitiateDisconnectAsync(eventArgs.Player, TimeSpan.FromSeconds(40));
-                }
+        if (eventArgs.Player is ZirconPlayer player)
+        {
+            if (player.IsLooping)
+            {
+                await player.ReplayAsync();
+                return;
+            }
+
+            if (player.Queue.IsEmpty && eventArgs.Reason != TrackEndReason.Replaced)
+            {
+                player.Queue.Clear();
+                await player.StopAsync();
+                await InitiateDisconnectAsync(eventArgs.Player, TimeSpan.FromSeconds(40));
             }
         }
-        else
-        {
-            if (eventArgs.Player is ZirconPlayer player)
-            {
-                if (player.ErrorRetry >= 5 && player.LastErrorTrack == player.CurrentTrack)
-                {
-                    var embed = EmbedHandler.Create(player.Context);
-                    embed.AddField("Error", $"Cannot play:\n{player.CurrentTrack?.Title} because of an error.");
-                    await player.Context.ReplyToCommandAsync(embed: embed.BuildSync(ZirconEmbedType.Error));
 
-                    await InitiateDisconnectAsync(eventArgs.Player, TimeSpan.FromSeconds(40));
-                    await player.SkipAsync();
-                }
-                else
-                {
-                    if (player.LastErrorTrack != player.CurrentTrack)
-                    {
-                        player.LastErrorTrack = player.CurrentTrack;
-                        player.ErrorRetry = 0;
-                    }
-
-                    player.ErrorRetry++;
-
-                    await player.PlayAsync(player.CurrentTrack);
-                    await Task.Delay(TimeSpan.FromSeconds(2));
-                }
-            }
-        }
     }
 
     public async Task CancelDisconnectAsync(LavalinkPlayer player)
