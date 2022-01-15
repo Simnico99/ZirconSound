@@ -129,84 +129,86 @@ public class AudioCommand : InteractionModuleBase<IInteractionContext>
         }
 
         var player = _audioService.GetPlayer<ZirconPlayer>(Context.Guild.Id);
-
-        if (CheckState(new List<AudioState>
+        await player.Locker.LockAsync(async () =>
+        {
+            if (CheckState(new List<AudioState>
             {
                 AudioState.UserIsInVoiceChannel,
                 AudioState.BotAndUserInSameVoiceChannel
             }, Context))
-        {
-            var tracks = await _audioService.GetTracksAsync(id);
-            var lavalinkTracks = tracks.ToList();
-            if (!lavalinkTracks.Any())
             {
-                var track = await _audioService.GetTrackAsync(id, SearchMode.YouTube, true);
-                lavalinkTracks = new List<LavalinkTrack> { track };
-            }
-
-            if (lavalinkTracks.FirstOrDefault() != null)
-            {
-                if (player?.CurrentTrack == null)
+                var tracks = await _audioService.GetTracksAsync(id);
+                var lavalinkTracks = tracks.ToList();
+                if (!lavalinkTracks.Any())
                 {
-                    await _playerService.CancelDisconnectAsync(player);
-                    var track = lavalinkTracks.First();
-                    embed.AddField("Playing:", $"[{track.Title}]({track.Source})");
-                    EmbedSong(ref embed, track);
-                    lavalinkTracks = lavalinkTracks.Skip(1).ToList();
-                    if (player != null)
-                    {
-                        await player.PlayAsync(track);
-                    }
+                    var track = await _audioService.GetTrackAsync(id, SearchMode.YouTube, true);
+                    lavalinkTracks = new List<LavalinkTrack> { track };
                 }
-                else
+
+                if (lavalinkTracks.FirstOrDefault() != null)
                 {
-                    if (lavalinkTracks.Count <= 1)
+                    if (player?.CurrentTrack == null)
                     {
+                        await _playerService.CancelDisconnectAsync(player);
                         var track = lavalinkTracks.First();
-                        lavalinkTracks = lavalinkTracks.Skip(1).ToList();
-
-                        embed.AddField("Queued:", $"[{track.Title}]({track.Source})");
+                        embed.AddField("Playing:", $"[{track.Title}]({track.Source})");
                         EmbedSong(ref embed, track);
+                        lavalinkTracks = lavalinkTracks.Skip(1).ToList();
+                        if (player != null)
+                        {
+                            await player.PlayAsync(track);
+                        }
+                    }
+                    else
+                    {
+                        if (lavalinkTracks.Count <= 1)
+                        {
+                            var track = lavalinkTracks.First();
+                            lavalinkTracks = lavalinkTracks.Skip(1).ToList();
 
-                        var timeLeft = TimeSpan.FromSeconds(0);
-                        timeLeft = player.Queue.Tracks.Aggregate(timeLeft, (current, trackQueue) => current + trackQueue.Duration);
-                        timeLeft += player.CurrentTrack.Duration - player.Position.Position.StripMilliseconds();
+                            embed.AddField("Queued:", $"[{track.Title}]({track.Source})");
+                            EmbedSong(ref embed, track);
 
-                        var estimatedTime = new EmbedFieldBuilder().WithName("Estimated time until track").WithValue(timeLeft).WithIsInline(true);
+                            var timeLeft = TimeSpan.FromSeconds(0);
+                            timeLeft = player.Queue.Tracks.Aggregate(timeLeft, (current, trackQueue) => current + trackQueue.Duration);
+                            timeLeft += player.CurrentTrack.Duration - player.Position.Position.StripMilliseconds();
+
+                            var estimatedTime = new EmbedFieldBuilder().WithName("Estimated time until track").WithValue(timeLeft).WithIsInline(true);
+
+                            embed.AddField(estimatedTime);
+                            embed.AddField("Position in queue", player.Queue.Tracks.Count + 1);
+                            player.Queue.Add(track);
+                        }
+                    }
+
+                    if (lavalinkTracks.Count > 1)
+                    {
+                        var estimatedTime = new EmbedFieldBuilder().WithName("Queued:").WithValue($"{lavalinkTracks.Count} tracks!").WithIsInline(true);
 
                         embed.AddField(estimatedTime);
-                        embed.AddField("Position in queue", player.Queue.Tracks.Count + 1);
-                        player.Queue.Add(track);
-                    }
-                }
 
-                if (lavalinkTracks.Count > 1)
-                {
-                    var estimatedTime = new EmbedFieldBuilder().WithName("Queued:").WithValue($"{lavalinkTracks.Count} tracks!").WithIsInline(true);
+                        var timeLeft = TimeSpan.FromSeconds(0);
+                        foreach (var track in lavalinkTracks)
+                        {
+                            timeLeft += track.Duration;
+                            player?.Queue.Add(track);
+                        }
 
-                    embed.AddField(estimatedTime);
-
-                    var timeLeft = TimeSpan.FromSeconds(0);
-                    foreach (var track in lavalinkTracks)
-                    {
-                        timeLeft += track.Duration;
-                        player?.Queue.Add(track);
+                        embed.AddField("Estimated play time:", $"{timeLeft}");
                     }
 
-                    embed.AddField("Estimated play time:", $"{timeLeft}");
+                    await Context.ReplyToCommandAsync(embed: embed.BuildSync());
+                    return;
                 }
 
-                await Context.ReplyToCommandAsync(embed: embed.BuildSync());
-                return;
+                embed.AddField("Warning:", "Unable to find the specified track!");
+                await Context.ReplyToCommandAsync(embed: embed.BuildSync(ZirconEmbedType.Warning), ephemeral: false);
             }
-
-            embed.AddField("Warning:", "Unable to find the specified track!");
-            await Context.ReplyToCommandAsync(embed: embed.BuildSync(ZirconEmbedType.Warning), ephemeral: false);
-        }
-        else
-        {
-            await Context.ReplyToCommandAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
-        }
+            else
+            {
+                await Context.ReplyToCommandAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
+            }
+        });
     }
 
     [SlashCommand("stop", "Stop the current track.")]
@@ -406,7 +408,7 @@ public class AudioCommand : InteractionModuleBase<IInteractionContext>
     }
 
     [ComponentInteraction("queue-button")]
-    public async Task QueueButton(string pageNum) 
+    public async Task QueueButton(string pageNum)
     {
         await QueueAsync(int.Parse(pageNum));
     }

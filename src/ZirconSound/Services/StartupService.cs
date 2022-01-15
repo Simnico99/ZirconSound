@@ -1,5 +1,6 @@
 ﻿using Serilog;
 using ZirconSound.Handlers;
+using ZirconSound.Helpers;
 using ZirconSound.Hosting.Extensions;
 
 namespace ZirconSound.Services;
@@ -33,6 +34,7 @@ internal sealed class StartupService : IDisposable
         LavalinkService.Start(Host.Services.GetRequiredService<ILogger<LavalinkService>>());
         LavalinkService.IsReady.WaitOne();
         await Host.RunAsync();
+        LavalinkService.CloseProcess();
     }
 
     public static IConfiguration BuildConfig(IConfigurationBuilder builder) => builder.SetBasePath(Directory.GetCurrentDirectory())
@@ -65,7 +67,7 @@ internal sealed class StartupService : IDisposable
                 GatewayIntents.DirectMessages |
                 GatewayIntents.DirectMessageReactions |
                 GatewayIntents.DirectMessageTyping,
-                MessageCacheSize = 200
+                MessageCacheSize = 0
             };
             config.Token = context.Configuration["Token"];
             config.LogFormat = (message, exception) => $"{message.Source}: {message.Message}";
@@ -85,6 +87,7 @@ internal sealed class StartupService : IDisposable
         {
             //Without interface
             services.AddSingleton<ZirconPlayer>();
+            services.AddSingleton<LockHelper>();
 
             //With interface
             services.AddSingleton<IPlayerService, PlayerService>();

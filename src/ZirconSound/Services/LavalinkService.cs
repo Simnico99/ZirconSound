@@ -5,7 +5,10 @@ namespace ZirconSound.Services;
 internal class LavalinkService
 {
     private static ILogger<LavalinkService> Logger { get; set; }
+    private static Process _process;
     public static EventWaitHandle IsReady { get; } = new EventWaitHandle(false, EventResetMode.AutoReset);
+
+
 
     public static void Start(ILogger<LavalinkService> logger)
     {
@@ -13,8 +16,8 @@ internal class LavalinkService
 
         var path = Directory.GetCurrentDirectory();
 
-        Process clientProcess = new();
-        clientProcess.StartInfo = new ProcessStartInfo
+        _process = new();
+        _process.StartInfo = new ProcessStartInfo
         {
             FileName = "java",
             Arguments = $@"-jar {path}\Lavalink\Lavalink.jar ",
@@ -23,12 +26,17 @@ internal class LavalinkService
             RedirectStandardError = true
         };
         //* Set your output and error (asynchronous) handlers
-        clientProcess.OutputDataReceived += OutputHandler;
-        clientProcess.ErrorDataReceived += OutputHandler;
+        _process.OutputDataReceived += OutputHandler;
+        _process.ErrorDataReceived += OutputHandler;
         //* Start process and handlers
-        clientProcess.Start();
-        clientProcess.BeginOutputReadLine();
-        clientProcess.BeginErrorReadLine();
+        _process.Start();
+        _process.BeginOutputReadLine();
+        _process.BeginErrorReadLine();
+    }
+
+    public static void CloseProcess() 
+    {
+        _process?.Kill(true);
     }
 
     private static void OutputHandler(object sender, DataReceivedEventArgs e)
