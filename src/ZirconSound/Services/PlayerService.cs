@@ -41,6 +41,7 @@ public class PlayerService : IPlayerService
                 var embed = EmbedHandler.Create(player.Context);
                 embed.AddField("Error", $"Cannot play:\n{player.CurrentTrack?.Title}:\n{eventArgs.ErrorMessage}.");
                 await player.Context.ReplyToCommandAsync(embed: embed.BuildSync(ZirconEmbedType.Error));
+                player.Queue.Remove(player.CurrentTrack);
                 await player.SkipAsync();
             }
             else
