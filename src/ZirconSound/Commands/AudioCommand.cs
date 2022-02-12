@@ -610,50 +610,50 @@ public class AudioCommand : InteractionModuleBase<IInteractionContext>
         }
     }
 
-    [SlashCommand("loop", "Set or unset the player into loop mode.")]
-    [ComponentInteraction("loop-button")]
-    public async Task LoopAsync()
-    {
-        var embed = EmbedHandler.Create(Context);
+    //[SlashCommand("loop", "Set or unset the player into loop mode.")]
+    //[ComponentInteraction("loop-button")]
+    //public async Task LoopAsync()
+    //{
+    //    var embed = EmbedHandler.Create(Context);
 
-        if (CheckState(new List<AudioState>
-            {
-                AudioState.UserIsInVoiceChannel,
-                AudioState.BotIsInVoiceChannel,
-                AudioState.BotAndUserInSameVoiceChannel
-            }, Context))
-        {
-            var player = _audioService.GetPlayer<ZirconPlayer>(Context.Guild.Id);
+    //    if (CheckState(new List<AudioState>
+    //        {
+    //            AudioState.UserIsInVoiceChannel,
+    //            AudioState.BotIsInVoiceChannel,
+    //            AudioState.BotAndUserInSameVoiceChannel
+    //        }, Context))
+    //    {
+    //        var player = _audioService.GetPlayer<ZirconPlayer>(Context.Guild.Id);
 
-            if (player != null && player.State != PlayerState.NotConnected)
-            {
-                if (!player.IsLooping)
-                {
-                    player.IsLooping = true;
+    //        if (player != null && player.State != PlayerState.NotConnected)
+    //        {
+    //            if (!player.IsLooping)
+    //            {
+    //                player.IsLooping = true;
 
-                    var button = new ComponentBuilder().WithButton("Unloop", "loop-button", ButtonStyle.Secondary);
+    //                var button = new ComponentBuilder().WithButton("Unloop", "loop-button", ButtonStyle.Secondary);
 
-                    embed.AddField("Looping", "The player is now looping tracks!");
-                    await Context.ReplyToCommandAsync(embed: embed.BuildSync(), component: button.Build());
+    //                embed.AddField("Looping", "The player is now looping tracks!");
+    //                await Context.ReplyToCommandAsync(embed: embed.BuildSync(), component: button.Build());
 
-                }
-                else
-                {
-                    player.IsLooping = false;
+    //            }
+    //            else
+    //            {
+    //                player.IsLooping = false;
 
-                    var button = new ComponentBuilder().WithButton("Loop", "loop-button", ButtonStyle.Secondary);
+    //                var button = new ComponentBuilder().WithButton("Loop", "loop-button", ButtonStyle.Secondary);
 
-                    embed.AddField("Looping", "The player not looping tracks anymore!");
-                    await Context.ReplyToCommandAsync(embed: embed.BuildSync(), component: button.Build());
-                }
-                return;
-            }
-            embed.AddField("Not playing", "No track is playing...");
-            await Context.ReplyToCommandAsync(embed: embed.BuildSync());
-        }
-        else
-        {
-            await Context.ReplyToCommandAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
-        }
-    }
+    //                embed.AddField("Looping", "The player not looping tracks anymore!");
+    //                await Context.ReplyToCommandAsync(embed: embed.BuildSync(), component: button.Build());
+    //            }
+    //            return;
+    //        }
+    //        embed.AddField("Not playing", "No track is playing...");
+    //        await Context.ReplyToCommandAsync(embed: embed.BuildSync());
+    //    }
+    //    else
+    //    {
+    //        await Context.ReplyToCommandAsync(embed: _errorEmbed.BuildSync(ZirconEmbedType.Warning));
+    //    }
+    //}
 }
