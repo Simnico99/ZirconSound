@@ -71,3 +71,4 @@ You need to add configurations to the root of your project ``` appsettings.Devel
 }
 
 ```
+![Alt](https://repobeats.axiom.co/api/embed/c105bf22a6750b151f0b087f44c038ac53c02217.svg "Repobeats analytics image")
