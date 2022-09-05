@@ -6,12 +6,14 @@ namespace ZirconSound.Handlers;
 
 internal class InteractionHandler : DiscordClientService
 {
+    private readonly ILogger _logger;
     private readonly IServiceProvider _provider;
     private readonly InteractionService _interactionService;
     private readonly IConfiguration _configuration;
 
     public InteractionHandler(DiscordSocketClient client, ILogger<DiscordClientService> logger, IServiceProvider provider, InteractionService interactionService, IConfiguration configuration) : base(client, logger)
     {
+        _logger = logger;
         _provider = provider;
         _interactionService = interactionService;
         _configuration = configuration;
@@ -150,8 +152,17 @@ internal class InteractionHandler : DiscordClientService
 
     private async Task HandleInteraction(SocketInteraction arg)
     {
+        try
+        {
+            await arg.RespondAsync("Processing...");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "An exception happened during the answer defering:");
+        }
+        
         Logger.LogInformation("{UserName} executed: {Command}", arg.User.Username, arg.Data.ToString() ?? null);
-        await arg.DeferAsync();
+
 
         try
         {

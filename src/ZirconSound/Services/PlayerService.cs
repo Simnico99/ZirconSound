@@ -69,11 +69,13 @@ public class PlayerService : IPlayerService
         {
             if (eventArgs.Player is ZirconPlayer player)
             {
-                if (player.IsLooping)
+                if (player.IsCustomLooping && player.LoopSkip is false)
                 {
-                    await player.ReplayAsync();
+                    await player.PlayAsync(player.CurrentLoopingTrack);
                     return;
                 }
+
+                player.LoopSkip = false;
 
                 if (player.Queue.IsEmpty && eventArgs.Reason is not TrackEndReason.Replaced)
                 {
