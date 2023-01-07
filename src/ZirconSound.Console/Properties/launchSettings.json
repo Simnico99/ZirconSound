@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ZirconSound.Console": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_": "development"
+      }
+    }
+  }
+}
