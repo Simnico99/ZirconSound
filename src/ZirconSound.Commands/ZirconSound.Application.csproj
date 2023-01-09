@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Commands\AudioCommands\Requests\" />
-    <Folder Include="Interfaces\" />
   </ItemGroup>
 
   <ItemGroup>

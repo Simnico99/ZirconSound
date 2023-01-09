@@ -5,7 +5,6 @@ using Lavalink4NET;
 using Lavalink4NET.Player;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using ZirconSound.Application.Services;
 
 namespace ZirconSound.Infrastructure.BackgroundServices;
 public class BotStatusService : BackgroundService
@@ -14,7 +13,7 @@ public class BotStatusService : BackgroundService
     private readonly ILogger _logger;
     private readonly IAudioService _audioService;
 
-    public BotStatusService(DiscordSocketClient discordSocketClient, ILogger<CustomPlayerStatusService> logger, IAudioService audioService)
+    public BotStatusService(DiscordSocketClient discordSocketClient, ILogger<CustomPlayerService> logger, IAudioService audioService)
     {
         _logger = logger;
         _audioService = audioService;
@@ -41,19 +40,19 @@ public class BotStatusService : BackgroundService
             await _discordSocketClient.SetActivityAsync(new Game("/help for commands"));
             _logger.LogDebug("Setting activity");
 
-            await Task.Delay(timeSpan);
+            await Task.Delay(timeSpan, stoppingToken);
 
             var guilds = _discordSocketClient.Guilds;
             await _discordSocketClient.SetActivityAsync(new Game($"in {guilds.Count} server{GetPlural(guilds)}!"));
             _logger.LogDebug("Setting activity");
 
-            await Task.Delay(timeSpan);
+            await Task.Delay(timeSpan, stoppingToken);
 
             var player = _audioService.GetPlayers<QueuedLavalinkPlayer>();
             await _discordSocketClient.SetActivityAsync(new Game($" {player.Count} track{GetPlural(player)}!"));
             _logger.LogDebug("Setting activity");
 
-            await Task.Delay(timeSpan);
+            await Task.Delay(timeSpan, stoppingToken);
         }
     }
 }

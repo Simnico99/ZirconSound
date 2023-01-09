@@ -5,7 +5,6 @@ using ZirconSound.Core.Enums;
 using ZirconSound.Core.Extensions;
 using ZirconSound.Core.Helpers;
 using ZirconSound.Core.SoundPlayers;
-using ZirconSound.Application.Services;
 using Discord;
 
 namespace ZirconSound.Application.Commands.AudioCommands.Commands.SkipCommand;
@@ -13,12 +12,10 @@ namespace ZirconSound.Application.Commands.AudioCommands.Commands.SkipCommand;
 public sealed class ClearHandler : ICommandHandler<ClearCommand>
 {
     private readonly IAudioService _audioService;
-    private readonly ICustomPlayerService _customPlayerService;
 
-    public ClearHandler(IAudioService audioService, ICustomPlayerService customPlayerService)
+    public ClearHandler(IAudioService audioService)
     {
         _audioService = audioService;
-        _customPlayerService = customPlayerService;
     }
 
     public async ValueTask<Unit> Handle(ClearCommand command, CancellationToken cancellationToken)

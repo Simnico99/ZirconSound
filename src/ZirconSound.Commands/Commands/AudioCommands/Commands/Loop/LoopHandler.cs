@@ -1,25 +1,19 @@
 ﻿using Lavalink4NET;
-using Lavalink4NET.Rest;
 using Mediator;
 using ZirconSound.Core.Enums;
 using ZirconSound.Core.Extensions;
 using ZirconSound.Core.Helpers;
-using ZirconSound.Core.SoundPlayers;
-using ZirconSound.Application.Services;
 using Discord;
-using Lavalink4NET.Player;
 
 namespace ZirconSound.Application.Commands.AudioCommands.Commands.PlayCommand;
 
 public sealed class LoopHandler : ICommandHandler<LoopCommand>
 {
     private readonly IAudioService _audioService;
-    private readonly ICustomPlayerService _customPlayerService;
 
-    public LoopHandler(IAudioService audioService, ICustomPlayerService customPlayerService)
+    public LoopHandler(IAudioService audioService)
     {
         _audioService = audioService;
-        _customPlayerService = customPlayerService;
     }
 
     public async ValueTask<Unit> Handle(LoopCommand command, CancellationToken cancellationToken)
@@ -30,7 +24,6 @@ public sealed class LoopHandler : ICommandHandler<LoopCommand>
 
         player!.CurrentLoopingPlaylist = null;
         player.CurrentLoopingTrack = null;
-
 
         switch (command.LoopType)
         {

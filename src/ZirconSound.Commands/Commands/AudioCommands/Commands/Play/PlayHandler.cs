@@ -5,7 +5,6 @@ using ZirconSound.Core.Enums;
 using ZirconSound.Core.Extensions;
 using ZirconSound.Core.Helpers;
 using ZirconSound.Core.SoundPlayers;
-using ZirconSound.Application.Services;
 using Discord;
 using Lavalink4NET.Player;
 
@@ -14,12 +13,10 @@ namespace ZirconSound.Application.Commands.AudioCommands.Commands.PlayCommand;
 public sealed class PlayHandler : ICommandHandler<PlayCommand>
 {
     private readonly IAudioService _audioService;
-    private readonly ICustomPlayerService _customPlayerService;
 
-    public PlayHandler(IAudioService audioService, ICustomPlayerService customPlayerService)
+    public PlayHandler(IAudioService audioService)
     {
         _audioService = audioService;
-        _customPlayerService = customPlayerService;
     }
 
     public async ValueTask<Unit> Handle(PlayCommand command, CancellationToken cancellationToken)
@@ -47,8 +44,8 @@ public sealed class PlayHandler : ICommandHandler<PlayCommand>
 
         if (playerTrackWasNull)
         {
-            _customPlayerService.CancelIdleDisconnect(player);
-            _customPlayerService.CancelAloneDisconnect(player);
+            LavalinkPlayerHelper.CancelIdleDisconnect(player);
+            LavalinkPlayerHelper.CancelAloneDisconnect(player);
 
             embed.AddField("Playing:", $"[{currentTrack.Title}]({currentTrack.Source})");
             embed.EmbedSong(currentTrack);

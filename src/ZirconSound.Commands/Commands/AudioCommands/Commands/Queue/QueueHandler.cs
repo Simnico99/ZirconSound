@@ -5,7 +5,6 @@ using ZirconSound.Core.Enums;
 using ZirconSound.Core.Extensions;
 using ZirconSound.Core.Helpers;
 using ZirconSound.Core.SoundPlayers;
-using ZirconSound.Application.Services;
 using Discord;
 using System.Text;
 using System.Diagnostics;

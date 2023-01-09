@@ -5,11 +5,16 @@ VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconSound.Console", "src\ZirconSound.Console\ZirconSound.Console.csproj", "{F65A6CD7-A6D7-4846-92A9-BC7F68E96F13}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZirconSound.Application", "src\ZirconSound.Commands\ZirconSound.Application.csproj", "{20D4A592-362C-4771-80E7-334457FEEAE3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconSound.Application", "src\ZirconSound.Commands\ZirconSound.Application.csproj", "{20D4A592-362C-4771-80E7-334457FEEAE3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZirconSound.Core", "src\ZirconSound.Core\ZirconSound.Core.csproj", "{6C5DB824-05BF-4672-8AB9-9FF9EF48A5C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconSound.Core", "src\ZirconSound.Core\ZirconSound.Core.csproj", "{6C5DB824-05BF-4672-8AB9-9FF9EF48A5C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZirconSound.Infrastructure", "src\ZirconSound.Infrastructure\ZirconSound.Infrastructure.csproj", "{2E5D126F-D3FC-4F32-AF65-A6BA9F9AC9BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconSound.Infrastructure", "src\ZirconSound.Infrastructure\ZirconSound.Infrastructure.csproj", "{2E5D126F-D3FC-4F32-AF65-A6BA9F9AC9BB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{59E3B5F5-21D8-47D0-B17B-79F11C401316}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

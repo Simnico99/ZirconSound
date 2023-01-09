@@ -1,11 +1,7 @@
 ﻿using Lavalink4NET;
-using Lavalink4NET.Rest;
 using Mediator;
-using ZirconSound.Core.Enums;
 using ZirconSound.Core.Extensions;
 using ZirconSound.Core.Helpers;
-using ZirconSound.Core.SoundPlayers;
-using ZirconSound.Application.Services;
 using Discord;
 
 namespace ZirconSound.Application.Commands.AudioCommands.Commands.SkipCommand;
@@ -13,12 +9,10 @@ namespace ZirconSound.Application.Commands.AudioCommands.Commands.SkipCommand;
 public sealed class ResumeHandler : ICommandHandler<ResumeCommand>
 {
     private readonly IAudioService _audioService;
-    private readonly ICustomPlayerService _customPlayerService;
 
-    public ResumeHandler(IAudioService audioService, ICustomPlayerService customPlayerService)
+    public ResumeHandler(IAudioService audioService)
     {
         _audioService = audioService;
-        _customPlayerService = customPlayerService;
     }
 
     public async ValueTask<Unit> Handle(ResumeCommand command, CancellationToken cancellationToken)
@@ -28,7 +22,7 @@ public sealed class ResumeHandler : ICommandHandler<ResumeCommand>
         var button = new ComponentBuilder().WithButton("Pause track", "track-button-pause", ButtonStyle.Danger).Build();
 
         await player!.ResumeAsync();
-        _customPlayerService.CancelIdleDisconnect(player);
+        LavalinkPlayerHelper.CancelIdleDisconnect(player);
 
         embed.AddField("Resumed:", $"{player.CurrentTrack?.Title} has been resumed.");
 

@@ -5,7 +5,6 @@ using ZirconSound.Core.Enums;
 using ZirconSound.Core.Extensions;
 using ZirconSound.Core.Helpers;
 using ZirconSound.Core.SoundPlayers;
-using ZirconSound.Application.Services;
 using Discord;
 
 namespace ZirconSound.Application.Commands.AudioCommands.Commands.SkipCommand;
@@ -26,6 +25,9 @@ public sealed class LeaveHandler : ICommandHandler<LeaveCommand>
 
         player!.Queue.Clear();
         await player.DisconnectAsync();
+
+        LavalinkPlayerHelper.CancelIdleDisconnect(player);
+        LavalinkPlayerHelper.CancelAloneDisconnect(player);
 
         embed.AddField("Left:", "ZirconSound has left the current voice channel.");
 

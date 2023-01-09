@@ -7,7 +7,7 @@ using ZirconSound.Application.Commands.AudioCommands.Pipelines.AudioAutoJoin;
 using ZirconSound.Application.Commands.AudioCommands.Pipelines.AudioIsNotPlaying;
 using ZirconSound.Application.Commands.AudioCommands.Pipelines.AudioPlaying;
 using ZirconSound.Application.Handlers;
-using ZirconSound.Application.Services;
+using ZirconSound.Application.Interfaces;
 using ZirconSound.Infrastructure.BackgroundServices;
 
 namespace ZirconSound.Console.Startup;
@@ -17,11 +17,10 @@ public static partial class IServiceCollectionExtension
     {
         services.AddMediator();
 
-        services.AddBackgroundServices<LavalinkRunnerService>();
-        services.AddBackgroundServices<CustomPlayerStatusService>();
+        services.AddBackgroundServices<ILavalinkRunnerService,LavalinkRunnerService>();
+        services.AddBackgroundServices<CustomPlayerService>();
         services.AddBackgroundServices<BotStatusService>();
 
-        services.AddSingleton<ICustomPlayerService, CustomPlayerService>();
         services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(AudioAutoJoinBehavior<,>));
         services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(AudioPlayingBehavior<,>));
         services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(AudioIsNotPlayingBehavior<,>));

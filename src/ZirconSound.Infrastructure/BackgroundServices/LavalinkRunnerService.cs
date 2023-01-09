@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using ZirconSound.Application.Interfaces;
 using ZirconSound.Core.Exceptions;
 using ZirconSound.Core.Helpers;
 
 namespace ZirconSound.Infrastructure.BackgroundServices;
-public sealed class LavalinkRunnerService : BackgroundService
+public sealed class LavalinkRunnerService : BackgroundService, ILavalinkRunnerService
 {
     private readonly ILogger _logger;
     private readonly Process _process;
@@ -83,7 +84,7 @@ public sealed class LavalinkRunnerService : BackgroundService
             if (message.Contains("lavalink.server.Launcher                 : Application failed"))
             {
                 var exception = new LavalinkAlreadyRunningException("Lavalink is already running please close the other instance then try again.");
-                _logger.LogCritical(exception,"Cannot run:");
+                _logger.LogCritical(exception, "Cannot run:");
 
                 Console.ReadLine();
                 throw exception;
