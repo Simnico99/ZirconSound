@@ -14,6 +14,25 @@ public static class LavalinkPlayerHelper
     private static readonly ConcurrentDictionary<ulong, CancellationTokenSource> _aloneDisconnectTokens = new();
     private static readonly ConcurrentDictionary<ulong, CancellationTokenSource> _disconnectTokens = new();
 
+    private static void RecreateTokens(ulong channelId, LavalinkPlayer player)
+    {
+        if (player is GenericQueuedLavalinkPlayer genericPlayer)
+        {
+            genericPlayer.PlayerIsAlone = false;
+            genericPlayer.PlayerIsIdle = false;
+        }
+
+        _aloneDisconnectTokens.TryGetValue(channelId, out var aloneToken);
+        aloneToken?.Cancel();
+        aloneToken = new CancellationTokenSource();
+        _aloneDisconnectTokens.TryAdd(channelId, aloneToken);
+
+        _disconnectTokens.TryGetValue(channelId, out var idleToken);
+        idleToken?.Cancel();
+        idleToken = new CancellationTokenSource();
+        _disconnectTokens.TryAdd(channelId, idleToken);
+    }
+
     public static void StartDisconnectBotIsAloneTimer(LavalinkPlayer? player, TimeSpan timeSpan)
     {
         Log.Debug("Disconnecting alone timer started waiting: {time}", timeSpan);
@@ -21,6 +40,11 @@ public static class LavalinkPlayerHelper
         if (player is null)
         {
             return;
+        }
+
+        if (player is GenericQueuedLavalinkPlayer genericPlayer)
+        {
+            genericPlayer.PlayerIsAlone = true;
         }
 
         var cancellationSourceGetResult = _aloneDisconnectTokens.TryGetValue(player.VoiceChannelId ?? 0, out var value);
@@ -47,6 +71,7 @@ public static class LavalinkPlayerHelper
             {
                 if (!value.Token.IsCancellationRequested)
                 {
+                    RecreateTokens((ulong)player.VoiceChannelId!, player);
                     await player.DisconnectAsync();
                     Log.Debug("Alone Disconnected");
                 }
@@ -66,6 +91,11 @@ public static class LavalinkPlayerHelper
         var cancellationSourceGetResult = _disconnectTokens.TryGetValue(player.VoiceChannelId ?? 0, out var value);
         value?.Cancel();
         value = null;
+
+        if (player is GenericQueuedLavalinkPlayer genericPlayer)
+        {
+            genericPlayer.PlayerIsIdle = true;
+        }
 
         if (!cancellationSourceGetResult || value is null)
         {
@@ -87,6 +117,7 @@ public static class LavalinkPlayerHelper
             {
                 if (!value.Token.IsCancellationRequested)
                 {
+                    RecreateTokens((ulong)player.VoiceChannelId!, player);
                     await player.DisconnectAsync();
                     Log.Debug("Idle Disconnected");
                 }
@@ -99,6 +130,7 @@ public static class LavalinkPlayerHelper
         Log.Debug("Canceling alone disconnect");
         if (player is GenericQueuedLavalinkPlayer genericPlayer)
         {
+            genericPlayer.PlayerIsAlone = false;
             _ = _aloneDisconnectTokens.TryGetValue(genericPlayer.VoiceChannelId ?? 0, out var value);
             value?.Cancel();
         }
@@ -107,9 +139,10 @@ public static class LavalinkPlayerHelper
     public static void CancelIdleDisconnect(LavalinkPlayer? player)
     {
         Log.Debug("Canceling idle disconnect");
-        if (player is GenericQueuedLavalinkPlayer zirconplayer)
+        if (player is GenericQueuedLavalinkPlayer genericPlayer)
         {
-            _ = _disconnectTokens.TryGetValue(zirconplayer.VoiceChannelId ?? 0, out var value);
+            genericPlayer.PlayerIsAlone = false;
+            _ = _disconnectTokens.TryGetValue(genericPlayer.VoiceChannelId ?? 0, out var value);
             value?.Cancel();
         }
     }

@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 namespace ZirconSound.Core.SoundPlayers;
 public sealed class GenericQueuedLavalinkPlayer : QueuedLavalinkPlayer
 {
+    public bool PlayerIsIdle { get; set; }
+    public bool PlayerIsAlone { get; set; }
     public bool PlayerGotError { get; set; }
     public bool LoopSkip { get; set; } = false;
     public bool SkippedOnPurpose { get; set; } = false;

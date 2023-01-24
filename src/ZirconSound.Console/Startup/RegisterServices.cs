@@ -20,6 +20,7 @@ public static partial class IServiceCollectionExtension
         services.AddBackgroundServices<ILavalinkRunnerService,LavalinkRunnerService>();
         services.AddBackgroundServices<CustomPlayerService>();
         services.AddBackgroundServices<BotStatusService>();
+        services.AddBackgroundServices<BotIsAloneOrIdleService>();
 
         services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(AudioAutoJoinBehavior<,>));
         services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(AudioPlayingBehavior<,>));

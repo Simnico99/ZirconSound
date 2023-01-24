@@ -40,27 +40,10 @@ public class CustomPlayerService : BackgroundService
         _logger.LogInformation("CustomPlayerStatusService status service is ready!");
     }
 
-    private int NumberOfUserInChannel(SocketGuildChannel socketChannel)
-    {
-        var voiceUsers = _discordSocketClient.Guilds.FirstOrDefault(
-                x => x.Name.Equals(socketChannel.Guild.Name))
-            ?.VoiceChannels.FirstOrDefault(
-                x => x.Name.Equals(socketChannel.Name))
-            ?.Users;
-
-        return voiceUsers!.Count;
-    }
-
     private bool IsBotInChannel(SocketGuildChannel socketChannel)
     {
         var bot = socketChannel.Users.FirstOrDefault(x => x.Id.Equals(_discordSocketClient.CurrentUser.Id));
         return bot != null;
-    }
-
-    private void DisconnectBot(IChannel voiceState, LavalinkPlayer? player)
-    {
-        _logger.LogDebug("Bot is alone initiating disconnect. Id:{VoiceId} / Name:{VoiceName}", voiceState.Id, voiceState.Name);
-        LavalinkPlayerHelper.StartDisconnectBotIsAloneTimer(player, TimeSpan.FromSeconds(30));
     }
 
     private Task Client_UserVoiceStateUpdated(SocketUser user, SocketVoiceState voiceState1, SocketVoiceState voiceState2)
@@ -68,51 +51,33 @@ public class CustomPlayerService : BackgroundService
         var voiceSocket1 = voiceState1.VoiceChannel;
         var voiceSocket2 = voiceState2.VoiceChannel;
 
-        if (!(voiceSocket1 == voiceSocket2))
+        if (!(voiceSocket1 == voiceSocket2) && voiceSocket1 is not null)
         {
-            if (voiceSocket1 is not null)
-            {
-                if (IsBotInChannel(voiceSocket1))
-                {
-                    var player = _audioService.GetPlayer(voiceSocket1.Guild.Id);
-                    if (voiceSocket1?.Id == player?.VoiceChannelId)
-                    {
-                        if (voiceSocket1 is not null && NumberOfUserInChannel(voiceSocket1) > 2)
-                        {
-                            _logger.LogDebug("Bot is not alone anymore canceling disconnect. Id:{VoiceId} / Name:{VoiceName}", voiceSocket1?.Id, voiceSocket1?.Name);
-                            LavalinkPlayerHelper.CancelAloneDisconnect(player);
-                        }
-                        else
-                        {
-                            _ = Task.Run(() => DisconnectBot(voiceSocket1!, player));
-                        }
-                    }
-                }
-            }
+            IsNotAloneInThisChannel(voiceSocket1);
         }
 
         if (voiceSocket2 is not null)
         {
-            if (IsBotInChannel(voiceSocket2))
-            {
-                var player = _audioService.GetPlayer(voiceSocket2.Guild.Id);
-                if (voiceSocket2?.Id == player?.VoiceChannelId)
-                {
-                    if (voiceSocket2 is not null && NumberOfUserInChannel(voiceSocket2) >= 2)
-                    {
-                        _logger.LogDebug("Bot is not alone anymore canceling disconnect. Id:{VoiceId} / Name:{VoiceName}", voiceSocket2.Id, voiceSocket2.Name);
-                        LavalinkPlayerHelper.CancelAloneDisconnect(player);
-                    }
-                    else
-                    {
-                        _ = Task.Run(() => DisconnectBot(voiceSocket2!, player));
-                    }
-                }
-            }
+            IsNotAloneInThisChannel(voiceSocket2);
         }
 
         return Task.CompletedTask;
     }
+
+    private void IsNotAloneInThisChannel(SocketVoiceChannel voiceSocket)
+    {
+        if (!IsBotInChannel(voiceSocket))
+        {
+            return;
+        }
+
+        if (voiceSocket is not null && voiceSocket.ConnectedUsers.Count >= 2)
+        {
+            _logger.LogDebug("Bot is not alone anymore canceling disconnect. Id:{VoiceId} / Name:{VoiceName}", voiceSocket.Id, voiceSocket.Name);
+            LavalinkPlayerHelper.CancelAloneDisconnect(_audioService.GetPlayer(voiceSocket.Guild.Id));
+        }
+    }
+
     private async Task OnError(GenericQueuedLavalinkPlayer player, TrackEndReason trackEndReason)
     {
         _logger.LogWarning("Track {TackTitle} threw an exception.", player.CurrentTrack?.Title);
