@@ -169,8 +169,6 @@ public class CustomPlayerService : BackgroundService
 
         if (player.Queue is null || player.Queue.Count <= 0 || player.Queue.Last() == player.CurrentTrack || player.State != PlayerState.Playing || trackEndReason is TrackEndReason.Finished)
         {
-            await player.StopAsync();
-            LavalinkPlayerHelper.StartIdleDisconnectTimer(player, TimeSpan.FromSeconds(30));
             return;
         }
 
