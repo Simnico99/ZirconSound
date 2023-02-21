@@ -129,16 +129,16 @@ public class CustomPlayerService : BackgroundService
                 return;
             }
 
-            await DisconnectAndStopIfNoTracksRemainingAsync(player, false, eventArgs.Reason);
+            await ErrorCheckAndHandling(player, false, eventArgs.Reason);
         }
 
         if (eventArgs.Reason is TrackEndReason.LoadFailed or TrackEndReason.Replaced && !player.SkippedOnPurpose)
         {
-            await DisconnectAndStopIfNoTracksRemainingAsync(player, true, eventArgs.Reason);
+            await ErrorCheckAndHandling(player, true, eventArgs.Reason);
         }
     }
 
-    private async Task DisconnectAndStopIfNoTracksRemainingAsync(GenericQueuedLavalinkPlayer player, bool errorCheck, TrackEndReason trackEndReason)
+    private async Task ErrorCheckAndHandling(GenericQueuedLavalinkPlayer player, bool errorCheck, TrackEndReason trackEndReason)
     {
         if (errorCheck)
         {
@@ -172,6 +172,7 @@ public class CustomPlayerService : BackgroundService
             return;
         }
 
+        await OnError(player, trackEndReason);
         await player.SkipAsync();
     }
 }
