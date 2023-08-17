@@ -363,5 +363,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/ZirconSound/appsettings.json
-/ZirconSound/appsettings.Development.json
+[Aa]ppsettings.json
+[Aa]ppsettings.Development.json
+[Aa]pplication.yml
