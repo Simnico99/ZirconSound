@@ -76,7 +76,7 @@ public sealed class LavalinkRunnerService : BackgroundService, ILavalinkRunnerSe
                 _logger.LogError("Lavalink Jar: {Message}", cleanMessage);
             }
 
-            if (message.Contains("https://github.com/Frederikam/Lavalink/issues/295"))
+            if (message.Contains("Lavalink is ready to accept connections."))
             {
                 IsReady.Set();
             }

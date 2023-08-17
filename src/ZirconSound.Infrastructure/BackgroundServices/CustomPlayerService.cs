@@ -89,12 +89,14 @@ public class CustomPlayerService : BackgroundService
 
             if (player.CurrentTrack is not null && trackEndReason is not TrackEndReason.Replaced)
             {
-                errorMessage = $"An error occured with a song ({player.CurrentTrack.Title}):\nThe song will be skipped and removed from queue.";
+                errorMessage = $"An error occurred with a song ({player.CurrentTrack.Title}):\nThe song will be skipped and removed from queue.";
                 player.Queue.Remove(player.CurrentTrack);
+                await player.SkipAsync();
             }
             else
             {
-                errorMessage = $"An error occured with a song (Unable to get the song title):\nThe song will be skipped.";
+                errorMessage = $"An error occurred with a song (Unable to get the song title):\nThe song will be skipped.";
+                await player.SkipAsync();
             }
 
             if (player.Context is not null)
@@ -108,7 +110,6 @@ public class CustomPlayerService : BackgroundService
         }
 
         player.PlayerGotError = true;
-        await player.PlayAsync(player.CurrentTrack);
     }
 
     private async Task AudioService_TrackEnd(object sender, TrackEndEventArgs eventArgs)

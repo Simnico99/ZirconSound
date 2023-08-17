@@ -47,7 +47,7 @@ public sealed class PlayHandler : ICommandHandler<PlayCommand>
             LavalinkPlayerHelper.CancelIdleDisconnect(player);
             LavalinkPlayerHelper.CancelAloneDisconnect(player);
 
-            embed.AddField("Playing:", $"[{currentTrack.Title}]({currentTrack.Source})");
+            embed.AddField("Playing:", $"[{currentTrack.Title}]({currentTrack.Uri})");
             embed.EmbedSong(currentTrack);
 
             await player!.PlayAsync(currentTrack);
@@ -60,7 +60,7 @@ public sealed class PlayHandler : ICommandHandler<PlayCommand>
                 player.CurrentLoopingPlaylist.Add(currentTrack);
             }
 
-            embed.AddField("Queued:", $"[{currentTrack.Title}]({currentTrack.Source})");
+            embed.AddField("Queued:", $"[{currentTrack.Title}]({currentTrack.Uri})");
 
             var timeLeft = TimeSpan.FromSeconds(0);
             timeLeft = player!.Queue.Tracks.Aggregate(timeLeft, (current, trackQueue) => current + trackQueue.Duration);

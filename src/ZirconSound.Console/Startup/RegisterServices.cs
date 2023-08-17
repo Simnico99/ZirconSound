@@ -2,7 +2,7 @@
 using Lavalink4NET.DiscordNet;
 using Mediator;
 using Microsoft.Extensions.DependencyInjection;
-using ZirconNet.Core.DependencyInjection;
+using ZirconNet.Microsoft.DependencyInjection.Hosting;
 using ZirconSound.Application.Commands.AudioCommands.Pipelines.AudioAutoJoin;
 using ZirconSound.Application.Commands.AudioCommands.Pipelines.AudioIsNotPlaying;
 using ZirconSound.Application.Commands.AudioCommands.Pipelines.AudioPlaying;

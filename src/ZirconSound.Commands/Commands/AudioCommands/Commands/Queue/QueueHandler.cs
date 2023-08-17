@@ -47,7 +47,7 @@ public sealed class QueueHandler : ICommandHandler<QueueCommand>
             for (var i = (int)page * 5; i < tracks.Count && i < (page * 5) + 5; i++)
             {
                 var track = player.Queue.Tracks[i];
-                stringBuilder.AppendLine($"{i}- [{track?.Title}]({track?.Source})");
+                stringBuilder.AppendLine($"{i}- [{track?.Title}]({track?.Uri})");
             }
 
             estimatedTime = tracks.Aggregate(estimatedTime, (current, track) => current + track.Duration);

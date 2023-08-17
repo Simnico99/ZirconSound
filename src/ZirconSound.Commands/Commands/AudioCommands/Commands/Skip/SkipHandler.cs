@@ -38,7 +38,7 @@ public sealed class SkipHandler : ICommandHandler<SkipCommand>
         {
             if (player?.Queue.Count > 0)
             {
-                embed.AddField("Skipped now playing:", $"[{player?.Queue.First().Title}]({player?.Queue.First().Source})");
+                embed.AddField("Skipped now playing:", $"[{player?.Queue.First().Title}]({player?.Queue.First().Uri})");
                 embed.EmbedSong(player?.Queue.First()!);
             }
         }

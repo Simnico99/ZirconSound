@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
+    <PackageReference Include="ZirconNet.Microsoft.DependencyInjection" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

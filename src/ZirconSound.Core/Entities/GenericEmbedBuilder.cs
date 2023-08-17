@@ -22,7 +22,7 @@ public sealed class GenericEmbedBuilder : EmbedBuilder
     public GenericEmbedBuilder(IUser user)
     {
         var actualAuthor = new EmbedAuthorBuilder()
-            .WithName($"@{user.Username}#{user.Discriminator}")
+            .WithName($"@{user.Username}{(user.Discriminator == "0000" ? "" : $"#{user.Discriminator}")}")
             .WithIconUrl(user.GetAvatarUrl());
         WithAuthor(actualAuthor);
     }

@@ -1,13 +1,12 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using ZirconNet.Console.DependencyInjection;
 using ZirconSound.Console.Startup;
 
 try
 {
     //Create
-    var host = new HostBuilder();
+    var host = Host.CreateDefaultBuilder(args);
     var config = new ConfigurationBuilder().RegisterConfigurations().Build();
 
     //Configure
@@ -18,7 +17,6 @@ try
 
     //Use
     host.UseSerilog();
-    host.UseBackgroundServices();
     host.UseConsoleLifetime();
     host.UseLavalink();
 
