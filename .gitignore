@@ -37,7 +37,7 @@ bld/
 
 [Aa]ppsettings.json
 [Aa]ppsettings.Development.json
-*.yml
+[Aa]pplication.yml
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
