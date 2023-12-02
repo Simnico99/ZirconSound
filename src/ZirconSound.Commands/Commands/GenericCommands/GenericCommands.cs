@@ -1,11 +1,8 @@
 ﻿using Discord;
 using Discord.Interactions;
-using Discord.WebSocket;
 using Mediator;
 using ZirconSound.Application.Commands.GenericCommands.Requests.Help;
 using ZirconSound.Application.Commands.GenericCommands.Requests.Ping;
-using ZirconSound.Core.Extensions;
-using ZirconSound.Core.Helpers;
 
 namespace ZirconSound.Application.Commands.GenericCommands;
 public sealed class GenericCommands : InteractionModuleBase<IInteractionContext> 

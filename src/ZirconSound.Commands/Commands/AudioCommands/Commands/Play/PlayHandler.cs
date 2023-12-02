@@ -4,10 +4,9 @@ using ZirconSound.Core.Enums;
 using ZirconSound.Core.Extensions;
 using ZirconSound.Core.Helpers;
 using Discord;
-using Lavalink4NET.Tracks;
 using Lavalink4NET.Rest.Entities.Tracks;
 
-namespace ZirconSound.Application.Commands.AudioCommands.Commands.PlayCommand;
+namespace ZirconSound.Application.Commands.AudioCommands.Commands.Play;
 
 public sealed class PlayHandler : ICommandHandler<PlayCommand>
 {

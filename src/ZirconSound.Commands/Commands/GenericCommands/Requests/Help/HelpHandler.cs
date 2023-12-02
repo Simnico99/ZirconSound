@@ -1,6 +1,4 @@
-﻿using Discord.Interactions;
-using Mediator;
-using Microsoft.Extensions.Configuration;
+﻿using Mediator;
 using ZirconSound.Core.Enums;
 using ZirconSound.Core.Extensions;
 using ZirconSound.Core.Helpers;

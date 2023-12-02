@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using ZirconSound.Application.Interfaces;
 using ZirconSound.Core.Exceptions;
-using ZirconSound.Core.Helpers;
 
 namespace ZirconSound.Infrastructure.BackgroundServices;
 public sealed class LavalinkRunnerService : BackgroundService, ILavalinkRunnerService

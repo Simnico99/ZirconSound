@@ -3,7 +3,7 @@ using Mediator;
 using ZirconSound.Core.Extensions;
 using ZirconSound.Core.Helpers;
 
-namespace ZirconSound.Application.Commands.AudioCommands.Commands.SkipCommand;
+namespace ZirconSound.Application.Commands.AudioCommands.Commands.Stop;
 
 public sealed class StopHandler : ICommandHandler<StopCommand>
 {

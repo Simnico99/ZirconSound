@@ -1,13 +1,10 @@
 ﻿using Lavalink4NET;
-using Lavalink4NET.Rest;
 using Mediator;
-using ZirconSound.Core.Enums;
 using ZirconSound.Core.Extensions;
 using ZirconSound.Core.Helpers;
-using ZirconSound.Core.SoundPlayers;
 using Discord;
 
-namespace ZirconSound.Application.Commands.AudioCommands.Commands.SkipCommand;
+namespace ZirconSound.Application.Commands.AudioCommands.Commands.Skip;
 
 public sealed class SkipHandler : ICommandHandler<SkipCommand>
 {

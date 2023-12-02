@@ -4,7 +4,7 @@ using ZirconSound.Core.Extensions;
 using ZirconSound.Core.Helpers;
 using Discord;
 
-namespace ZirconSound.Application.Commands.AudioCommands.Commands.SkipCommand;
+namespace ZirconSound.Application.Commands.AudioCommands.Commands.Resume;
 
 public sealed class ResumeHandler : ICommandHandler<ResumeCommand>
 {

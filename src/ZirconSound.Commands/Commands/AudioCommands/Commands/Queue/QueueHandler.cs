@@ -5,7 +5,7 @@ using ZirconSound.Core.Helpers;
 using Discord;
 using System.Text;
 
-namespace ZirconSound.Application.Commands.AudioCommands.Commands.SkipCommand;
+namespace ZirconSound.Application.Commands.AudioCommands.Commands.Queue;
 
 public sealed class QueueHandler : ICommandHandler<QueueCommand>
 {

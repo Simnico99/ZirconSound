@@ -1,9 +1,4 @@
 ﻿using Discord;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ZirconSound.Core.Extensions;
 public static class SocketInteractionExtensions

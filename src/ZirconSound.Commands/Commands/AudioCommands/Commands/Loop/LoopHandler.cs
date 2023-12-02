@@ -5,7 +5,7 @@ using ZirconSound.Core.Extensions;
 using ZirconSound.Core.Helpers;
 using Discord;
 
-namespace ZirconSound.Application.Commands.AudioCommands.Commands.PlayCommand;
+namespace ZirconSound.Application.Commands.AudioCommands.Commands.Loop;
 
 public sealed class LoopHandler : ICommandHandler<LoopCommand>
 {

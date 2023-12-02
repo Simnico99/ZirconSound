@@ -1,9 +1,4 @@
-﻿using Lavalink4NET.InactivityTracking;
-using Lavalink4NET.InactivityTracking.Extensions;
-using Lavalink4NET.InactivityTracking.Trackers.Idle;
-using Lavalink4NET.InactivityTracking.Trackers.Users;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using ZirconSound.Console.Startup;
@@ -11,34 +6,28 @@ using ZirconSound.Console.Startup;
 try
 {
     //Create
-    var host = Host.CreateDefaultBuilder(args);
+    var builder = Host.CreateDefaultBuilder(args);
     var config = new ConfigurationBuilder().RegisterConfigurations().Build();
 
     //Configure
-    host.ConfigureAppConfiguration(x => x.AddConfiguration(config));
-    host.ConfigureServices(x => x.RegisterServices());
-    host.ConfigureLoggers(config);
-    host.ConfigureDiscord();
+    builder.ConfigureAppConfiguration(x => x.AddConfiguration(config));
+    builder.ConfigureServices(x => x.RegisterServices());
+    builder.ConfigureLoggers(config);
+    builder.ConfigureDiscord();
 
     //Use
-    host.UseSerilog();
-    host.UseConsoleLifetime();
-    host.ConfigureServices(services =>
-    {
-        //services.AddSingleton<IInactivityTracker, InactiveUserTracker>();
-        services.UseLavalink();
-        services.AddInactivityTracking();
-        services.ConfigureInactivityTracking(config => config.DefaultTimeout = TimeSpan.FromMinutes(1));
-
-    });
+    builder.UseSerilog();
+    builder.UseConsoleLifetime();
+    builder.UseLavalink();
 
     //Start
-    await host.RunConsoleAsync();
+    await builder.RunConsoleAsync();
 }
 catch (Exception ex)
 {
     Log.Fatal(ex, "Software crashed: {Exception}");
     Console.ReadLine();
+    Log.CloseAndFlush();
     throw;
 }
 finally

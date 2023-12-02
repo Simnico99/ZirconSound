@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ZirconSound.Core.Extensions;
+﻿namespace ZirconSound.Core.Extensions;
 public static class StringExtensions
 {
     public static string FirstCharToUpper(this string input)

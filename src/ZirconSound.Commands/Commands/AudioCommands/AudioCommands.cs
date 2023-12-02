@@ -1,15 +1,17 @@
 ﻿using Discord.Interactions;
 using Discord;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Mediator;
-using ZirconSound.Application.Commands.AudioCommands.Commands.PlayCommand;
 using ZirconSound.Core.Enums;
-using ZirconSound.Application.Commands.AudioCommands.Commands.SkipCommand;
-using ZirconSound.Core.Extensions;
+using ZirconSound.Application.Commands.AudioCommands.Commands.Volume;
+using ZirconSound.Application.Commands.AudioCommands.Commands.Queue;
+using ZirconSound.Application.Commands.AudioCommands.Commands.Stop;
+using ZirconSound.Application.Commands.AudioCommands.Commands.Loop;
+using ZirconSound.Application.Commands.AudioCommands.Commands.Skip;
+using ZirconSound.Application.Commands.AudioCommands.Commands.Play;
+using ZirconSound.Application.Commands.AudioCommands.Commands.Clear;
+using ZirconSound.Application.Commands.AudioCommands.Commands.Pause;
+using ZirconSound.Application.Commands.AudioCommands.Commands.Resume;
+using ZirconSound.Application.Commands.AudioCommands.Commands.Leave;
 
 namespace ZirconSound.Application.Commands.AudioCommands;
 public sealed class AudioCommands : InteractionModuleBase<IInteractionContext>
@@ -76,8 +78,8 @@ public sealed class AudioCommands : InteractionModuleBase<IInteractionContext>
     [ComponentInteraction("queue-button-back")]
     public async Task QueueBackAsync()
     {
-        var test = await Context.Interaction.GetOriginalResponseAsync();
-        var footer = test.Embeds.First().Footer;
+        var userMessage = await Context.Interaction.GetOriginalResponseAsync();
+        var footer = userMessage.Embeds.First().Footer;
         if (footer is not null)
         {
             var footerContent = footer.Value.Text;
@@ -86,6 +88,20 @@ public sealed class AudioCommands : InteractionModuleBase<IInteractionContext>
             await _mediator.Send(new QueueCommand(Context, int.Parse(page) - 1));
         }
     }
+
+    [SlashCommand("volume", "Set the current player volume in %. (The default is 25%)")]
+    public async Task VolumeAsync(float volume) => await _mediator.Send(new VolumeCommand(Context, volume));
+
+    [ComponentInteraction("volume-button-minus5")]
+    public async Task VolumeMinus5Async() => await _mediator.Send(new VolumeCommand(Context, 0, -5));
+    [ComponentInteraction("volume-button-minus1")]
+    public async Task VolumeMinus1Async() => await _mediator.Send(new VolumeCommand(Context, 0, -1));
+    [ComponentInteraction("volume-button-set50")]
+    public async Task VolumeSet50Async() => await _mediator.Send(new VolumeCommand(Context, 50));
+    [ComponentInteraction("volume-button-plus1")]
+    public async Task VolumePlus1Async() => await _mediator.Send(new VolumeCommand(Context, 0, 1));
+    [ComponentInteraction("volume-button-plus5")]
+    public async Task VolumePlus5Async() => await _mediator.Send(new VolumeCommand(Context, 0, 5));
 
     [SlashCommand("clear", "Clear the playlist.")]
     [ComponentInteraction("clear-button")]

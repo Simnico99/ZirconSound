@@ -7,18 +7,21 @@ using ZirconSound.Core.Enums;
 using Discord;
 using Lavalink4NET.Players;
 using Lavalink4NET.DiscordNet;
-using System;
-using Microsoft.Extensions.Options;
 using Lavalink4NET.Players.Queued;
+using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace ZirconSound.Application.Commands.AudioCommands.Pipelines.AudioAutoJoin;
 public sealed class AudioAutoJoinBehavior<TMessage, TResponse> : IPipelineBehavior<TMessage, TResponse> where TMessage : Mediator.IMessage
 {
     private readonly IAudioService _audioService;
+    private readonly ILogger _logger;
 
-    public AudioAutoJoinBehavior(IAudioService audioService)
+
+    public AudioAutoJoinBehavior(IAudioService audioService, ILogger<AudioAutoJoinBehavior<TMessage, TResponse>> logger)
     {
         _audioService = audioService;
+        _logger = logger;
     }
     public async ValueTask<TResponse> Handle(TMessage message, CancellationToken cancellationToken, MessageHandlerDelegate<TMessage, TResponse> next)
     {
@@ -62,12 +65,19 @@ public sealed class AudioAutoJoinBehavior<TMessage, TResponse> : IPipelineBehavi
         if (voiceChannel != null)
         {
             var retrieveOptions = new PlayerRetrieveOptions(ChannelBehavior: PlayerChannelBehavior.Join);
-            await _audioService.Players.RetrieveAsync(message.Context, playerFactory: PlayerFactory.Create<LoopingQueuedLavalinkPlayer, QueuedLavalinkPlayerOptions>(static properties =>
+            var playerResult = await _audioService.Players.RetrieveAsync(message.Context, playerFactory: PlayerFactory.Create<LoopingQueuedLavalinkPlayer, QueuedLavalinkPlayerOptions>(properties =>
             {
                 properties.Options.Value.SelfDeaf = true;
-                properties.Options.Value.SelfMute = true;
+                properties.Options.Value.InitialVolume = 0.25f;
                 return new LoopingQueuedLavalinkPlayer(properties);
             }), retrieveOptions);
+
+            if (playerResult.IsSuccess)
+            {
+                var player = playerResult.Player;
+                _logger.LogInformation("Created player with these property:\n- Volume: {volume}", player.Volume);
+                await player.SetVolumeAsync(0.25f);
+            }
         }
     }
 }

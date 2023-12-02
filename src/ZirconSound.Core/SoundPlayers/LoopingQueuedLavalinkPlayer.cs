@@ -1,17 +1,10 @@
 ﻿using Discord;
-using Discord.Interactions;
 using Lavalink4NET.InactivityTracking.Players;
 using Lavalink4NET.InactivityTracking.Trackers;
 using Lavalink4NET.Players;
 using Lavalink4NET.Players.Queued;
 using Lavalink4NET.Protocol.Payloads.Events;
-using Lavalink4NET.Tracking;
 using Lavalink4NET.Tracks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ZirconSound.Core.SoundPlayers;
 public sealed class LoopingQueuedLavalinkPlayer : QueuedLavalinkPlayer, IInactivityPlayerListener

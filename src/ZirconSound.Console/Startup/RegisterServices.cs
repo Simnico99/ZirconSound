@@ -1,5 +1,4 @@
-﻿using Lavalink4NET;
-using Lavalink4NET.Clients;
+﻿using Lavalink4NET.Clients;
 using Lavalink4NET.DiscordNet;
 using Mediator;
 using Microsoft.Extensions.DependencyInjection;
