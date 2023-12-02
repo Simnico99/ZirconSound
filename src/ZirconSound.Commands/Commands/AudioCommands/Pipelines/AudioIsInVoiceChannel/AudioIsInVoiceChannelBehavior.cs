@@ -19,7 +19,7 @@ public sealed class AudioIsInVoiceChannelBehavior<TMessage, TResponse> : IPipeli
     {
         if (message is IAudioIsInVoiceChannelPipeline audioMessage)
         {
-            var player = _audioService.GetPlayer<GenericQueuedLavalinkPlayer>(audioMessage.Context.Guild.Id);
+            var player = await _audioService.Players.GetPlayerAsync<LoopingQueuedLavalinkPlayer>(audioMessage.Context.Guild.Id);
 
             var embed = EmbedHelpers.CreateGenericEmbedBuilder(audioMessage.Context);
 

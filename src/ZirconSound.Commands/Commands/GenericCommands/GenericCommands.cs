@@ -8,7 +8,7 @@ using ZirconSound.Core.Extensions;
 using ZirconSound.Core.Helpers;
 
 namespace ZirconSound.Application.Commands.GenericCommands;
-public sealed class GenericCommands : InteractionModuleBase<IInteractionContext>
+public sealed class GenericCommands : InteractionModuleBase<IInteractionContext> 
 {
     private readonly IMediator _mediator;
 

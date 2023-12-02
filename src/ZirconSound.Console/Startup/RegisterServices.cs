@@ -1,8 +1,9 @@
 ﻿using Lavalink4NET;
+using Lavalink4NET.Clients;
 using Lavalink4NET.DiscordNet;
 using Mediator;
 using Microsoft.Extensions.DependencyInjection;
-using ZirconNet.Core.DependencyInjection;
+using ZirconNet.Microsoft.DependencyInjection.Hosting;
 using ZirconSound.Application.Commands.AudioCommands.Pipelines.AudioAutoJoin;
 using ZirconSound.Application.Commands.AudioCommands.Pipelines.AudioIsNotPlaying;
 using ZirconSound.Application.Commands.AudioCommands.Pipelines.AudioPlaying;
@@ -18,9 +19,7 @@ public static partial class IServiceCollectionExtension
         services.AddMediator();
 
         services.AddBackgroundServices<ILavalinkRunnerService,LavalinkRunnerService>();
-        services.AddBackgroundServices<CustomPlayerService>();
         services.AddBackgroundServices<BotStatusService>();
-        services.AddBackgroundServices<BotIsAloneOrIdleService>();
 
         services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(AudioAutoJoinBehavior<,>));
         services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(AudioPlayingBehavior<,>));

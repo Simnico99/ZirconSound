@@ -1,12 +1,11 @@
 ﻿using Lavalink4NET;
-using Lavalink4NET.Rest;
 using Mediator;
 using ZirconSound.Core.Enums;
 using ZirconSound.Core.Extensions;
 using ZirconSound.Core.Helpers;
-using ZirconSound.Core.SoundPlayers;
 using Discord;
-using Lavalink4NET.Player;
+using Lavalink4NET.Tracks;
+using Lavalink4NET.Rest.Entities.Tracks;
 
 namespace ZirconSound.Application.Commands.AudioCommands.Commands.PlayCommand;
 
@@ -22,15 +21,20 @@ public sealed class PlayHandler : ICommandHandler<PlayCommand>
     public async ValueTask<Unit> Handle(PlayCommand command, CancellationToken cancellationToken)
     {
         var embed = EmbedHelpers.CreateGenericEmbedBuilder(command.Context);
-        var player = _audioService.GetPlayerAndSetContext(command.Context.Guild.Id, command.Context);
-        var tracks = await _audioService.GetTracksAsync(command.Id, SearchMode.None, true, cancellationToken);
+        var player = await _audioService.GetPlayerAndSetContextAsync(command.Context.Guild.Id, command.Context);
+        var trackLoadResult = await _audioService.Tracks.LoadTracksAsync(command.Id, TrackSearchMode.None, cancellationToken: cancellationToken);
 
-        if (!tracks.Any())
+        if (trackLoadResult.IsFailed)
         {
-            tracks = new List<LavalinkTrack> { (await _audioService.GetTrackAsync(command.Id, SearchMode.YouTube, true, cancellationToken))! };
+            trackLoadResult = await _audioService.Tracks.LoadTracksAsync(command.Id, TrackSearchMode.YouTubeMusic, cancellationToken: cancellationToken);
         }
 
-        if (tracks?.FirstOrDefault() is null || player is null)
+        if (trackLoadResult.IsFailed)
+        {
+            trackLoadResult = await _audioService.Tracks.LoadTracksAsync(command.Id, TrackSearchMode.YouTube, cancellationToken: cancellationToken);
+        }
+
+        if (trackLoadResult.IsFailed || player is null)
         {
             embed.AddField("Warning:", "Unable to find the specified track!");
             await command.Context.ReplyToLastCommandAsync(embed: embed.Build(GenericEmbedType.Warning), ephemeral: false);
@@ -39,42 +43,44 @@ public sealed class PlayHandler : ICommandHandler<PlayCommand>
 
         var playerTrackWasNull = player?.CurrentTrack is null;
 
-        var currentTrack = tracks.First();
-        tracks = tracks.Skip(1);
+        var currentTrack = trackLoadResult.Tracks.FirstOrDefault()!;
+        var tracks = trackLoadResult.Tracks.Skip(1);
+
+        if (trackLoadResult.IsPlaylist && trackLoadResult.Tracks.Length <= 1)
+        {
+            trackLoadResult = TrackLoadResult.CreateTrack(trackLoadResult.Track);
+        }
 
         if (playerTrackWasNull)
         {
-            LavalinkPlayerHelper.CancelIdleDisconnect(player);
-            LavalinkPlayerHelper.CancelAloneDisconnect(player);
-
-            embed.AddField("Playing:", $"[{currentTrack.Title}]({currentTrack.Source})");
+            embed.AddField("Playing:", $"[{currentTrack.Title}]({currentTrack.Uri})");
             embed.EmbedSong(currentTrack);
 
-            await player!.PlayAsync(currentTrack);
+            await player!.PlayAsync(currentTrack, cancellationToken: cancellationToken);
         }
 
-        if (tracks.Count() <= 1 && !playerTrackWasNull)
+        if (!trackLoadResult.IsPlaylist && !playerTrackWasNull)
         {
             if (player?.CurrentLoopingPlaylist is not null)
             {
                 player.CurrentLoopingPlaylist.Add(currentTrack);
             }
 
-            embed.AddField("Queued:", $"[{currentTrack.Title}]({currentTrack.Source})");
+            embed.AddField("Queued:", $"[{currentTrack.Title}]({currentTrack.Uri})");
 
             var timeLeft = TimeSpan.FromSeconds(0);
-            timeLeft = player!.Queue.Tracks.Aggregate(timeLeft, (current, trackQueue) => current + trackQueue.Duration);
-            timeLeft += player.CurrentTrack!.Duration - player.Position.Position.StripMilliseconds();
+            timeLeft = player!.Queue!.Aggregate(timeLeft, (current, trackQueue) => current + trackQueue.Track!.Duration);
+            timeLeft += player.CurrentTrack!.Duration - player.Position!.Value.Position.StripMilliseconds();
 
             var estimatedTime = new EmbedFieldBuilder().WithName("Estimated time until track").WithValue(timeLeft).WithIsInline(true);
             embed.AddField(estimatedTime);
-            embed.AddField("Position in queue", player.Queue.Tracks.Count + 1);
+            embed.AddField("Position in queue", player.Queue!.Count + 1);
             embed.EmbedSong(currentTrack);
 
-            player.Queue.Add(currentTrack);
+            await player.PlayAsync(currentTrack, true, cancellationToken: cancellationToken);
         }
 
-        if (tracks.Count() > 1)
+        if (trackLoadResult.IsPlaylist)
         {
             var estimatedTime = new EmbedFieldBuilder().WithName("Queued:").WithValue($"{tracks.Count()} tracks!").WithIsInline(true);
             embed.AddField(estimatedTime);
@@ -88,7 +94,7 @@ public sealed class PlayHandler : ICommandHandler<PlayCommand>
                 }
 
                 timeLeft += track.Duration;
-                player?.Queue.Add(track);
+                await player!.PlayAsync(track, true, cancellationToken: cancellationToken);
             }
 
             embed.AddField("Estimated play time:", $"{timeLeft}");

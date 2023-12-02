@@ -1,13 +1,10 @@
-﻿using Discord.WebSocket;
-using Lavalink4NET;
+﻿using Lavalink4NET;
 using Mediator;
 using ZirconSound.Core.Extensions;
 using ZirconSound.Core.Helpers;
 using ZirconSound.Core.SoundPlayers;
 using ZirconSound.Core.Enums;
-using ZirconSound.Application.Commands.AudioCommands.Commands.PlayCommand;
-using Discord;
-using Lavalink4NET.Player;
+using Lavalink4NET.Players;
 
 namespace ZirconSound.Application.Commands.AudioCommands.Pipelines.AudioPlaying;
 public sealed class AudioPlayingBehavior<TMessage, TResponse> : IPipelineBehavior<TMessage, TResponse> where TMessage : Mediator.IMessage
@@ -22,19 +19,19 @@ public sealed class AudioPlayingBehavior<TMessage, TResponse> : IPipelineBehavio
     {
         if (message is IAudioPlayingPipeline audioMessage)
         {
-            var player = _audioService.GetPlayer<GenericQueuedLavalinkPlayer>(audioMessage.Context.Guild.Id);
+            var result = _audioService.Players.TryGetPlayer<LoopingQueuedLavalinkPlayer>(audioMessage.Context.Guild.Id, out var player);
 
             var embed = EmbedHelpers.CreateGenericEmbedBuilder(audioMessage.Context);
 
 
-            if (player is null)
+            if (!result)
             {
                 embed.AddField("No track playing","No track is currently playing.");
                 await audioMessage.Context.ReplyToLastCommandAsync(embed: embed.Build(GenericEmbedType.Warning));
                 return default!;
             }
 
-            if (player.State is not PlayerState.Playing)
+            if (player!.State is not PlayerState.Playing)
             {
                 embed.AddField("No track playing", "No track is currently playing.");
                 await audioMessage.Context.ReplyToLastCommandAsync(embed: embed.Build(GenericEmbedType.Warning));

@@ -1,13 +1,17 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Lavalink4NET.InactivityTracking;
+using Lavalink4NET.InactivityTracking.Extensions;
+using Lavalink4NET.InactivityTracking.Trackers.Idle;
+using Lavalink4NET.InactivityTracking.Trackers.Users;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using ZirconNet.Console.DependencyInjection;
 using ZirconSound.Console.Startup;
 
 try
 {
     //Create
-    var host = new HostBuilder();
+    var host = Host.CreateDefaultBuilder(args);
     var config = new ConfigurationBuilder().RegisterConfigurations().Build();
 
     //Configure
@@ -18,9 +22,15 @@ try
 
     //Use
     host.UseSerilog();
-    host.UseBackgroundServices();
     host.UseConsoleLifetime();
-    host.UseLavalink();
+    host.ConfigureServices(services =>
+    {
+        //services.AddSingleton<IInactivityTracker, InactiveUserTracker>();
+        services.UseLavalink();
+        services.AddInactivityTracking();
+        services.ConfigureInactivityTracking(config => config.DefaultTimeout = TimeSpan.FromMinutes(1));
+
+    });
 
     //Start
     await host.RunConsoleAsync();

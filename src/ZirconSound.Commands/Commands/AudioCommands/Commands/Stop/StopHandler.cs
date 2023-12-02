@@ -17,10 +17,10 @@ public sealed class StopHandler : ICommandHandler<StopCommand>
     public async ValueTask<Unit> Handle(StopCommand command, CancellationToken cancellationToken)
     {
         var embed = EmbedHelpers.CreateGenericEmbedBuilder(command.Context);
-        var player = _audioService.GetPlayerAndSetContext(command.Context.Guild.Id, command.Context);
+        var player = await _audioService.GetPlayerAndSetContextAsync(command.Context.Guild.Id, command.Context);
 
-        player!.Queue.Clear();
-        await player.StopAsync();
+        await player!.Queue.ClearAsync(cancellationToken);
+        await player.StopAsync(cancellationToken);
 
         embed.AddField("Stopped and cleared queue:", $"Track has been stopped and queue has been cleared");
 

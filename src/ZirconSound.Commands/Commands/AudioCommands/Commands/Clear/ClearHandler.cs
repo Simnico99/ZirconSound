@@ -21,9 +21,9 @@ public sealed class ClearHandler : ICommandHandler<ClearCommand>
     public async ValueTask<Unit> Handle(ClearCommand command, CancellationToken cancellationToken)
     {
         var embed = EmbedHelpers.CreateGenericEmbedBuilder(command.Context);
-        var player = _audioService.GetPlayerAndSetContext(command.Context.Guild.Id, command.Context);
+        var player = await _audioService.GetPlayerAndSetContextAsync(command.Context.Guild.Id, command.Context);
 
-        player!.Queue.Clear();
+        await player!.Queue.ClearAsync(cancellationToken);
 
         embed.AddField("Cleared:", "The queue as been cleared successfully");
 

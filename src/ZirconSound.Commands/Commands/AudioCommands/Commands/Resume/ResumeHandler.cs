@@ -18,11 +18,10 @@ public sealed class ResumeHandler : ICommandHandler<ResumeCommand>
     public async ValueTask<Unit> Handle(ResumeCommand command, CancellationToken cancellationToken)
     {
         var embed = EmbedHelpers.CreateGenericEmbedBuilder(command.Context);
-        var player = _audioService.GetPlayerAndSetContext(command.Context.Guild.Id, command.Context);
+        var player = await _audioService.GetPlayerAndSetContextAsync(command.Context.Guild.Id, command.Context);
         var button = new ComponentBuilder().WithButton("Pause track", "track-button-pause", ButtonStyle.Danger).Build();
 
-        await player!.ResumeAsync();
-        LavalinkPlayerHelper.CancelIdleDisconnect(player);
+        await player!.ResumeAsync(cancellationToken);
 
         embed.AddField("Resumed:", $"{player.CurrentTrack?.Title} has been resumed.");
 
