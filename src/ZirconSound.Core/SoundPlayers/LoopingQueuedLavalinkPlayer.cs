@@ -24,8 +24,6 @@ public sealed class LoopingQueuedLavalinkPlayer : QueuedLavalinkPlayer, IInactiv
     public List<LavalinkTrack>? CurrentLoopingPlaylist { get; set; }
     public IInteractionContext? Context { get; set; }
 
-    private CancellationTokenSource? _cancellationTokenSource;
-
     public ValueTask NotifyPlayerActiveAsync(PlayerTrackingState trackingState, CancellationToken cancellationToken = default)
     {
         return default;
