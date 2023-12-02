@@ -22,7 +22,7 @@ public sealed class LavalinkRunnerService : BackgroundService, ILavalinkRunnerSe
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = "C:\\Program Files\\Java\\jdk-17.0.1\\bin\\java",
+                FileName = "java",
                 Arguments = $@"-jar {path}\Lavalink\Lavalink.jar ",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
