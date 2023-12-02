@@ -8,12 +8,14 @@
 
   <ItemGroup>
     <PackageReference Include="Discord.Addons.Hosting" Version="5.2.0" />
-    <PackageReference Include="Discord.Net" Version="3.12.0" />
-    <PackageReference Include="Lavalink4NET.Discord.NET" Version="3.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
-    <PackageReference Include="Serilog" Version="3.0.1" />
+    <PackageReference Include="Discord.Net" Version="3.13.0" />
+    <PackageReference Include="Lavalink4NET.Abstractions" Version="4.0.0-beta.3-6" />
+    <PackageReference Include="Lavalink4NET.Discord.NET" Version="4.0.0-beta.3-6" />
+    <PackageReference Include="Lavalink4NET.InactivityTracking" Version="4.0.0-beta.3-6" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Serilog" Version="3.1.1" />
     <PackageReference Include="Victoria" Version="6.0.1026" />
-    <PackageReference Include="ZirconNet.Microsoft.DependencyInjection" Version="5.0.0" />
+    <PackageReference Include="ZirconNet.Microsoft.DependencyInjection" Version="5.0.3" />
   </ItemGroup>
 
   <ItemGroup>

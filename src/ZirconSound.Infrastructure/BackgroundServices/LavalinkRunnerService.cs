@@ -22,7 +22,7 @@ public sealed class LavalinkRunnerService : BackgroundService, ILavalinkRunnerSe
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = "java",
+                FileName = "C:\\Program Files\\Java\\jdk-17.0.1\\bin\\java",
                 Arguments = $@"-jar {path}\Lavalink\Lavalink.jar ",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
@@ -31,7 +31,7 @@ public sealed class LavalinkRunnerService : BackgroundService, ILavalinkRunnerSe
         };
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected async override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         //* Set your output and error (asynchronous) handlers
         _process.OutputDataReceived += OutputHandler;

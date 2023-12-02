@@ -1,14 +1,9 @@
 ﻿using Lavalink4NET;
-using Lavalink4NET.Rest;
 using Mediator;
-using ZirconSound.Core.Enums;
 using ZirconSound.Core.Extensions;
 using ZirconSound.Core.Helpers;
-using ZirconSound.Core.SoundPlayers;
 using Discord;
 using System.Text;
-using System.Diagnostics;
-using System.Linq;
 
 namespace ZirconSound.Application.Commands.AudioCommands.Commands.SkipCommand;
 
@@ -24,7 +19,7 @@ public sealed class QueueHandler : ICommandHandler<QueueCommand>
     public async ValueTask<Unit> Handle(QueueCommand command, CancellationToken cancellationToken)
     {
         var embed = EmbedHelpers.CreateGenericEmbedBuilder(command.Context);
-        var player = _audioService.GetPlayerAndSetContext(command.Context.Guild.Id, command.Context);
+        var player = await _audioService.GetPlayerAndSetContextAsync(command.Context.Guild.Id, command.Context);
 
         var page = command.Page;
         page ??= 0;
@@ -35,7 +30,7 @@ public sealed class QueueHandler : ICommandHandler<QueueCommand>
         }
 
         var currentTrack = player!.CurrentTrack;
-        var tracks = player.Queue.Tracks;
+        var tracks = player.Queue;
         page--;
 
         if (tracks?.Count >= 1)
@@ -46,11 +41,11 @@ public sealed class QueueHandler : ICommandHandler<QueueCommand>
 
             for (var i = (int)page * 5; i < tracks.Count && i < (page * 5) + 5; i++)
             {
-                var track = player.Queue.Tracks[i];
+                var track = player.Queue.ElementAt(i).Track;
                 stringBuilder.AppendLine($"{i}- [{track?.Title}]({track?.Uri})");
             }
 
-            estimatedTime = tracks.Aggregate(estimatedTime, (current, track) => current + track.Duration);
+            estimatedTime = tracks.Aggregate(estimatedTime, (current, trackItem) => current + trackItem.Track!.Duration);
 
             embed.AddField("Queue", stringBuilder.ToString());
 

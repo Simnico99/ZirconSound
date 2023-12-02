@@ -1,8 +1,7 @@
 ﻿using Discord;
-using Discord.Addons.Hosting.Util;
 using Discord.WebSocket;
 using Lavalink4NET;
-using Lavalink4NET.Player;
+using Lavalink4NET.Players.Queued;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -13,7 +12,7 @@ public class BotStatusService : BackgroundService
     private readonly ILogger _logger;
     private readonly IAudioService _audioService;
 
-    public BotStatusService(DiscordSocketClient discordSocketClient, ILogger<CustomPlayerService> logger, IAudioService audioService)
+    public BotStatusService(DiscordSocketClient discordSocketClient, ILogger<BotStatusService> logger, IAudioService audioService)
     {
         _logger = logger;
         _audioService = audioService;
@@ -31,7 +30,7 @@ public class BotStatusService : BackgroundService
         return plural;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected async override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("BotSatusService service is ready!");
         var timeSpan = TimeSpan.FromSeconds(60);
@@ -48,8 +47,8 @@ public class BotStatusService : BackgroundService
 
             await Task.Delay(timeSpan, stoppingToken);
 
-            var player = _audioService.GetPlayers<QueuedLavalinkPlayer>();
-            await _discordSocketClient.SetActivityAsync(new Game($" {player.Count} track{GetPlural(player)}!"));
+            var player = _audioService.Players.GetPlayers<QueuedLavalinkPlayer>();
+            await _discordSocketClient.SetActivityAsync(new Game($" {player.Count()} track{GetPlural(player)}!"));
             _logger.LogDebug("Setting activity");
 
             await Task.Delay(timeSpan, stoppingToken);

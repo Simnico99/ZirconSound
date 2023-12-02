@@ -5,6 +5,11 @@ using ZirconSound.Core.Helpers;
 using ZirconSound.Core.SoundPlayers;
 using ZirconSound.Core.Enums;
 using Discord;
+using Lavalink4NET.Players;
+using Lavalink4NET.DiscordNet;
+using System;
+using Microsoft.Extensions.Options;
+using Lavalink4NET.Players.Queued;
 
 namespace ZirconSound.Application.Commands.AudioCommands.Pipelines.AudioAutoJoin;
 public sealed class AudioAutoJoinBehavior<TMessage, TResponse> : IPipelineBehavior<TMessage, TResponse> where TMessage : Mediator.IMessage
@@ -19,7 +24,7 @@ public sealed class AudioAutoJoinBehavior<TMessage, TResponse> : IPipelineBehavi
     {
         if (message is IAudioAutoJoinPipeline audioMessage)
         {
-            var player = _audioService.GetPlayer<GenericQueuedLavalinkPlayer>(audioMessage.Context.Guild.Id);
+            var player = await _audioService.Players.GetPlayerAsync<LoopingQueuedLavalinkPlayer>(audioMessage.Context.Guild.Id);
 
             var embed = EmbedHelpers.CreateGenericEmbedBuilder(audioMessage.Context);
 
@@ -56,7 +61,13 @@ public sealed class AudioAutoJoinBehavior<TMessage, TResponse> : IPipelineBehavi
         var voiceChannel = voiceState?.VoiceChannel;
         if (voiceChannel != null)
         {
-            await _audioService.JoinAsync<GenericQueuedLavalinkPlayer>(message.Context.Guild.Id, voiceChannel.Id, true);
+            var retrieveOptions = new PlayerRetrieveOptions(ChannelBehavior: PlayerChannelBehavior.Join);
+            await _audioService.Players.RetrieveAsync(message.Context, playerFactory: PlayerFactory.Create<LoopingQueuedLavalinkPlayer, QueuedLavalinkPlayerOptions>(static properties =>
+            {
+                properties.Options.Value.SelfDeaf = true;
+                properties.Options.Value.SelfMute = true;
+                return new LoopingQueuedLavalinkPlayer(properties);
+            }), retrieveOptions);
         }
     }
 }

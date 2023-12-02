@@ -1,12 +1,7 @@
 ﻿using Discord.WebSocket;
 using Discord;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ZirconSound.Core.Enums;
-using Lavalink4NET.Player;
+using Lavalink4NET.Tracks;
 
 namespace ZirconSound.Core.Entities;
 public sealed class GenericEmbedBuilder : EmbedBuilder
@@ -67,7 +62,7 @@ public sealed class GenericEmbedBuilder : EmbedBuilder
         var channel = new EmbedFieldBuilder().WithName("Channel").WithValue(lavalinkTrack.Author).WithIsInline(true);
         var duration = new EmbedFieldBuilder().WithName("Duration").WithValue(lavalinkTrack.Duration).WithIsInline(true);
 
-        WithThumbnailUrl($"https://img.youtube.com/vi/{lavalinkTrack.TrackIdentifier}/0.jpg");
+        WithThumbnailUrl(lavalinkTrack.ArtworkUri?.ToString());
         AddField(channel);
         AddField(duration);
     }

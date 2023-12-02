@@ -21,10 +21,7 @@ public sealed class SkipHandler : ICommandHandler<SkipCommand>
     public async ValueTask<Unit> Handle(SkipCommand command, CancellationToken cancellationToken)
     {
         var embed = EmbedHelpers.CreateGenericEmbedBuilder(command.Context);
-        var player = _audioService.GetPlayerAndSetContext(command.Context.Guild.Id, command.Context);
-
-
-        player!.SkippedOnPurpose = true;
+        var player = await _audioService.GetPlayerAndSetContextAsync(command.Context.Guild.Id, command.Context);
 
         if (player?.CurrentTrack is null && player?.Queue.Count == 0)
         {
@@ -33,13 +30,13 @@ public sealed class SkipHandler : ICommandHandler<SkipCommand>
             return Unit.Value;
         }
 
-        var track = player?.Queue.FirstOrDefault();
+        var track = player?.Queue[0];
         if (track is not null)
         {
             if (player?.Queue.Count > 0)
             {
-                embed.AddField("Skipped now playing:", $"[{player?.Queue.First().Title}]({player?.Queue.First().Uri})");
-                embed.EmbedSong(player?.Queue.First()!);
+                embed.AddField("Skipped now playing:", $"[{player?.Queue[0].Track!.Title}]({player?.Queue[0].Track!.Uri})");
+                embed.EmbedSong(player!.Queue[0].Track!);
             }
         }
 
@@ -47,14 +44,14 @@ public sealed class SkipHandler : ICommandHandler<SkipCommand>
         {
             if (player?.Queue.Count == 0)
             {
-                await player.StopAsync();
+                await player.StopAsync(cancellationToken);
                 embed.AddField("Skipped the last track:", "Bot will disconnect in 30 seconds.");
             }
         }
 
         if (player?.CurrentLoopingPlaylist?.Count > 0 || player?.Queue.Count > 0)
         {
-            await player.SkipAsync();
+            await player.SkipAsync(cancellationToken: cancellationToken);
         }
 
         if (player?.CurrentLoopingPlaylist is not null && player.Queue.Count <= 0)
@@ -62,13 +59,13 @@ public sealed class SkipHandler : ICommandHandler<SkipCommand>
             if (player.CurrentTrack == player.CurrentLoopingPlaylist.Last())
             {
                 embed.AddField("Restarting playist:", "Reached end of the looping playlist restarting it.");
-                player.Queue.Clear();
-                await player.PlayAsync(player.CurrentLoopingPlaylist.First());
+                await player.Queue.ClearAsync(cancellationToken);
+                await player.PlayAsync(player.CurrentLoopingPlaylist.First(), cancellationToken: cancellationToken);
                 var playlist = player.CurrentLoopingPlaylist.Skip(1);
 
                 foreach (var listTrack in playlist)
                 {
-                    player.Queue.Add(listTrack);
+                    await player.PlayAsync(listTrack, true, cancellationToken: cancellationToken);
                 }
             }
         }

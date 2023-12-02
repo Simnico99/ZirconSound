@@ -19,7 +19,7 @@ public sealed class LoopHandler : ICommandHandler<LoopCommand>
     public async ValueTask<Unit> Handle(LoopCommand command, CancellationToken cancellationToken)
     {
         var embed = EmbedHelpers.CreateGenericEmbedBuilder(command.Context);
-        var player = _audioService.GetPlayerAndSetContext(command.Context.Guild.Id, command.Context);
+        var player = await _audioService.GetPlayerAndSetContextAsync(command.Context.Guild.Id, command.Context);
         var button = new ComponentBuilder().WithButton("Stop Loop", "loop-button-stop", ButtonStyle.Danger).Build();
 
         player!.CurrentLoopingPlaylist = null;
@@ -41,7 +41,7 @@ public sealed class LoopHandler : ICommandHandler<LoopCommand>
                 break;
             case LoopType.Playlist:
                 embed.AddField("Looping:", "The current playlist.");
-                player.CurrentLoopingPlaylist = player.Queue.Prepend(player.CurrentTrack).ToList()!;
+                player.CurrentLoopingPlaylist = player.Queue.Select(x => x.Track).Prepend(player.CurrentTrack).ToList()!;
                 break;
         }
 

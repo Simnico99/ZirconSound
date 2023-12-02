@@ -21,13 +21,9 @@ public sealed class LeaveHandler : ICommandHandler<LeaveCommand>
     public async ValueTask<Unit> Handle(LeaveCommand command, CancellationToken cancellationToken)
     {
         var embed = EmbedHelpers.CreateGenericEmbedBuilder(command.Context);
-        var player = _audioService.GetPlayerAndSetContext(command.Context.Guild.Id, command.Context);
+        var player = await _audioService.GetPlayerAndSetContextAsync(command.Context.Guild.Id, command.Context);
 
-        player!.Queue.Clear();
-        await player.DisconnectAsync();
-
-        LavalinkPlayerHelper.CancelIdleDisconnect(player);
-        LavalinkPlayerHelper.CancelAloneDisconnect(player);
+        await player!.Queue.ClearAsync(cancellationToken);
 
         embed.AddField("Left:", "ZirconSound has left the current voice channel.");
 
