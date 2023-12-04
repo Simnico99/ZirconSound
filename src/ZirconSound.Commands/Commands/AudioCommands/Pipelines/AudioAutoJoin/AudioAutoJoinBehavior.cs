@@ -61,23 +61,19 @@ public sealed class AudioAutoJoinBehavior<TMessage, TResponse> : IPipelineBehavi
     private async Task JoinAsync(IAudioAutoJoinPipeline message)
     {
         var voiceState = message.Context.User as IVoiceState;
+
         var voiceChannel = voiceState?.VoiceChannel;
         if (voiceChannel != null)
         {
-            var retrieveOptions = new PlayerRetrieveOptions(ChannelBehavior: PlayerChannelBehavior.Join);
-            var playerResult = await _audioService.Players.RetrieveAsync(message.Context, playerFactory: PlayerFactory.Create<LoopingQueuedLavalinkPlayer, QueuedLavalinkPlayerOptions>(properties =>
+            var playerOptions = new QueuedLavalinkPlayerOptions
             {
-                properties.Options.Value.SelfDeaf = true;
-                properties.Options.Value.InitialVolume = 0.25f;
-                return new LoopingQueuedLavalinkPlayer(properties);
-            }), retrieveOptions);
+                SelfDeaf = true,
+                InitialVolume = 0.25F,
+            };
 
-            if (playerResult.IsSuccess)
-            {
-                var player = playerResult.Player;
-                _logger.LogInformation("Created player with these property:\n- Volume: {volume}", player.Volume);
-                await player.SetVolumeAsync(0.25f);
-            }
+            var playerFactory = PlayerFactory.Create<LoopingQueuedLavalinkPlayer, QueuedLavalinkPlayerOptions>(static properties => new LoopingQueuedLavalinkPlayer(properties));
+            var retrieveOptions = new PlayerRetrieveOptions(ChannelBehavior: PlayerChannelBehavior.Join);
+            await _audioService.Players.RetrieveAsync(message.Context, playerFactory, playerOptions, retrieveOptions);
         }
     }
 }

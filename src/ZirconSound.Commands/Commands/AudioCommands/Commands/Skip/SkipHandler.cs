@@ -27,8 +27,8 @@ public sealed class SkipHandler : ICommandHandler<SkipCommand>
             return Unit.Value;
         }
 
-        var track = player?.Queue[0];
-        if (track is not null)
+        var track = player?.Queue.Any();
+        if (track is not null && track.Value)
         {
             if (player?.Queue.Count > 0)
             {
@@ -37,7 +37,7 @@ public sealed class SkipHandler : ICommandHandler<SkipCommand>
             }
         }
 
-        if (track is null)
+        if (track is null || track.Value == false)
         {
             if (player?.Queue.Count == 0)
             {
@@ -49,6 +49,12 @@ public sealed class SkipHandler : ICommandHandler<SkipCommand>
         if (player?.CurrentLoopingPlaylist?.Count > 0 || player?.Queue.Count > 0)
         {
             await player.SkipAsync(cancellationToken: cancellationToken);
+        }
+
+        if (player?.CurrentLoopingTrack is not null)
+        {
+            player.CurrentLoopingTrack = player.CurrentTrack;
+            embed.AddField("Looping:", "This song will now be the one looping.");
         }
 
         if (player?.CurrentLoopingPlaylist is not null && player.Queue.Count <= 0)
@@ -69,7 +75,7 @@ public sealed class SkipHandler : ICommandHandler<SkipCommand>
 
         if (player?.Queue.Count >= 1)
         {
-            var queueLength = new EmbedFieldBuilder().WithName("Queue count").WithValue($"{player.Queue.Count} tracks").WithIsInline(true);
+            var queueLength = new EmbedFieldBuilder().WithName("Queue count:").WithValue($"{player.Queue.Count} tracks").WithIsInline(true);
             embed.AddField(queueLength);
         }
 
