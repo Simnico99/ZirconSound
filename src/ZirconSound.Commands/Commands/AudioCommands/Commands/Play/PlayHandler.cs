@@ -21,17 +21,7 @@ public sealed class PlayHandler : ICommandHandler<PlayCommand>
     {
         var embed = EmbedHelpers.CreateGenericEmbedBuilder(command.Context);
         var player = await _audioService.GetPlayerAndSetContextAsync(command.Context.Guild.Id, command.Context);
-        var trackLoadResult = await _audioService.Tracks.LoadTracksAsync(command.Id, TrackSearchMode.None, cancellationToken: cancellationToken);
-
-        if (trackLoadResult.IsFailed)
-        {
-            trackLoadResult = await _audioService.Tracks.LoadTracksAsync(command.Id, TrackSearchMode.YouTubeMusic, cancellationToken: cancellationToken);
-        }
-
-        if (trackLoadResult.IsFailed)
-        {
-            trackLoadResult = await _audioService.Tracks.LoadTracksAsync(command.Id, TrackSearchMode.YouTube, cancellationToken: cancellationToken);
-        }
+        var trackLoadResult = await _audioService.Tracks.LoadTrackFromProvider(command.Id, command.SearchProvider, cancellationToken);
 
         if (trackLoadResult.IsFailed || player is null)
         {
@@ -71,7 +61,7 @@ public sealed class PlayHandler : ICommandHandler<PlayCommand>
             timeLeft = player!.Queue!.Aggregate(timeLeft, (current, trackQueue) => current + trackQueue.Track!.Duration);
             timeLeft += player.CurrentTrack!.Duration - player.Position!.Value.Position.StripMilliseconds();
 
-            var estimatedTime = new EmbedFieldBuilder().WithName("Estimated time until track").WithValue(timeLeft).WithIsInline(true);
+            var estimatedTime = new EmbedFieldBuilder().WithName("Estimated time until track").WithValue(timeLeft.StripMilliseconds()).WithIsInline(true);
             embed.AddField(estimatedTime);
             embed.AddField("Position in queue", player.Queue!.Count + 1);
             embed.EmbedSong(currentTrack);

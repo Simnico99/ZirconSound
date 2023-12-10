@@ -26,6 +26,9 @@ public sealed class AudioCommands : InteractionModuleBase<IInteractionContext>
     [SlashCommand("play", "Play a track.")]
     public async Task PlayAsync(string id) => await _mediator.Send(new PlayCommand(Context, id));
 
+    [SlashCommand("playwithprovider", "Play a track with the specified provider.")]
+    public async Task PlayAsync(string id, SearchProvider searchProvider) => await _mediator.Send(new PlayCommand(Context, id, searchProvider));
+
     [SlashCommand("loop", "Loop either a track or the playlist.")]
     public async Task LoopAsync(LoopType loopType) => await _mediator.Send(new LoopCommand(Context, loopType));
 

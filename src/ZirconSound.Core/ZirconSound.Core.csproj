@@ -19,10 +19,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Lavalink\application.yml">
+    <None Update="application.yml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Lavalink\Lavalink.jar">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Lavalink\plugins\lavasrc-plugin-4.0.0.jar">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
