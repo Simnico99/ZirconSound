@@ -25,10 +25,7 @@ public sealed class LoopingQueuedLavalinkPlayer : QueuedLavalinkPlayer, IInactiv
 
     public async ValueTask NotifyPlayerInactiveAsync(PlayerTrackingState trackingState, CancellationToken cancellationToken = default)
     {
-        if (trackingState.Status == PlayerTrackingStatus.Tracked && !trackingState.Trackers.IsEmpty)
-        {
-            await DisconnectAsync(cancellationToken);
-        }
+        await DisconnectAsync(cancellationToken);
     }
 
     public ValueTask NotifyPlayerTrackedAsync(PlayerTrackingState trackingState, CancellationToken cancellationToken = default)
