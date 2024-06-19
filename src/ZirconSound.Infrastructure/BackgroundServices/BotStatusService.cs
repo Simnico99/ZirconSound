@@ -39,7 +39,7 @@ public class BotStatusService : DiscordClientService
 #if DEBUG
         var timeSpan = TimeSpan.FromSeconds(5);
 #else
-        var timeSpan = TimeSpan.FromSeconds(60);
+        var timeSpan = TimeSpan.FromSeconds(30);
 #endif
         while (true)
         {
@@ -59,8 +59,6 @@ public class BotStatusService : DiscordClientService
             //var player = _audioService.Players.GetPlayers<QueuedLavalinkPlayer>();
             //await _discordSocketClient.SetActivityAsync(new Game($" {player.Count()} track{GetPlural(player)}!"));
             //_logger.LogDebug("Setting activity");
-
-            await Task.Delay(timeSpan);
         }
     }
 }
