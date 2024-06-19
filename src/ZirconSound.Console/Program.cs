@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using ZirconSound.Console.Startup;
+using ZirconSound.Console;
 
 try
 {
@@ -9,16 +9,19 @@ try
     var builder = Host.CreateDefaultBuilder(args);
     var config = new ConfigurationBuilder().RegisterConfigurations().Build();
 
+    //Add
+    builder.AddServices();
+    builder.AddDiscordServices(config);
+
     //Configure
     builder.ConfigureAppConfiguration(x => x.AddConfiguration(config));
-    builder.ConfigureServices(x => x.RegisterServices());
     builder.ConfigureLoggers(config);
-    builder.ConfigureDiscord();
+
 
     //Use
     builder.UseSerilog();
     builder.UseConsoleLifetime();
-    builder.UseLavalink();
+    builder.UseLavalink(config);
 
     //Start
     await builder.RunConsoleAsync();

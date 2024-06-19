@@ -108,7 +108,7 @@ public sealed class InteractionHandler : BackgroundService
 
         try
         {
-            var ctx = new SocketInteractionContext(_discordSocketClient, arg);
+            var ctx = new InteractionContext(_discordSocketClient, arg);
             await _interactionService.ExecuteCommandAsync(ctx, _provider);
         }
         catch (Exception ex)

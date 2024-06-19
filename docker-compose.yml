@@ -1,0 +1,6 @@
+services:
+  zirconsound.console:
+    image: ${DOCKER_REGISTRY-}zirconsoundconsole
+    build:
+      context: .
+      dockerfile: src/ZirconSound.Console/Dockerfile
