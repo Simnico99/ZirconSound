@@ -2,7 +2,6 @@
 using Discord.Addons.Hosting;
 using Discord.WebSocket;
 using Lavalink4NET;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace ZirconSound.Infrastructure.BackgroundServices;
@@ -11,15 +10,13 @@ public class BotStatusService : DiscordClientService
     private readonly DiscordSocketClient _discordSocketClient;
     private readonly ILogger _logger;
     private readonly IAudioService _audioService;
-    private readonly IConfiguration _configuration;
 
-    public BotStatusService(DiscordSocketClient discordSocketClient, ILogger<BotStatusService> logger, IAudioService audioService, IConfiguration configuration)
+    public BotStatusService(DiscordSocketClient discordSocketClient, ILogger<BotStatusService> logger, IAudioService audioService)
        : base(discordSocketClient, logger)
     {
         _logger = logger;
         _audioService = audioService;
         _discordSocketClient = discordSocketClient;
-        _configuration = configuration;
     }
 
     private static string GetPlural<T>(IEnumerable<T> enumerable)
@@ -48,7 +45,7 @@ public class BotStatusService : DiscordClientService
 
             await Task.Delay(timeSpan);
 
-            await _discordSocketClient.SetActivityAsync(new Game($"in shard #{_configuration["Shards:ShardName"]!.Split("-").Last()}"));
+            await _discordSocketClient.SetActivityAsync(new Game($"in shard #{_discordSocketClient.ShardId}"));
             _logger.LogDebug("Setting activity");
 
             await Task.Delay(timeSpan);
