@@ -45,7 +45,7 @@ public static class DependencyInjection
         builder.ConfigureServices(services =>
         {
 
-            services.AddDiscordHost((discordConfig, services) =>
+            services.AddDiscordShardedHost((discordConfig, services) =>
             {
                 discordConfig.SocketConfig = new DiscordSocketConfig
                 {
@@ -63,9 +63,9 @@ public static class DependencyInjection
                     GatewayIntents.DirectMessageTyping,
                     MessageCacheSize = 0,
                     TotalShards = configuration.GetRequiredSection("Shards").GetValue<int>("TotalShards"),
-                    ShardId = Convert.ToInt32(configuration["Shards:ShardName"]!.Split("-").Last()),
                 };
 
+                discordConfig.ShardIds = [Convert.ToInt32(configuration["Shards:ShardName"]!.Split("-").Last())];
                 discordConfig.Token = configuration["Token"]!;
                 discordConfig.LogFormat = (message, exception) => $"{message.Source}: {message.Message}";
             });
@@ -94,9 +94,8 @@ public static class DependencyInjection
         {
             services.AddLavalinkCluster<DiscordClientWrapper>();
 
-            services.ConfigureLavalinkCluster(x =>
-            {
-                x.Nodes = [
+            services.ConfigureLavalinkCluster(x => x.Nodes =
+            [
                     new LavalinkClusterNodeOptions
                     {
                         BaseAddress = new Uri(configuration["Lavalink:Node1"] ?? string.Empty),
@@ -109,8 +108,7 @@ public static class DependencyInjection
                         Passphrase = configuration["Lavalink:NodesPassword"] ?? string.Empty,
                     }
 #endif
-                    ];
-            });
+            ]);
 
             services.AddInactivityTracking();
             services.ConfigureInactivityTracking(config => config.DefaultTimeout = TimeSpan.FromMinutes(1));

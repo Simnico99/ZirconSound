@@ -5,9 +5,9 @@ using ZirconSound.Core.Entities;
 namespace ZirconSound.Core.Helpers;
 public sealed class EmbedHelpers
 {
-    private readonly DiscordSocketClient _client;
+    private readonly DiscordShardedClient _client;
 
-    public EmbedHelpers(DiscordSocketClient client) => _client = client;
+    public EmbedHelpers(DiscordShardedClient client) => _client = client;
 
     public GenericEmbedBuilder CreateGenericEmbedBuilder()
     {

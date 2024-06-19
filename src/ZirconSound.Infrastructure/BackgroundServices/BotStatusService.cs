@@ -1,22 +1,19 @@
 ﻿using Discord;
 using Discord.Addons.Hosting;
 using Discord.WebSocket;
-using Lavalink4NET;
 using Microsoft.Extensions.Logging;
 
 namespace ZirconSound.Infrastructure.BackgroundServices;
-public class BotStatusService : DiscordClientService
+public class BotStatusService : DiscordShardedClientService
 {
-    private readonly DiscordSocketClient _discordSocketClient;
+    private readonly DiscordShardedClient _discordShardedClient;
     private readonly ILogger _logger;
-    private readonly IAudioService _audioService;
 
-    public BotStatusService(DiscordSocketClient discordSocketClient, ILogger<BotStatusService> logger, IAudioService audioService)
-       : base(discordSocketClient, logger)
+    public BotStatusService(DiscordShardedClient discordShardedClient, ILogger<BotStatusService> logger)
+       : base(discordShardedClient, logger)
     {
         _logger = logger;
-        _audioService = audioService;
-        _discordSocketClient = discordSocketClient;
+        _discordShardedClient = discordShardedClient;
     }
 
     private static string GetPlural<T>(IEnumerable<T> enumerable)
@@ -30,32 +27,36 @@ public class BotStatusService : DiscordClientService
         return plural;
     }
 
-    protected async override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("BotSatusService service is ready!");
+        _discordShardedClient.ShardReady += async (discordSocketClient) =>
+        {
+            _logger.LogInformation("BotSatusService service is ready!");
 #if DEBUG
-        var timeSpan = TimeSpan.FromSeconds(5);
+            var timeSpan = TimeSpan.FromSeconds(5);
 #else
         var timeSpan = TimeSpan.FromSeconds(30);
 #endif
-        while (true)
-        {
-            await _discordSocketClient.SetActivityAsync(new Game("/help for commands"));
-            _logger.LogDebug("Setting activity");
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                await discordSocketClient.SetActivityAsync(new Game("/help for commands"));
+                _logger.LogDebug("Setting activity");
+                await Task.Delay(timeSpan);
 
-            await Task.Delay(timeSpan);
+                var guilds = _discordShardedClient.Guilds;
+                await discordSocketClient.SetActivityAsync(new Game($"in {guilds.Count} server{GetPlural(guilds)}!"));
+                _logger.LogDebug("Setting activity");
+                await Task.Delay(timeSpan);
 
-            await _discordSocketClient.SetActivityAsync(new Game($"in shard #{_discordSocketClient.ShardId}"));
-            _logger.LogDebug("Setting activity");
+                await discordSocketClient.SetActivityAsync(new Game($"in shard #{discordSocketClient.ShardId}"));
+                _logger.LogDebug("Setting activity");
+                await Task.Delay(timeSpan);
 
-            await Task.Delay(timeSpan);
-            //var guilds = _discordSocketClient.Guilds;
-            //await _discordSocketClient.SetActivityAsync(new Game($"in {guilds.Count} server{GetPlural(guilds)}!"));
-            //_logger.LogDebug("Setting activity");
-
-            //var player = _audioService.Players.GetPlayers<QueuedLavalinkPlayer>();
-            //await _discordSocketClient.SetActivityAsync(new Game($" {player.Count()} track{GetPlural(player)}!"));
-            //_logger.LogDebug("Setting activity");
-        }
+                //var player = _audioService.Players.GetPlayers<QueuedLavalinkPlayer>();
+                //await _discordShardedClient.SetActivityAsync(new Game($" {player.Count()} track{GetPlural(player)}!"));
+                //_logger.LogDebug("Setting activity");
+            }
+        };
+        return Task.CompletedTask;
     }
 }

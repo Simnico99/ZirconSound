@@ -18,22 +18,22 @@ public sealed class InteractionHandler : BackgroundService
     private readonly IServiceProvider _provider;
     private readonly IConfiguration _configuration;
 
-    private readonly DiscordSocketClient _discordSocketClient;
+    private readonly DiscordShardedClient _discordShardedClient;
     private readonly InteractionService _interactionService;
 
-    public InteractionHandler(DiscordSocketClient discordSocketClient, ILogger<InteractionHandler> logger, IServiceProvider provider, InteractionService interactionService, IConfiguration configuration)
+    public InteractionHandler(DiscordShardedClient discordShardedClient, ILogger<InteractionHandler> logger, IServiceProvider provider, InteractionService interactionService, IConfiguration configuration)
     {
         _logger = logger;
         _provider = provider;
         _interactionService = interactionService;
         _configuration = configuration;
-        _discordSocketClient = discordSocketClient;
+        _discordShardedClient = discordShardedClient;
     }
 
 
     protected async override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _discordSocketClient.InteractionCreated += HandleInteraction;
+        _discordShardedClient.InteractionCreated += HandleInteraction;
 
         // Process the command execution results 
         _interactionService.SlashCommandExecuted += CommandExecuted;
@@ -41,7 +41,7 @@ public sealed class InteractionHandler : BackgroundService
         _interactionService.ComponentCommandExecuted += CommandExecuted;
 
         await _interactionService.AddModulesAsync(Assembly.GetAssembly(typeof(InteractionHandler)), _provider);
-        await _discordSocketClient.WaitForReadyAsync(stoppingToken);
+        await _discordShardedClient.WaitForReadyAsync(stoppingToken);
 
 
         // If DOTNET_ENVIRONMENT is set to development, only register the commands to a single guild
@@ -108,7 +108,7 @@ public sealed class InteractionHandler : BackgroundService
 
         try
         {
-            var ctx = new InteractionContext(_discordSocketClient, arg);
+            var ctx = new ShardedInteractionContext(_discordShardedClient, arg);
             await _interactionService.ExecuteCommandAsync(ctx, _provider);
         }
         catch (Exception ex)
