@@ -6,5 +6,6 @@ public enum SearchProvider
     YoutubeMusic,
     Spotify,
     SoundCloud,
-    Deezer
+    Deezer,
+    Twitch
 }
