@@ -45,7 +45,7 @@ public sealed class QueueHandler : ICommandHandler<QueueCommand>
                 stringBuilder.AppendLine($"{i}- [{track?.Title}]({track?.Uri})");
             }
 
-            estimatedTime = tracks.Aggregate(estimatedTime, (current, trackItem) => current + trackItem.Track!.Duration);
+            estimatedTime = tracks.Aggregate(estimatedTime, (current, trackItem) => current + (trackItem.Track!.IsLiveStream ? TimeSpan.Zero : trackItem.Track!.Duration));
 
             embed.AddField("Queue", stringBuilder.ToString());
 
@@ -76,6 +76,11 @@ public sealed class QueueHandler : ICommandHandler<QueueCommand>
                 .WithButton("Last", $"queue-button-last", ButtonStyle.Secondary, disabled: lastDisabled);
 
             embed.AddField(new EmbedFieldBuilder().WithName("Estimated play time").WithValue(estimatedTime).WithIsInline(true));
+
+            if (tracks.Any(x => x.Track!.IsLiveStream))
+            {
+                embed.AddField(new EmbedFieldBuilder().WithName("Message").WithValue("Estimated play time might be inaccurate as this queue contains one or more livestreams.").WithIsInline(false));
+            }
 
             await command.Context.ReplyToLastCommandAsync(embed: embed.Build(), component: button.Build());
             return Unit.Value;

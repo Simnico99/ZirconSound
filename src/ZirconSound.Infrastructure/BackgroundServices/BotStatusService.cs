@@ -16,10 +16,10 @@ public class BotStatusService : DiscordShardedClientService
         _discordShardedClient = discordShardedClient;
     }
 
-    private static string GetPlural<T>(IEnumerable<T> enumerable)
+    private static string GetPlural(int number)
     {
         var plural = "";
-        if (enumerable.Count() > 1)
+        if (number > 1)
         {
             plural = "s";
         }
@@ -40,11 +40,6 @@ public class BotStatusService : DiscordShardedClientService
             while (!stoppingToken.IsCancellationRequested)
             {
                 await discordSocketClient.SetActivityAsync(new Game("/help for commands"));
-                _logger.LogDebug("Setting activity");
-                await Task.Delay(timeSpan);
-
-                var guilds = _discordShardedClient.Guilds;
-                await discordSocketClient.SetActivityAsync(new Game($"in {guilds.Count} server{GetPlural(guilds)}!"));
                 _logger.LogDebug("Setting activity");
                 await Task.Delay(timeSpan);
 

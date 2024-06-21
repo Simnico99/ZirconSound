@@ -8,6 +8,8 @@ public static class ITrackManagerExtensions
     public static async ValueTask<TrackLoadResult> LoadTrackFromProvider(this ITrackManager trackManager, string id, SearchProvider searchProvider = SearchProvider.None, CancellationToken cancellationToken = default)
     {
         var trackLoadResult = TrackLoadResult.CreateEmpty();
+        id = id.TrimEnd('/');
+
 
         if (searchProvider is SearchProvider.None)
         {

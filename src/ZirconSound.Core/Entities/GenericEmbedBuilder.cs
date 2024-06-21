@@ -61,12 +61,17 @@ public sealed class GenericEmbedBuilder : EmbedBuilder
     public void EmbedSong(LavalinkTrack lavalinkTrack)
     {
         var channel = new EmbedFieldBuilder().WithName("Channel").WithValue(lavalinkTrack.Author).WithIsInline(true);
-        var duration = new EmbedFieldBuilder().WithName("Duration").WithValue(lavalinkTrack.Duration.StripMilliseconds()).WithIsInline(true);
+
         var source = new EmbedFieldBuilder().WithName("Source").WithValue(lavalinkTrack.SourceName == "youtube" ? "youtube / youtube music" : lavalinkTrack.SourceName).WithIsInline(false);
 
         WithThumbnailUrl(lavalinkTrack.ArtworkUri?.ToString());
         AddField(source);
         AddField(channel);
-        AddField(duration);
+
+        if (!lavalinkTrack.IsLiveStream)
+        {
+            var duration = new EmbedFieldBuilder().WithName("Duration").WithValue(lavalinkTrack.Duration.StripMilliseconds()).WithIsInline(true);
+            AddField(duration);
+        }
     }
 }
