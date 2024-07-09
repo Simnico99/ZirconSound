@@ -41,7 +41,7 @@ public static class ITrackManagerExtensions
             trackLoadResult = await trackManager.LoadTracksAsync(id, TrackSearchMode.Deezer, cancellationToken: cancellationToken);
         }
 
-        if (trackLoadResult.IsFailed || searchProvider is SearchProvider.Twitch)
+        if (!id.StartsWith("https") && !id.StartsWith("http") && (trackLoadResult.IsFailed || searchProvider is SearchProvider.Twitch))
         {
             var twitchId = id;
             if (!twitchId.Contains("https://www.twitch.tv/", StringComparison.OrdinalIgnoreCase))

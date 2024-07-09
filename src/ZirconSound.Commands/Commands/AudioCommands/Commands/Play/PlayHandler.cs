@@ -25,7 +25,15 @@ public sealed class PlayHandler : ICommandHandler<PlayCommand>
 
         if (trackLoadResult.IsFailed || player is null)
         {
-            embed.AddField("Warning:", "Unable to find the specified track!");
+            if (command.Id.Contains("youtube.com/watch"))
+            {
+                embed.AddField("Warning:", "Unable to find the specified track!\n(This video might be age restricted. ZirconSound cannot play age restricted video on youtube anymore try '/playwithprovider' and use another provider than youtube.)");
+            }
+            else
+            {
+                embed.AddField("Warning:", "Unable to find the specified track!");
+            }
+
             await command.Context.ReplyToLastCommandAsync(embed: embed.Build(GenericEmbedType.Warning), ephemeral: false);
             return Unit.Value;
         }
